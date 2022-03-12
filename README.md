@@ -1,2 +1,3 @@
 # Muhammad-Zahid
-it contains class tasks, assignments and quizes
+FA19-BCS-011
+Secton-6A
