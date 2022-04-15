@@ -17,10 +17,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ItemView from "./ItemView";
 
 export default function TodoApp() {
-  const [item, setitem] = useState(null);
+  const [item, setitem] = useState("");
   const [itemList, setitemList] = useState([]);
   const [totalItems, settotalItems] = useState(0);
   const [unchecked, setunchecked] = useState(0);
+  const [completed, setcompleted] = useState();
 
   const handleAdd = () => {
     if (item && item.trim()) {
@@ -31,7 +32,7 @@ export default function TodoApp() {
     }
   };
 
-  const handleComplete = (ind) => {
+  const handleComplete = (ind, val) => {
     // const itemsCopy = itemList.filter((v, i) => ind !== i);
     // setitemList(itemsCopy);
 
@@ -39,7 +40,13 @@ export default function TodoApp() {
     itemsCopy.splice(ind, 1);
     setitemList(itemsCopy);
     settotalItems(totalItems - 1);
-    setunchecked(unchecked - 1);
+    if (completed !== true) {
+      setunchecked(unchecked - 1);
+    }
+  };
+
+  const setChecked = (val) => {
+    val ? setunchecked(unchecked - 1) : setunchecked(unchecked + 1);
   };
 
   return (
@@ -51,10 +58,6 @@ export default function TodoApp() {
         <Text style={Styles.count}>Unchecked Items:{unchecked}</Text>
       </View>
       <ScrollView style={Styles.itemContainer}>
-        {/* <FlatList
-          data={itemList}
-          renderItem={()=>{}}
-        /> */}
         {itemList.map((item, index) => {
           return (
             <GestureHandlerRootView key={index}>
@@ -73,7 +76,11 @@ export default function TodoApp() {
                   </View>
                 )}
               >
-                <ItemView item={item} />
+                <ItemView
+                  item={item}
+                  setChecked={setChecked}
+                  complete={setcompleted}
+                />
               </Swipeable>
             </GestureHandlerRootView>
           );
@@ -81,7 +88,7 @@ export default function TodoApp() {
       </ScrollView>
       <View style={Styles.addContainer}>
         <TextInput
-          placeholder="Add New Item"
+          placeholder="Enter Item"
           style={Styles.input}
           placeholderTextColor="black"
           value={item}
