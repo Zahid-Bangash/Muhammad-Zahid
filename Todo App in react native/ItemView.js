@@ -2,16 +2,22 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Checkbox from "expo-checkbox";
 
-export default function ItemView(props) {
+export default function ItemView({ item, setChecked, complete }) {
   const [ischecked, setischecked] = useState(false);
+
+  const HandleClick = (val) => {
+    setischecked(val);
+    setChecked(val);
+    complete(val);
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.txt}>{props.item}</Text>
+      <Text style={styles.txt}>{item}</Text>
       <Checkbox
         color={ischecked ? "#4630EB" : undefined}
         value={ischecked}
-        onValueChange={setischecked}
+        onValueChange={HandleClick}
       />
     </View>
   );
