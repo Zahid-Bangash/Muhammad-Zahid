@@ -4,6 +4,6 @@ FA19-BCS-011
 
 New   
 
-1.Assignemnt 2 login page design is uploaded
+Salah Tracker App is uploaded
 
-2.Todo App in react native is uploaded
+note: Graphs in reports sections load data in 1 to 2 minutes sometimes, when pressed the report button more than onnce (Due to some warning)
