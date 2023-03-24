@@ -1,11 +1,11 @@
 import React from 'react'
 import { View,Text,StyleSheet } from 'react-native'
 
-export default function TeamDetails() {
+export default function TeamDetails({route}) {
+  const { teamName } = route.params;
   return (
     <View style={styles.container}>
-        <Text style={{fontSize:30,fontWeight:'bold',}}>Team Details</Text>
-        <Text style={{fontWeight:'bold'}}>Comming soon</Text>
+        <Text style={{fontWeight:'bold'}}>{teamName}</Text>
     </View>
   )
 }

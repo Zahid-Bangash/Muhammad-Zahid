@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { View, Text, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
+import { AntDesign } from '@expo/vector-icons';
 
-export default function MatchCard({ name, place, captain, onPress }) {
+export default function MatchCard({ name, place, captain, onPress,onDelete }) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.container}>
@@ -29,6 +30,9 @@ export default function MatchCard({ name, place, captain, onPress }) {
             <Text>{captain}</Text>
           </View>
         </View>
+        <TouchableOpacity style={{ position: 'absolute', top: 15, right: 20, }} onPress={onDelete}>
+          <AntDesign name="delete" size={25} color="red" />
+        </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
   );

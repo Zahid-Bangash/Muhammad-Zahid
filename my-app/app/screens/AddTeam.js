@@ -2,26 +2,36 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 import { auth, db } from "../config/firebase-config";
-import { getFirestore, setDoc, doc } from "firebase/firestore";
+import { getFirestore, setDoc, doc,addDoc,collection } from "firebase/firestore";
 
 import AppTextInput from "../components/AppTextInput";
 import AppButton from "../components/AppButton";
-import { async } from "@firebase/util";
 
-export default function Addteam() {
+export default function Addteam({navigation}) {
   const [teamDetails, setteamDetails] = useState({
     name: "",
     place: "",
+    players:[],
   });
 
-  const addTeam = async () => {
-    if (teamDetails.name !== "" && teamDetails.place !== "") {
-      await setDoc(doc(db, "teams", teamDetails.name), {
-        Name: teamDetails.name,
-        Place: teamDetails.place,
-      }).then(()=>alert("Team added"))
+  const addTeam = async (teamName, players) => {
+    if (teamDetails.name === "" && teamDetails.place === "") {
+      alert("Empty field");
+      return;
     }
-    else alert("Empty field")
+    try {
+      const docRef = await addDoc(collection(db, "teams"), {
+        name: teamDetails.name,
+        place: teamDetails.place,
+        players:teamDetails.players,
+      }).then(()=>{
+        console.log("Team added");
+          // navigation.navigate("Teams");
+          navigation.goBack();
+      })
+    } catch (error) {
+      console.error("Error adding team: ", error);
+    }
   };
 
   return (
