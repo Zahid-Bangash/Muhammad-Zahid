@@ -1,8 +1,9 @@
 import React from "react";
+import { TouchableOpacity } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import { StartMatch } from "../screens";
+import { StartMatch, SelectTeam } from "../screens";
 
 const Stack = createNativeStackNavigator();
 
@@ -13,17 +14,18 @@ const StartMatchNavigator = ({ navigation }) => (
       component={StartMatch}
       options={{
         headerLeft: () => (
-          <Ionicons
-            name="arrow-back"
-            size={25}
+          <TouchableOpacity
             style={{ marginRight: 30 }}
             onPress={() => {
               navigation.goBack();
             }}
-          />
+          >
+            <Ionicons name="arrow-back" size={25} />
+          </TouchableOpacity>
         ),
       }}
     />
+    <Stack.Screen name="Select Team" component={SelectTeam} />
   </Stack.Navigator>
 );
 

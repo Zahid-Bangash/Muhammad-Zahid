@@ -5,7 +5,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
 
-export default function StartMatch() {
+export default function StartMatch({navigation}) {
   const [matchDetails, setmatchDetails] = useState({
     venue: "",
     date: new Date(),
@@ -40,7 +40,7 @@ export default function StartMatch() {
       >
         <View style={{ justifyContent: "space-between", alignItems: "center" }}>
           <Text>Select Team</Text>
-          <TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={()=>navigation.navigate("Select Team")}>
             <View
               style={{
                 width: 100,
@@ -55,7 +55,7 @@ export default function StartMatch() {
         </View>
         <View style={{ justifyContent: "space-between", alignItems: "center" }}>
           <Text>Select Team</Text>
-          <TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={()=>navigation.navigate("Select Team")}>
             <View
               style={{
                 width: 100,

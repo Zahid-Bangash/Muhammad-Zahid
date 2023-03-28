@@ -21,3 +21,4 @@ export { default as TournamnetDetails } from "./TournamentDetails";
 export { default as AddTeam } from "./AddTeam";
 export { default as TeamDetails } from "./TeamDetails";
 export { default as AddPlayer } from "./AddPlayer";
+export { default as SelectTeam } from "./SelectTeam";
