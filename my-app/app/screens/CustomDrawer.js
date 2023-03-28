@@ -39,16 +39,16 @@ export default function CustomDrawer(props) {
     }
   };
 
-  const downLoadImage = () => {
-    const forestRef = ref(storage, auth.currentUser.uid);
-    getMetadata(forestRef)
-      .then((metadata) => {
-        console.log(metadata);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+  // const downLoadImage = () => {
+  //   const forestRef = ref(storage, auth.currentUser.uid);
+  //   getMetadata(forestRef)
+  //     .then((metadata) => {
+  //       console.log(metadata);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  // };
 
   useEffect(() => {
     getData();

@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 import { auth, db } from "../config/firebase-config";
-import { getFirestore, setDoc, doc,addDoc,collection } from "firebase/firestore";
+import { getFirestore, setDoc, doc, addDoc, collection } from "firebase/firestore";
 
 import AppTextInput from "../components/AppTextInput";
 import AppButton from "../components/AppButton";
 
-export default function Addteam({navigation}) {
+export default function Addteam({ navigation }) {
   const [teamDetails, setteamDetails] = useState({
     name: "",
     place: "",
-    players:[],
+    players: [],
   });
 
   const addTeam = async (teamName, players) => {
@@ -23,11 +23,10 @@ export default function Addteam({navigation}) {
       const docRef = await addDoc(collection(db, "teams"), {
         name: teamDetails.name,
         place: teamDetails.place,
-        players:teamDetails.players,
-      }).then(()=>{
+        players: teamDetails.players,
+      }).then(() => {
         console.log("Team added");
-          // navigation.navigate("Teams");
-          navigation.goBack();
+        navigation.goBack();
       })
     } catch (error) {
       console.error("Error adding team: ", error);

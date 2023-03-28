@@ -9,10 +9,10 @@ export default function AppTextInput({
   ...otherProps
 }) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <TextInput
         placeholderTextColor="#4d463d"
-        style={[styles.textInput, style]}
+        style={styles.textInput}
         {...otherProps}
       />
       {rightIcon && (

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -28,23 +27,28 @@ export default function MyTeams({ navigation }) {
 
     return teams;
   };
+
   const deleteTeam = async (id) => {
     try {
-      await deleteDoc(doc(db, 'teams', id)).then(()=>fetchTeams())
-      console.log('Team deleted successfully')
+      await deleteDoc(doc(db, "teams", id)).then(() => fetchTeams());
+      console.log("Team deleted successfully");
     } catch (error) {
-      console.error('Error deleting team: ', error);
+      console.error("Error deleting team: ", error);
     }
   };
+
   const fetchTeams = async () => {
     const allTeams = await getAllTeams();
     setTeams(allTeams);
   };
-  useFocusEffect(
-    React.useCallback(() => {
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
       fetchTeams();
-    }, [])
-  );
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       <View
@@ -67,8 +71,14 @@ export default function MyTeams({ navigation }) {
             name={team.name}
             place={team.place}
             // captain={team.captain}
-            onDelete={()=>deleteTeam(team.id)}
-            onPress={() => navigation.navigate("Team Details", { team: team })}
+            onDelete={() => deleteTeam(team.id)}
+            onPress={() =>
+              navigation.navigate("Team Details", {
+                teamId: team.id,
+                teamName: team.name,
+                players: team.players,
+              })
+            }
           />
         ))}
       </ScrollView>
@@ -78,7 +88,7 @@ export default function MyTeams({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    // justifyContent: "center",
+    flex: 1,
     alignItems: "center",
     backgroundColor: "#e0dede",
     paddingBottom: 40,
