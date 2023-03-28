@@ -11,6 +11,7 @@ export default function Addteam({ navigation }) {
   const [teamDetails, setteamDetails] = useState({
     name: "",
     place: "",
+    captain:{name:"",id:"",},
     players: [],
   });
 
@@ -23,6 +24,7 @@ export default function Addteam({ navigation }) {
       const docRef = await addDoc(collection(db, "teams"), {
         name: teamDetails.name,
         place: teamDetails.place,
+        captain:teamDetails.captain,
         players: teamDetails.players,
       }).then(() => {
         console.log("Team added");

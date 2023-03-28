@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -19,28 +19,28 @@ import {
 } from "firebase/firestore";
 import { db } from "../config/firebase-config";
 
-import Player from "../components/Player";
+import PlayerCardForTeamDetails from "../components/PlayerCardForTeamDetails";
 
 export default function TeamDetails({ route, navigation }) {
   const { teamName, players, teamId } = route.params;
   const [playersArray, setplayersArray] = useState(players);
 
   const deletePlayer = async (index) => {
-    const teamDocRef = doc(db, 'teams', teamId);
-  const newPlayers = [...playersArray]; // make a copy of players array
-  newPlayers.splice(index, 1); // remove player from the copied array
+    const teamDocRef = doc(db, "teams", teamId);
+    const newPlayers = [...playersArray]; // make a copy of players array
+    newPlayers.splice(index, 1); // remove player from the copied array
 
-  // update the players field of the team document with the newPlayers array
-  updateDoc(teamDocRef, {
-    players: newPlayers,
-  })
-    .then(() => {
-      setplayersArray(newPlayers); // update the players state with the newPlayers array
-      console.log("Removed");
+    // update the players field of the team document with the newPlayers array
+    updateDoc(teamDocRef, {
+      players: newPlayers,
     })
-    .catch((error) => {
-      console.error('Error deleting player:', error);
-    });
+      .then(() => {
+        setplayersArray(newPlayers); // update the players state with the newPlayers array
+        console.log("Removed");
+      })
+      .catch((error) => {
+        console.error("Error deleting player:", error);
+      });
   };
   return (
     <View style={styles.container}>
@@ -50,7 +50,7 @@ export default function TeamDetails({ route, navigation }) {
       <ScrollView>
         {playersArray &&
           playersArray.map((player, index) => (
-            <Player
+            <PlayerCardForTeamDetails
               name={player.name}
               contact={player.contact}
               key={index}

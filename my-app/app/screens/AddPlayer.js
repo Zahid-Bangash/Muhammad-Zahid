@@ -14,7 +14,7 @@ import {
 import { db } from "../config/firebase-config";
 
 import AppTextInput from "../components/AppTextInput";
-import Player from "../components/Player";
+import PlayerCardForAddPlayer from "../components/PlayerCardForAddPlayer";
 
 export default function AddPlayer({ route }) {
   const { teamId } = route.params;
@@ -84,7 +84,7 @@ export default function AddPlayer({ route }) {
             alert("Player Added to team");
           }}
         >
-          <Player name={user.Name} contact={user.PhoneNumber} />
+          <PlayerCardForAddPlayer name={user.Name} contact={user.PhoneNumber} />
         </TouchableOpacity>
       ))}
     </View>
