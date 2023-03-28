@@ -6,7 +6,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 
 import {
-  StartMatch,
   GoLive,
   MyMatches,
   MyTournaments,
@@ -19,6 +18,7 @@ import TournamentNavigator from "./TournamentNavigator";
 import HomeNavigator from './HomeNavigator';
 import ProfileNavigator from "./ProfileNavigator";
 import MyTeamsNavigator from "./MyTeamsNavigator";
+import StartMatchNavigator from "./StartMatchNavigators";
 
 const Drawer = createDrawerNavigator();
 
@@ -62,7 +62,7 @@ const AppNavigator = () => (
     />
     <Drawer.Screen
       name="Start a Match"
-      component={StartMatch}
+      component={StartMatchNavigator}
       options={{
         drawerIcon: ({ size, color }) => (
           <Ionicons name="play-sharp" size={size} color={color} />

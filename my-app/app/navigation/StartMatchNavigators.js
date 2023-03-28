@@ -1,14 +1,17 @@
 import React from "react";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
-import {ProfileScreen,EditProfile} from "../screens";
+import { StartMatch } from "../screens";
 
 const Stack = createNativeStackNavigator();
 
-const ProfileNavigator = ({navigation}) => (
-  <Stack.Navigator initialRouteName="Your Profile">
-    <Stack.Screen name="Your Profile" component={ProfileScreen} options={{
+const StartMatchNavigator = ({ navigation }) => (
+  <Stack.Navigator initialRouteName="Create Match">
+    <Stack.Screen
+      name="Create Match"
+      component={StartMatch}
+      options={{
         headerLeft: () => (
           <Ionicons
             name="arrow-back"
@@ -19,9 +22,9 @@ const ProfileNavigator = ({navigation}) => (
             }}
           />
         ),
-      }}/>
-    <Stack.Screen name="Edit Profile" component={EditProfile} />
+      }}
+    />
   </Stack.Navigator>
 );
 
-export default ProfileNavigator;
+export default StartMatchNavigator;
