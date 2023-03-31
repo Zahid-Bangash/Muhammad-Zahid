@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
+import TeamsContext from "../components/TeamsContext";
 import {
   collection,
   query,
@@ -17,10 +18,11 @@ import AppTextInput from "../components/AppTextInput";
 import PlayerCardForAddPlayer from "../components/PlayerCardForAddPlayer";
 
 export default function AddPlayer({ route }) {
+  const { teams, updateTeams } = useContext(TeamsContext);
   const { teamId } = route.params;
 
   const [name, setname] = useState("");
-  const [results, setresults] = useState([]);
+  const [users, setUsers] = useState([]);
 
   const searchDocumentByField = async () => {
     if (name === "") {
@@ -38,25 +40,34 @@ export default function AddPlayer({ route }) {
         id: doc.id,
         ...doc.data(),
       }));
-      setresults(matchingDocuments);
+      setUsers(matchingDocuments);
       console.log(`Matching documents:`, matchingDocuments);
-      return matchingDocuments;
     } catch (error) {
       console.error(error);
     }
   };
 
-  const addPlayerToTeam = async (player) => {
+  const addPlayerToTeam = async (user) => {
     const teamRef = doc(db, "teams", teamId);
     try {
       await updateDoc(teamRef, {
         players: arrayUnion({
-          id: player.id,
-          name: player.Name,
-          contact: player.PhoneNumber,
-        })
+          id: user.id,
+          name: user.Name,
+          contact: user.PhoneNumber,
+        }),
       });
-      console.log("Player added successfully!");
+      const updatedTeams = [...teams];
+      let teamToUpdate = updatedTeams.find((team) => team.id === teamId);
+      const updatedTeam = { ...teamToUpdate };
+      updatedTeam.players.push({
+        id: user.id,
+        name: user.Name,
+        contact: user.PhoneNumber,
+      });
+      teamToUpdate = updatedTeam;
+      updateTeams(updatedTeams);
+      alert("Player Added to team");
     } catch (error) {
       console.error("Error adding player: ", error);
     }
@@ -75,13 +86,12 @@ export default function AddPlayer({ route }) {
         onPress={searchDocumentByField}
         style={{ marginBottom: 50 }}
       />
-      {results.map((user,index) => (
+      {users.map((user, index) => (
         <TouchableOpacity
-        key={index}
+          key={index}
           style={{ width: "100%" }}
           onPress={() => {
             addPlayerToTeam(user);
-            alert("Player Added to team");
           }}
         >
           <PlayerCardForAddPlayer name={user.Name} contact={user.PhoneNumber} />

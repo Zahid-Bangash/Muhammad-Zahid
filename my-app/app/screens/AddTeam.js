@@ -1,35 +1,34 @@
-import React, { useState } from "react";
+import React, { useState ,useContext} from "react";
 import { View, Text, StyleSheet } from "react-native";
+import TeamsContext from "../components/TeamsContext";
 
-import { auth, db } from "../config/firebase-config";
-import { getFirestore, setDoc, doc, addDoc, collection } from "firebase/firestore";
+import { db } from "../config/firebase-config";
+import { addDoc, collection } from "firebase/firestore";
 
 import AppTextInput from "../components/AppTextInput";
 import AppButton from "../components/AppButton";
 
 export default function Addteam({ navigation }) {
+  const { teams, updateTeams } = useContext(TeamsContext);
+
   const [teamDetails, setteamDetails] = useState({
     name: "",
     place: "",
-    captain:{name:"",id:"",},
+    captain: { name: "", id: "" },
     players: [],
   });
 
-  const addTeam = async (teamName, players) => {
-    if (teamDetails.name === "" && teamDetails.place === "") {
-      alert("Empty field");
+  const addTeam = async () => {
+    if (teamDetails.name === "" || teamDetails.place === "") {
+      alert("Empty fields");
       return;
     }
     try {
-      const docRef = await addDoc(collection(db, "teams"), {
-        name: teamDetails.name,
-        place: teamDetails.place,
-        captain:teamDetails.captain,
-        players: teamDetails.players,
-      }).then(() => {
-        console.log("Team added");
-        navigation.goBack();
-      })
+      const docRef = await addDoc(collection(db, "teams"), teamDetails);
+      const updatedTeams = [...teams, { id: docRef.id, ...teamDetails }];
+      updateTeams(updatedTeams);
+      console.log("Team added");
+      navigation.goBack();
     } catch (error) {
       console.error("Error adding team: ", error);
     }

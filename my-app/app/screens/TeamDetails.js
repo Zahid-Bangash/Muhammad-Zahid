@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-
+import TeamsContext from "../components/TeamsContext";
 import {
   collection,
   query,
@@ -22,20 +22,20 @@ import { db } from "../config/firebase-config";
 import PlayerCardForTeamDetails from "../components/PlayerCardForTeamDetails";
 
 export default function TeamDetails({ route, navigation }) {
-  const { teamName, players, teamId } = route.params;
-  const [playersArray, setplayersArray] = useState(players);
+  const { teams, updateTeams } = useContext(TeamsContext);
+  const { teamId } = route.params;
+  let team = teams.find((team) => team.id === teamId);
 
   const deletePlayer = async (index) => {
     const teamDocRef = doc(db, "teams", teamId);
-    const newPlayers = [...playersArray]; // make a copy of players array
-    newPlayers.splice(index, 1); // remove player from the copied array
-
-    // update the players field of the team document with the newPlayers array
+    const updatedTeam = team.players.splice(index, 1);
     updateDoc(teamDocRef, {
-      players: newPlayers,
+      players: updatedTeam,
     })
       .then(() => {
-        setplayersArray(newPlayers); // update the players state with the newPlayers array
+        const updatedTeams = [...teams];
+        team = updatedTeam;
+        updateTeams(updatedTeams);
         console.log("Removed");
       })
       .catch((error) => {
@@ -45,11 +45,11 @@ export default function TeamDetails({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Text style={{ fontWeight: "bold", fontSize: 30, textAlign: "center" }}>
-        {teamName}
+        {team.name}
       </Text>
       <ScrollView>
-        {playersArray &&
-          playersArray.map((player, index) => (
+        {team.players &&
+          team.players.map((player, index) => (
             <PlayerCardForTeamDetails
               name={player.name}
               contact={player.contact}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
+import TeamsContext from "../components/TeamsContext";
 import {
   View,
   Text,
@@ -8,46 +9,20 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../config/firebase-config";
 
 import TeamCard from "../components/cards/TeamCard";
 import TeamDetails from "./TeamDetails";
 
 export default function MyTeams({ navigation }) {
-  const [teams, setTeams] = useState([]);
+  const { teams, updateTeams } = useContext(TeamsContext);
 
-  const getAllTeams = async () => {
-    const teams = [];
-    const querySnapshot = await getDocs(collection(db, "teams"));
-
-    querySnapshot.forEach((doc) => {
-      teams.push({ id: doc.id, ...doc.data() });
-    });
-
-    return teams;
+  const deleteTeam = async (teamId) => {
+    const updatedTeams = teams.filter((team) => team.id !== teamId);
+    updateTeams(updatedTeams);
+    await deleteDoc(doc(db, "teams", teamId));
   };
-
-  const deleteTeam = async (id) => {
-    try {
-      await deleteDoc(doc(db, "teams", id)).then(() => fetchTeams());
-      console.log("Team deleted successfully");
-    } catch (error) {
-      console.error("Error deleting team: ", error);
-    }
-  };
-
-  const fetchTeams = async () => {
-    const allTeams = await getAllTeams();
-    setTeams(allTeams);
-  };
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      fetchTeams();
-    });
-    return unsubscribe;
-  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -70,13 +45,11 @@ export default function MyTeams({ navigation }) {
             key={team.id}
             name={team.name}
             place={team.place}
-            // captain={team.captain}
+            // captain={team.captain.name}
             onDelete={() => deleteTeam(team.id)}
             onPress={() =>
               navigation.navigate("Team Details", {
                 teamId: team.id,
-                teamName: team.name,
-                players: team.players,
               })
             }
           />
