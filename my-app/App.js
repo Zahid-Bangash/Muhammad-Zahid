@@ -18,7 +18,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      {currentUser && currentUser.emailVerified ? (
+      {currentUser ? (
         <AppNavigator />
       ) : (
         <AuthNavigator />

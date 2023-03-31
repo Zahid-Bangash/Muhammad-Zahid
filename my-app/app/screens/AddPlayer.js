@@ -1,12 +1,10 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import TeamsContext from "../components/TeamsContext";
 import {
   collection,
-  query,
-  where,
   getDocs,
   doc,
   updateDoc,
@@ -24,27 +22,14 @@ export default function AddPlayer({ route }) {
   const [name, setname] = useState("");
   const [users, setUsers] = useState([]);
 
-  const searchDocumentByField = async () => {
-    if (name === "") {
-      alert("Please type a name");
-      return;
-    }
-    try {
-      const q = query(collection(db, "users"), where("Name", "==", name));
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        alert("No User found");
-        return null;
-      }
-      const matchingDocuments = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setUsers(matchingDocuments);
-      console.log(`Matching documents:`, matchingDocuments);
-    } catch (error) {
-      console.error(error);
-    }
+  const searchByName = async () => {
+    const searchRef = collection(db, "users");
+    const snapshot = await getDocs(searchRef);
+    const searchResults = snapshot.docs.filter((doc) =>
+      doc.data()["Name"].toLowerCase().includes(name.toLowerCase())
+    );
+    const result = searchResults.map((doc) => ({ id: doc.id, ...doc.data() }));
+    setUsers(result);
   };
 
   const addPlayerToTeam = async (user) => {
@@ -73,6 +58,11 @@ export default function AddPlayer({ route }) {
     }
   };
 
+  useEffect(() => {
+    if (name.length > 0) {
+      searchByName();
+    } else setUsers([]);
+  }, [name]);
   return (
     <View style={styles.container}>
       <AppTextInput
@@ -83,20 +73,23 @@ export default function AddPlayer({ route }) {
         rightIcon="search"
         value={name}
         onChangeText={(text) => setname(text)}
-        onPress={searchDocumentByField}
         style={{ marginBottom: 50 }}
       />
-      {users.map((user, index) => (
-        <TouchableOpacity
-          key={index}
-          style={{ width: "100%" }}
-          onPress={() => {
-            addPlayerToTeam(user);
-          }}
-        >
-          <PlayerCardForAddPlayer name={user.Name} contact={user.PhoneNumber} />
-        </TouchableOpacity>
-      ))}
+      {users.length > 0 &&
+        users.map((user, index) => (
+          <TouchableOpacity
+            key={index}
+            style={{ width: "100%" }}
+            onPress={() => {
+              addPlayerToTeam(user);
+            }}
+          >
+            <PlayerCardForAddPlayer
+              name={user.Name}
+              contact={user.PhoneNumber}
+            />
+          </TouchableOpacity>
+        ))}
     </View>
   );
 }
