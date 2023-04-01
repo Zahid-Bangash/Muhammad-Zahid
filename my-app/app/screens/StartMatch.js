@@ -9,12 +9,15 @@ import {
   ScrollView,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import Entypo from "@expo/vector-icons/Entypo";
+
 import TeamsContext from "../components/TeamsContext";
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
 
 export default function StartMatch({ navigation }) {
   const { teams } = useContext(TeamsContext);
+
   const [matchDetails, setmatchDetails] = useState({
     venue: "",
     date: new Date(),
@@ -26,20 +29,16 @@ export default function StartMatch({ navigation }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [tossModalVisible, setTossModalVisible] = useState(false);
   const [teamBoBeSelected, setteamBoBeSelected] = useState("A");
-  const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(false);
-    setmatchDetails({ ...matchDetails, date: currentDate });
-  };
 
   const handleSelectTeam = (team) => {
-    if (teamBoBeSelected === "A" && team2 && team2.name === team.name) {
+    if (teamBoBeSelected === "A" && team2 && team2.id === team.id) {
       alert("Choose different teams");
       setModalVisible(false);
       return;
     }
-    if (teamBoBeSelected === "B" && team1 && team1.name === team.name) {
+    if (teamBoBeSelected === "B" && team1 && team1.id === team.id) {
       alert("Choose different teams");
       setModalVisible(false);
       return;
@@ -48,14 +47,70 @@ export default function StartMatch({ navigation }) {
     setModalVisible(false);
   };
 
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShowDatePicker(false);
+    setmatchDetails({ ...matchDetails, date: currentDate });
+  };
+
   const handleTimeChange = (event, selectedTime) => {
     const currentTime = selectedTime || date;
     setShowTimePicker(false);
     setmatchDetails({ ...matchDetails, time: currentTime });
   };
 
+  const createMatch = async () => {
+    try {
+      const matchRef = await addDoc(collection(db, "matches"), {
+        team1: team1,
+        team2: team2,
+        date: matchDetails.date,
+        venue: matchDetails.venue,
+        result: "",
+        isCompleted: false,
+      });
+      console.log("Match started with ID: ", matchRef.id);
+    } catch (err) {
+      console.error("Error starting match: ", err);
+    }
+  };
+
   return (
     <View style={styles.container}>
+      <Modal visible={modalVisible} animationType="slide" transparent>
+        <View
+          style={{
+            position: "absolute",
+            backgroundColor: "#07FFF0",
+            transform: [{ translateX: 35 }, { translateY: 105 }],
+            width: "80%",
+            height: "80%",
+            alignItems: "center",
+            borderRadius: 20,
+            padding: 50,
+          }}
+        >
+          <Text style={{ fontSize: 24, marginBottom: 20 }}>Choose a Team</Text>
+          <ScrollView>
+            {teams.map((team) => (
+              <TouchableOpacity
+                key={team.id}
+                onPress={() => handleSelectTeam(team)}
+              >
+                <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                  {team.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={{ position: "absolute", top: 5, right: 5 }}
+            onPress={() => setModalVisible(false)}
+          >
+            <Entypo name="circle-with-cross" size={45} color="white" />
+          </TouchableOpacity>
+        </View>
+      </Modal>
       <View
         style={{
           flexDirection: "row",
@@ -109,26 +164,7 @@ export default function StartMatch({ navigation }) {
           </Text>
         </View>
       </View>
-      <Modal visible={modalVisible} animationType="slide">
-        <View style={{ flex: 1, padding: 20, alignItems: "center" }}>
-          <Text style={{ fontSize: 24, marginBottom: 20 }}>Select a Team</Text>
-          <ScrollView>
-            {teams.map((team) => (
-              <TouchableOpacity
-                key={team.id}
-                onPress={() => handleSelectTeam(team)}
-              >
-                <Text style={{ fontSize: 18, marginBottom: 10 }}>
-                  {team.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-          <TouchableOpacity onPress={() => setModalVisible(false)}>
-            <Text style={{ fontSize: 18, color: "blue" }}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+
       <AppTextInput
         placeholder="Venue"
         autoComplete="off"
@@ -196,7 +232,127 @@ export default function StartMatch({ navigation }) {
         }
         style={{ marginTop: 20 }}
       />
-      <AppButton style={{ marginTop: 50, width: "82%" }}>Create</AppButton>
+      <Modal visible={tossModalVisible} transparent animationType="fade">
+        <View
+          style={{
+            position: "absolute",
+            backgroundColor: "#FE7F0A",
+            transform: [{ translateX: 35 }, { translateY: 170 }],
+            width: "80%",
+            height: "60%",
+            alignItems: "center",
+            borderRadius: 20,
+            padding: 20,
+            justifyContent: "space-around",
+          }}
+        >
+          <TouchableOpacity
+            style={{ position: "absolute", top: 5, right: 5 }}
+            onPress={() => setTossModalVisible(false)}
+          >
+            <Entypo name="circle-with-cross" size={45} color="white" />
+          </TouchableOpacity>
+          <Text style={{ fontWeight: "bold", fontSize: 18, color: "white" }}>
+            Who won the toss?
+          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                borderColor: "white",
+                borderWidth: 1,
+                borderRadius: 15,
+                width: "45%",
+                height: 150,
+              }}
+            >
+              <View
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderWidth: 1,
+                  borderColor: "#07FFF0",
+                  borderRadius: 30,
+                }}
+              ></View>
+              <Text>Team</Text>
+            </View>
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                borderColor: "white",
+                borderWidth: 1,
+                borderRadius: 15,
+                width: "45%",
+                height: 150,
+              }}
+            >
+              <View
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderWidth: 1,
+                  borderColor: "#07FFF0",
+                  borderRadius: 30,
+                }}
+              ></View>
+              <Text>Team</Text>
+            </View>
+          </View>
+          <Text style={{ fontWeight: "bold", fontSize: 18, color: "white" }}>
+            Decided to ?
+          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: "black",
+                borderRadius: 10,
+                width: "45%",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={{ fontWeight: "bold", fontSize: 20 }}>Bat</Text>
+            </View>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: "black",
+                borderRadius: 10,
+                width: "45%",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={{ fontWeight: "bold", fontSize: 20 }}>Bowl</Text>
+            </View>
+          </View>
+          <AppButton style={{ backgroundColor: "#000", width: "60%" }}>
+            Start Match
+          </AppButton>
+        </View>
+      </Modal>
+      <AppButton
+        style={{ marginTop: 50, width: "82%" }}
+        onPress={() => setTossModalVisible(true)}
+      >
+        Create
+      </AppButton>
     </View>
   );
 }
