@@ -3,7 +3,7 @@ import { TouchableOpacity } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import { StartMatch } from "../screens";
+import { StartMatch, MatchCenter } from "../screens";
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +25,7 @@ const StartMatchNavigator = ({ navigation }) => (
         ),
       }}
     />
+    <Stack.Screen name="Match Center" component={MatchCenter} />
   </Stack.Navigator>
 );
 

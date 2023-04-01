@@ -15,6 +15,9 @@ import TeamsContext from "../components/TeamsContext";
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
 
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "../config/firebase-config";
+
 export default function StartMatch({ navigation }) {
   const { teams } = useContext(TeamsContext);
 
@@ -31,6 +34,8 @@ export default function StartMatch({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [tossModalVisible, setTossModalVisible] = useState(false);
   const [teamBoBeSelected, setteamBoBeSelected] = useState("A");
+  const [tossWinner, setTossWinner] = useState(null);
+  const [selected, setselected] = useState(null);
 
   const handleSelectTeam = (team) => {
     if (teamBoBeSelected === "A" && team2 && team2.id === team.id) {
@@ -59,17 +64,43 @@ export default function StartMatch({ navigation }) {
     setmatchDetails({ ...matchDetails, time: currentTime });
   };
 
-  const createMatch = async () => {
+  const handleCreateMatch = () => {
+    if (team1 === null || team2 === null) {
+      alert("Select team to create a match");
+      return;
+    }
+    if (matchDetails.venue === "") {
+      alert("Enter Venue");
+      return;
+    }
+    if (matchDetails.overs === 0) {
+      alert("Enter no of overs");
+      return;
+    }
+    setTossModalVisible(true);
+  };
+
+  const startMatch = async () => {
+    if (!tossWinner) {
+      alert("Select who won the toss");
+      return;
+    }
+    if (!selected) {
+      alert("Selected to bowl or bat first?");
+      return;
+    }
     try {
       const matchRef = await addDoc(collection(db, "matches"), {
         team1: team1,
         team2: team2,
-        date: matchDetails.date,
+        date: matchDetails.date.toLocaleDateString(),
+        time: matchDetails.time.toLocaleTimeString(),
         venue: matchDetails.venue,
         result: "",
         isCompleted: false,
       });
       console.log("Match started with ID: ", matchRef.id);
+      navigation.navigate("Match Center");
     } catch (err) {
       console.error("Error starting match: ", err);
     }
@@ -107,7 +138,7 @@ export default function StartMatch({ navigation }) {
             style={{ position: "absolute", top: 5, right: 5 }}
             onPress={() => setModalVisible(false)}
           >
-            <Entypo name="circle-with-cross" size={45} color="white" />
+            <Entypo name="circle-with-cross" size={45} color="red" />
           </TouchableOpacity>
         </View>
       </Modal>
@@ -248,9 +279,13 @@ export default function StartMatch({ navigation }) {
         >
           <TouchableOpacity
             style={{ position: "absolute", top: 5, right: 5 }}
-            onPress={() => setTossModalVisible(false)}
+            onPress={() => {
+              setTossModalVisible(false);
+              setTossWinner(null);
+              setselected(null);
+            }}
           >
-            <Entypo name="circle-with-cross" size={45} color="white" />
+            <Entypo name="circle-with-cross" size={45} color="#b10a19" />
           </TouchableOpacity>
           <Text style={{ fontWeight: "bold", fontSize: 18, color: "white" }}>
             Who won the toss?
@@ -260,55 +295,66 @@ export default function StartMatch({ navigation }) {
               flexDirection: "row",
               justifyContent: "space-between",
               width: "100%",
+              height: "35%",
             }}
           >
-            <View
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                borderColor: "white",
-                borderWidth: 1,
-                borderRadius: 15,
-                width: "45%",
-                height: 150,
-              }}
-            >
+            <TouchableWithoutFeedback onPress={() => setTossWinner(team1)}>
               <View
                 style={{
-                  width: 60,
-                  height: 60,
-                  borderWidth: 1,
-                  borderColor: "#07FFF0",
-                  borderRadius: 30,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderColor: tossWinner !== team1 ? "white" : "black",
+                  borderWidth: tossWinner !== team1 ? 1 : 2,
+                  backgroundColor:
+                    tossWinner === team1
+                      ? "rgba(0, 0, 0, 0.5)"
+                      : "rgba(0, 0, 0, 0)",
+                  borderRadius: 15,
+                  width: "45%",
                 }}
-              ></View>
-              <Text>Team</Text>
-            </View>
-            <View
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                borderColor: "white",
-                borderWidth: 1,
-                borderRadius: 15,
-                width: "45%",
-                height: 150,
-              }}
-            >
+              >
+                <View
+                  style={{
+                    width: 60,
+                    height: 60,
+                    borderWidth: 1,
+                    borderColor: "#07FFF0",
+                    borderRadius: 30,
+                  }}
+                ></View>
+                <Text>{team1 && team1.name}</Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={() => setTossWinner(team2)}>
               <View
                 style={{
-                  width: 60,
-                  height: 60,
-                  borderWidth: 1,
-                  borderColor: "#07FFF0",
-                  borderRadius: 30,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderColor: tossWinner !== team2 ? "white" : "black",
+                  borderWidth: tossWinner !== team2 ? 1 : 2,
+                  backgroundColor:
+                    tossWinner === team2
+                      ? "rgba(0, 0, 0, 0.5)"
+                      : "rgba(0, 0, 0, 0)",
+                  borderRadius: 15,
+                  width: "45%",
                 }}
-              ></View>
-              <Text>Team</Text>
-            </View>
+              >
+                <View
+                  style={{
+                    width: 60,
+                    height: 60,
+                    borderWidth: 1,
+                    borderColor: "#07FFF0",
+                    borderRadius: 30,
+                  }}
+                ></View>
+                <Text>{team2 && team2.name}</Text>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
           <Text style={{ fontWeight: "bold", fontSize: 18, color: "white" }}>
-            Decided to ?
+            Selected to ?
           </Text>
           <View
             style={{
@@ -317,39 +363,54 @@ export default function StartMatch({ navigation }) {
               width: "100%",
             }}
           >
-            <View
-              style={{
-                borderWidth: 1,
-                borderColor: "black",
-                borderRadius: 10,
-                width: "45%",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text style={{ fontWeight: "bold", fontSize: 20 }}>Bat</Text>
-            </View>
-            <View
-              style={{
-                borderWidth: 1,
-                borderColor: "black",
-                borderRadius: 10,
-                width: "45%",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text style={{ fontWeight: "bold", fontSize: 20 }}>Bowl</Text>
-            </View>
+            <TouchableWithoutFeedback onPress={() => setselected("Bat")}>
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: selected !== "Bat" ? "white" : "black",
+                  backgroundColor:
+                    selected === "Bat"
+                      ? "rgba(0, 0, 0, 0.5)"
+                      : "rgba(0, 0, 0, 0)",
+                  borderRadius: 10,
+                  width: "45%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontWeight: "bold", fontSize: 20 }}>Bat</Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={() => setselected("Bowl")}>
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: selected !== "Bowl" ? "white" : "black",
+                  backgroundColor:
+                    selected === "Bowl"
+                      ? "rgba(0, 0, 0, 0.5)"
+                      : "rgba(0, 0, 0, 0)",
+                  borderRadius: 10,
+                  width: "45%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontWeight: "bold", fontSize: 20 }}>Bowl</Text>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-          <AppButton style={{ backgroundColor: "#000", width: "60%" }}>
+          <AppButton
+            style={{ backgroundColor: "green", width: "60%" }}
+            onPress={startMatch}
+          >
             Start Match
           </AppButton>
         </View>
       </Modal>
       <AppButton
         style={{ marginTop: 50, width: "82%" }}
-        onPress={() => setTossModalVisible(true)}
+        onPress={handleCreateMatch}
       >
         Create
       </AppButton>
