@@ -93,9 +93,11 @@ export default function StartMatch({ navigation }) {
       const matchRef = await addDoc(collection(db, "matches"), {
         team1: team1,
         team2: team2,
+        venue: matchDetails.venue,
         date: matchDetails.date.toLocaleDateString(),
         time: matchDetails.time.toLocaleTimeString(),
-        venue: matchDetails.venue,
+        tossWon:tossWinner,
+        selectedTo:selected,
         result: "",
         isCompleted: false,
       });
@@ -410,7 +412,7 @@ export default function StartMatch({ navigation }) {
       </Modal>
       <AppButton
         style={{ marginTop: 50, width: "82%" }}
-        onPress={handleCreateMatch}
+        onPress={()=>navigation.navigate("Match Center")}
       >
         Create
       </AppButton>
