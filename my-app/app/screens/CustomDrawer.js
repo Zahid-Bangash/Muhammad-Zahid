@@ -63,7 +63,6 @@ export default function CustomDrawer(props) {
       >
         <View
           style={{
-            marginTop: -45,
             height: 150,
             flexDirection: "row",
             alignItems: "center",
@@ -77,11 +76,10 @@ export default function CustomDrawer(props) {
               source={require("../assets/profile.jpeg")}
               style={{ width: 100, height: 100, borderRadius: 50 }}
             />
-             {/* <Image
+            {/* <Image
             source={{uri:"gs://finalproject-78235.appspot.com/628dUZy5tzRBqp7aW7Clbnr3pGj2"}}
               style={{ width: 100, height: 100, borderRadius: 50 }}
             /> */}
-
           </TouchableWithoutFeedback>
           <View style={{ marginLeft: 3 }}>
             <Text style={{ fontSize: 15, fontWeight: "bold" }}>

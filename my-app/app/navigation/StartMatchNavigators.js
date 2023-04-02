@@ -8,7 +8,18 @@ import { StartMatch, MatchCenter } from "../screens";
 const Stack = createNativeStackNavigator();
 
 const StartMatchNavigator = ({ navigation }) => (
-  <Stack.Navigator initialRouteName="Create Match">
+  <Stack.Navigator
+    initialRouteName="Create Match"
+    screenOptions={{
+      headerStyle: {
+        backgroundColor: "#a10517",
+      },
+      headerTitleStyle: {
+        color: "white",
+      },
+      headerTintColor: "white",
+    }}
+  >
     <Stack.Screen
       name="Create Match"
       component={StartMatch}
@@ -20,7 +31,7 @@ const StartMatchNavigator = ({ navigation }) => (
               navigation.goBack();
             }}
           >
-            <Ionicons name="arrow-back" size={25} />
+            <Ionicons name="arrow-back" size={25} color="white" />
           </TouchableOpacity>
         ),
       }}

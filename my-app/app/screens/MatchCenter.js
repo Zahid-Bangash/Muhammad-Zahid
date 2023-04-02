@@ -5,9 +5,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  ScrollView,
 } from "react-native";
 import Swiper from "react-native-swiper";
 import Entypo from "@expo/vector-icons/Entypo";
+
+import Batter from "../components/Batter";
+import Bowler from "../components/Bowler";
 
 export default function MatchCenter() {
   const [swiperIndex, setSwiperIndex] = useState(0);
@@ -18,22 +22,43 @@ export default function MatchCenter() {
   const renderPagination = () => (
     <View style={styles.pagination}>
       <TouchableOpacity
-        onPress={() => handleButtonPress(1)}
+        onPress={() => handleButtonPress(0)}
         style={[styles.button, swiperIndex === 0 && styles.activeButton]}
       >
-        <Text style={styles.buttonText}>Scoring</Text>
+        <Text
+          style={[
+            styles.buttonText,
+            swiperIndex === 0 && { fontWeight: "bold" },
+          ]}
+        >
+          Scoring
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => handleButtonPress(0)}
+        onPress={() => handleButtonPress(1)}
         style={[styles.button, swiperIndex === 1 && styles.activeButton]}
       >
-        <Text style={styles.buttonText}>Scorecard</Text>
+        <Text
+          style={[
+            styles.buttonText,
+            swiperIndex === 1 && { fontWeight: "bold" },
+          ]}
+        >
+          Scorecard
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => handleButtonPress(2)}
         style={[styles.button, swiperIndex === 2 && styles.activeButton]}
       >
-        <Text style={styles.buttonText}>Info</Text>
+        <Text
+          style={[
+            styles.buttonText,
+            swiperIndex === 2 && { fontWeight: "bold" },
+          ]}
+        >
+          Info
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -44,7 +69,7 @@ export default function MatchCenter() {
       onIndexChanged={(index) => setSwiperIndex(index)}
       renderPagination={renderPagination}
     >
-      <View style={styles.slide}>
+      <View style={[styles.slide]}>
         <View
           style={{
             flex: 2.5,
@@ -57,7 +82,9 @@ export default function MatchCenter() {
           }}
         >
           <Text>Team</Text>
-          <Text style={{ fontWeight: "bold", fontSize: 30 }}>150-0</Text>
+          <Text style={{ fontWeight: "bold", fontSize: 40, color: "#8f4705" }}>
+            150-0
+          </Text>
           <Text>(0.4/5)</Text>
         </View>
         <View
@@ -174,7 +201,7 @@ export default function MatchCenter() {
           <View style={{ flex: 1, flexDirection: "row" }}>
             <TouchableWithoutFeedback onPress={() => console.log("dot")}>
               <View style={styles.buttonCell}>
-              <Entypo name="dot-single" size={30} />
+                <Entypo name="dot-single" size={30} />
               </View>
             </TouchableWithoutFeedback>
             <TouchableWithoutFeedback onPress={() => console.log("1")}>
@@ -268,7 +295,282 @@ export default function MatchCenter() {
         </View>
       </View>
       <View style={styles.slide}>
-        <Text style={styles.buttonText}>Scorecard Screen</Text>
+        <ScrollView contentContainerStyle={{ marginTop: 44, width: "100%" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              backgroundColor: "#5ca5a9",
+              justifyContent: "space-between",
+              width: "100%",
+              padding: 10,
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: "500" }}>Team1</Text>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ fontWeight: "bold", fontSize: 15 }}>41/0</Text>
+              <Text>(2.0 Ov)</Text>
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              backgroundColor: "#d8dede",
+              width: "100%",
+              justifyContent: "space-between",
+              padding: 10,
+            }}
+          >
+            <Text style={{ fontWeight: "500", flex: 3 }}>Batters</Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              R
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              B
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              4s
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              6s
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              SR
+            </Text>
+          </View>
+          <Batter
+            name="Zahid"
+            runs={46}
+            balls={73}
+            fours={5}
+            sixes={6}
+            srate={234.6}
+          />
+          <Batter
+            name="Bangash"
+            runs={46}
+            balls={73}
+            fours={5}
+            sixes={6}
+            srate={234.6}
+          />
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "100%",
+              padding: 10,
+              borderBottomWidth: 0.5,
+              borderColor: "grey",
+            }}
+          >
+            <Text>Extras</Text>
+            <Text>0</Text>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "100%",
+              padding: 10,
+              borderBottomWidth: 0.5,
+              borderColor: "grey",
+            }}
+          >
+            <Text>Total</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "58%",
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>41/0</Text>
+                <Text>(2.0 Ov)</Text>
+              </View>
+              <Text>RR 20.60</Text>
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              backgroundColor: "#d8dede",
+              width: "100%",
+              justifyContent: "space-between",
+              padding: 10,
+            }}
+          >
+            <Text style={{ fontWeight: "500", flex: 3 }}>Bowlers</Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              O
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              R
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              M
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              W
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              Eco
+            </Text>
+          </View>
+          <Bowler
+            overs={5}
+            middens={0}
+            runs={45}
+            wickets={2}
+            eco={19.0}
+            name="Dharkan"
+          />
+          <Bowler
+            overs={5}
+            middens={0}
+            runs={45}
+            wickets={2}
+            eco={19.0}
+            name="Janu"
+          />
+          <View
+            style={{
+              flexDirection: "row",
+              backgroundColor: "#5ca5a9",
+              justifyContent: "space-between",
+              width: "100%",
+              padding: 10,
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: "500" }}>Team1</Text>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ fontWeight: "bold", fontSize: 15 }}>41/0</Text>
+              <Text>(2.0 Ov)</Text>
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              backgroundColor: "#d8dede",
+              width: "100%",
+              justifyContent: "space-between",
+              padding: 10,
+            }}
+          >
+            <Text style={{ fontWeight: "500", flex: 3 }}>Batters</Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              R
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              B
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              4s
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              6s
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              SR
+            </Text>
+          </View>
+          <Batter
+            name="Zahid"
+            runs={46}
+            balls={73}
+            fours={5}
+            sixes={6}
+            srate={234.6}
+          />
+          <Batter
+            name="Bangash"
+            runs={46}
+            balls={73}
+            fours={5}
+            sixes={6}
+            srate={234.6}
+          />
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "100%",
+              padding: 10,
+              borderBottomWidth: 0.5,
+              borderColor: "grey",
+            }}
+          >
+            <Text>Extras</Text>
+            <Text>0</Text>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "100%",
+              padding: 10,
+              borderBottomWidth: 0.5,
+              borderColor: "grey",
+            }}
+          >
+            <Text>Total</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "58%",
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>41/0</Text>
+                <Text>(2.0 Ov)</Text>
+              </View>
+              <Text>RR 20.60</Text>
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              backgroundColor: "#d8dede",
+              width: "100%",
+              justifyContent: "space-between",
+              padding: 10,
+            }}
+          >
+            <Text style={{ fontWeight: "500", flex: 3 }}>Bowlers</Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              O
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              R
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              M
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              W
+            </Text>
+            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
+              Eco
+            </Text>
+          </View>
+          <Bowler
+            overs={5}
+            middens={0}
+            runs={45}
+            wickets={2}
+            eco={19.0}
+            name="Dharkan"
+          />
+          <Bowler
+            overs={5}
+            middens={0}
+            runs={45}
+            wickets={2}
+            eco={19.0}
+            name="Janu"
+          />
+        </ScrollView>
       </View>
       <View style={styles.slide}>
         <Text style={styles.buttonText}>Info Screen</Text>
@@ -291,8 +593,9 @@ const styles = StyleSheet.create({
   pagination: {
     flexDirection: "row",
     position: "absolute",
-    borderBottomWidth: 1,
-    borderColor: "gray",
+    backgroundColor: "white",
+    borderBottomWidth: 0.5,
+    borderColor: "grey",
   },
   buttonText: {
     fontSize: 16,
@@ -303,7 +606,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   activeButton: {
-    borderBottomWidth: 3,
+    borderBottomWidth: 2,
     borderColor: "black",
   },
   cell: {

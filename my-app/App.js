@@ -1,4 +1,5 @@
 import * as React from "react";
+import { StatusBar } from "react-native";
 import { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 
@@ -18,11 +19,8 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      {currentUser ? (
-        <AppNavigator />
-      ) : (
-        <AuthNavigator />
-      )}
+      <StatusBar backgroundColor="#743a04" />
+      {currentUser ? <AppNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }
