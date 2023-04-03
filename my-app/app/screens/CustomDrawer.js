@@ -21,12 +21,12 @@ import Screen from "../components/Screen";
 import { auth, db, storage } from "../config/firebase-config";
 import { doc, getDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
-import { ref, getMetadata } from "firebase/storage";
+// import { ref, getMetadata } from "firebase/storage";
 
 export default function CustomDrawer(props) {
   const navigation = useNavigation();
   const [userData, setuserData] = useState({});
-  const [img, setimg] = useState(null);
+  // const [img, setimg] = useState(null);
 
   const getData = async () => {
     const docRef = doc(db, "users", auth.currentUser.uid);
