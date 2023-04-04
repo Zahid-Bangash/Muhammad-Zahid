@@ -22,3 +22,4 @@ export { default as AddTeam } from "./AddTeam";
 export { default as TeamDetails } from "./TeamDetails";
 export { default as AddPlayer } from "./AddPlayer";
 export { default as MatchCenter } from "./MatchCenter";
+export { default as StartInnings } from "./StartInnings";

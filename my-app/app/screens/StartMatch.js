@@ -91,15 +91,16 @@ export default function StartMatch({ navigation }) {
     }
     try {
       const matchRef = await addDoc(collection(db, "matches"), {
-        team1: team1,
-        team2: team2,
+        title: `${team1.name} Vs ${team2.name}`,
+        teams: { team1: team1.name, team2: team2.name },
         venue: matchDetails.venue,
         date: matchDetails.date.toLocaleDateString(),
         time: matchDetails.time.toLocaleTimeString(),
-        tossWon:tossWinner,
-        selectedTo:selected,
-        result: "",
-        isCompleted: false,
+        tossResult: {
+          winnerTeam: tossWinner,
+          decision: selected,
+        },
+        status: "InProgress",
       });
       console.log("Match started with ID: ", matchRef.id);
       navigation.navigate("Match Center");
@@ -412,7 +413,7 @@ export default function StartMatch({ navigation }) {
       </Modal>
       <AppButton
         style={{ marginTop: 50, width: "82%" }}
-        onPress={()=>navigation.navigate("Match Center")}
+        onPress={() => navigation.navigate("Start Innings", { id: 1 })}
       >
         Create
       </AppButton>

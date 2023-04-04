@@ -3,7 +3,8 @@ import { View, Text, ScrollView, TouchableWithoutFeedback } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import Screen from "../components/Screen";
-import Header from "./Header";
+// import Header from "./Header";
+import Header from "../components/Header";
 import MatchCard from "../components/cards/MatchCard";
 import TournamentCard from "../components/cards/TournamentCard";
 import ClubCard from "../components/cards/ClubCard";
