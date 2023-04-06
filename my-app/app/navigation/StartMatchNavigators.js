@@ -36,8 +36,8 @@ const StartMatchNavigator = ({ navigation }) => (
         ),
       }}
     />
-    <Stack.Screen name="Match Center" component={MatchCenter} />
     <Stack.Screen name="Start Innings" component={StartInnings} />
+    <Stack.Screen name="Match Center" component={MatchCenter} />
   </Stack.Navigator>
 );
 

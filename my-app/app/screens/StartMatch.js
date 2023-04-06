@@ -29,14 +29,25 @@ export default function StartMatch({ navigation }) {
   });
   const [team1, setTeam1] = useState(null);
   const [team2, setTeam2] = useState(null);
+  const [team1Squad, setteam1Squad] = useState([]);
+  const [team2Squad, setteam2Squad] = useState([]);
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [tossModalVisible, setTossModalVisible] = useState(false);
-  const [teamBoBeSelected, setteamBoBeSelected] = useState("A");
-  const [tossWinner, setTossWinner] = useState(null);
-  const [selected, setselected] = useState(null);
+  const [squadModal, setsquadModal] = useState(false);
 
+  const [teamBoBeSelected, setteamBoBeSelected] = useState("A");
+  const [selectedTeam, setselectedTeam] = useState(null);
+
+  const [tossWinner, setTossWinner] = useState(null);
+  const [decision, setDecision] = useState(null);
+  const [battingTeam, setbattingTeam] = useState(null);
+  const [bowlingTeam, setbowlingTeam] = useState(null);
+console.log("1",team1Squad);
+console.log(team2Squad);
   const handleSelectTeam = (team) => {
     if (teamBoBeSelected === "A" && team2 && team2.id === team.id) {
       alert("Choose different teams");
@@ -49,6 +60,8 @@ export default function StartMatch({ navigation }) {
       return;
     }
     teamBoBeSelected === "A" ? setTeam1(team) : setTeam2(team);
+    setselectedTeam(team);
+    setsquadModal(true);
     setModalVisible(false);
   };
 
@@ -69,6 +82,10 @@ export default function StartMatch({ navigation }) {
       alert("Select team to create a match");
       return;
     }
+    if (team1Squad.length < 2 || team2Squad.length < 2) {
+      alert("Add Minimum two players in the squad");
+      return;
+    }
     if (matchDetails.venue === "") {
       alert("Enter Venue");
       return;
@@ -85,7 +102,7 @@ export default function StartMatch({ navigation }) {
       alert("Select who won the toss");
       return;
     }
-    if (!selected) {
+    if (!decision) {
       alert("Selected to bowl or bat first?");
       return;
     }
@@ -98,12 +115,21 @@ export default function StartMatch({ navigation }) {
         time: matchDetails.time.toLocaleTimeString(),
         tossResult: {
           winnerTeam: tossWinner,
-          decision: selected,
+          decision: decision,
         },
         status: "InProgress",
       });
       console.log("Match started with ID: ", matchRef.id);
-      navigation.navigate("Match Center");
+      navigation.navigate("Start Innings", {
+        battingTeam: battingTeam,
+        bowlingTeam: bowlingTeam,
+        matchId: matchRef.id,
+      });
+      setTossModalVisible(false);
+      setTossWinner(null);
+      setbattingTeam(null);
+      setbowlingTeam(null);
+      setDecision(null);
     } catch (err) {
       console.error("Error starting match: ", err);
     }
@@ -111,40 +137,6 @@ export default function StartMatch({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Modal visible={modalVisible} animationType="slide" transparent>
-        <View
-          style={{
-            position: "absolute",
-            backgroundColor: "#07FFF0",
-            transform: [{ translateX: 35 }, { translateY: 105 }],
-            width: "80%",
-            height: "80%",
-            alignItems: "center",
-            borderRadius: 20,
-            padding: 50,
-          }}
-        >
-          <Text style={{ fontSize: 24, marginBottom: 20 }}>Choose a Team</Text>
-          <ScrollView>
-            {teams.map((team) => (
-              <TouchableOpacity
-                key={team.id}
-                onPress={() => handleSelectTeam(team)}
-              >
-                <Text style={{ fontSize: 18, marginBottom: 10 }}>
-                  {team.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-          <TouchableOpacity
-            style={{ position: "absolute", top: 5, right: 5 }}
-            onPress={() => setModalVisible(false)}
-          >
-            <Entypo name="circle-with-cross" size={45} color="red" />
-          </TouchableOpacity>
-        </View>
-      </Modal>
       <View
         style={{
           flexDirection: "row",
@@ -198,7 +190,81 @@ export default function StartMatch({ navigation }) {
           </Text>
         </View>
       </View>
-
+      {/* Team Modal */}
+      <Modal visible={modalVisible} animationType="slide" transparent>
+        <View
+          style={{
+            position: "absolute",
+            backgroundColor: "#07FFF0",
+            transform: [{ translateX: 28 }, { translateY: 80 }],
+            width: "85%",
+            height: "85%",
+            alignItems: "center",
+            borderRadius: 20,
+            padding: 50,
+          }}
+        >
+          <Text style={{ fontSize: 24, marginBottom: 20 }}>Choose a Team</Text>
+          <ScrollView>
+            {teams.map((team) => (
+              <TouchableOpacity
+                key={team.id}
+                onPress={() => handleSelectTeam(team)}
+              >
+                <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                  {team.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={{ position: "absolute", top: 5, right: 5 }}
+            onPress={() => setModalVisible(false)}
+          >
+            <Entypo name="circle-with-cross" size={45} color="red" />
+          </TouchableOpacity>
+        </View>
+      </Modal>
+      {/* Squad Modal */}
+      <Modal visible={squadModal} animationType="slide" transparent>
+        <View
+          style={{
+            position: "absolute",
+            backgroundColor: "#07FFF0",
+            transform: [{ translateX: 28 }, { translateY: 80 }],
+            width: "80%",
+            height: "80%",
+            alignItems: "center",
+            borderRadius: 20,
+            padding: 50,
+          }}
+        >
+          <Text style={{ fontSize: 24, marginBottom: 20 }}>Choose a Team</Text>
+          <ScrollView>
+            {selectedTeam &&
+              selectedTeam.players.map((player) => (
+                <TouchableOpacity
+                  key={player.id}
+                  onPress={() =>
+                    selectedTeam === team1
+                      ? setteam1Squad([...team1Squad, player])
+                      : setteam2Squad([...team2Squad, player])
+                  }
+                >
+                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                    {player.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={{ position: "absolute", top: 5, right: 5 }}
+            onPress={() => setsquadModal(false)}
+          >
+            <Entypo name="circle-with-cross" size={45} color="red" />
+          </TouchableOpacity>
+        </View>
+      </Modal>
       <AppTextInput
         placeholder="Venue"
         autoComplete="off"
@@ -266,6 +332,8 @@ export default function StartMatch({ navigation }) {
         }
         style={{ marginTop: 20 }}
       />
+
+      {/* Toss Modal */}
       <Modal visible={tossModalVisible} transparent animationType="fade">
         <View
           style={{
@@ -366,13 +434,20 @@ export default function StartMatch({ navigation }) {
               width: "100%",
             }}
           >
-            <TouchableWithoutFeedback onPress={() => setselected("Bat")}>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                setDecision("Bat");
+                tossWinner === team1
+                  ? (setbattingTeam(team1), setbowlingTeam(team2))
+                  : (setbattingTeam(team2), setbowlingTeam(team1));
+              }}
+            >
               <View
                 style={{
                   borderWidth: 1,
-                  borderColor: selected !== "Bat" ? "white" : "black",
+                  borderColor: decision !== "Bat" ? "white" : "black",
                   backgroundColor:
-                    selected === "Bat"
+                    decision === "Bat"
                       ? "rgba(0, 0, 0, 0.5)"
                       : "rgba(0, 0, 0, 0)",
                   borderRadius: 10,
@@ -384,13 +459,20 @@ export default function StartMatch({ navigation }) {
                 <Text style={{ fontWeight: "bold", fontSize: 20 }}>Bat</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => setselected("Bowl")}>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                setDecision("Bowl");
+                tossWinner === team1
+                  ? (setbattingTeam(team2), setbowlingTeam(team1))
+                  : (setbattingTeam(team1), setbowlingTeam(team2));
+              }}
+            >
               <View
                 style={{
                   borderWidth: 1,
-                  borderColor: selected !== "Bowl" ? "white" : "black",
+                  borderColor: decision !== "Bowl" ? "white" : "black",
                   backgroundColor:
-                    selected === "Bowl"
+                    decision === "Bowl"
                       ? "rgba(0, 0, 0, 0.5)"
                       : "rgba(0, 0, 0, 0)",
                   borderRadius: 10,
@@ -413,7 +495,7 @@ export default function StartMatch({ navigation }) {
       </Modal>
       <AppButton
         style={{ marginTop: 50, width: "82%" }}
-        onPress={() => navigation.navigate("Start Innings", { id: 1 })}
+        onPress={handleCreateMatch}
       >
         Create
       </AppButton>
