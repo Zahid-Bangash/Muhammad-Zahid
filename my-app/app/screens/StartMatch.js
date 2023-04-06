@@ -46,8 +46,7 @@ export default function StartMatch({ navigation }) {
   const [decision, setDecision] = useState(null);
   const [battingTeam, setbattingTeam] = useState(null);
   const [bowlingTeam, setbowlingTeam] = useState(null);
-console.log("1",team1Squad);
-console.log(team2Squad);
+
   const handleSelectTeam = (team) => {
     if (teamBoBeSelected === "A" && team2 && team2.id === team.id) {
       alert("Choose different teams");
@@ -204,7 +203,9 @@ console.log(team2Squad);
             padding: 50,
           }}
         >
-          <Text style={{ fontSize: 24, marginBottom: 20 }}>Choose a Team</Text>
+          <Text style={{ fontSize: 24, marginBottom: 20, color: "#FE7F0A",fontWeight:'bold' }}>
+            Choose a Team
+          </Text>
           <ScrollView>
             {teams.map((team) => (
               <TouchableOpacity
@@ -231,15 +232,17 @@ console.log(team2Squad);
           style={{
             position: "absolute",
             backgroundColor: "#07FFF0",
-            transform: [{ translateX: 28 }, { translateY: 80 }],
-            width: "80%",
-            height: "80%",
+            transform: [{ translateX: 27 }, { translateY: 80 }],
+            width: "85%",
+            height: "85%",
             alignItems: "center",
             borderRadius: 20,
-            padding: 50,
+            paddingTop: 50,
           }}
         >
-          <Text style={{ fontSize: 24, marginBottom: 20 }}>Choose a Team</Text>
+          <Text style={{ fontSize: 24, marginBottom: 20, color: "#FE7F0A",fontWeight:'bold', }}>
+            Add players to {selectedTeam && selectedTeam.name}
+          </Text>
           <ScrollView>
             {selectedTeam &&
               selectedTeam.players.map((player) => (
