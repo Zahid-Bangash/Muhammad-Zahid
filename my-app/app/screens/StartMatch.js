@@ -18,6 +18,8 @@ import AppTextInput from "../components/AppTextInput";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../config/firebase-config";
 
+import MyTeamsNavigator from "../navigation/MyTeamsNavigator";
+
 export default function StartMatch({ navigation }) {
   const { teams } = useContext(TeamsContext);
 
@@ -64,6 +66,24 @@ export default function StartMatch({ navigation }) {
     setModalVisible(false);
   };
 
+  const squad = selectedTeam === team1 ? team1Squad : team2Squad;
+
+  const handleSquadUpdate = (player) => {
+    if (selectedTeam === team1) {
+      if (team1Squad.includes(player)) {
+        setteam1Squad(team1Squad.filter((p) => p !== player));
+      } else {
+        setteam1Squad([...team1Squad, player]);
+      }
+    } else if (selectedTeam === team2) {
+      if (team2Squad.includes(player)) {
+        setteam2Squad(team2Squad.filter((p) => p !== player));
+      } else {
+        setteam2Squad([...team2Squad, player]);
+      }
+    }
+  };
+
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(false);
@@ -108,12 +128,15 @@ export default function StartMatch({ navigation }) {
     try {
       const matchRef = await addDoc(collection(db, "matches"), {
         title: `${team1.name} Vs ${team2.name}`,
-        teams: { team1: team1.name, team2: team2.name },
+        teams: {
+          team1: { name: team1.name, squad: team1Squad },
+          team2: { name: team2.name, squad: team2Squad },
+        },
         venue: matchDetails.venue,
         date: matchDetails.date.toLocaleDateString(),
         time: matchDetails.time.toLocaleTimeString(),
         tossResult: {
-          winnerTeam: tossWinner,
+          winnerTeam: tossWinner.name,
           decision: decision,
         },
         status: "InProgress",
@@ -203,14 +226,28 @@ export default function StartMatch({ navigation }) {
             padding: 50,
           }}
         >
-          <Text style={{ fontSize: 24, marginBottom: 20, color: "#FE7F0A",fontWeight:'bold' }}>
+          <Text
+            style={{
+              fontSize: 24,
+              marginBottom: 20,
+              color: "#b44e05",
+              fontWeight: "bold",
+            }}
+          >
             Choose a Team
           </Text>
-          <ScrollView>
+          <ScrollView style={{ width: "100%" }}>
             {teams.map((team) => (
               <TouchableOpacity
                 key={team.id}
                 onPress={() => handleSelectTeam(team)}
+                style={{
+                  backgroundColor: "pink",
+                  width: "100%",
+                  marginBottom: 5,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
                 <Text style={{ fontSize: 18, marginBottom: 10 }}>
                   {team.name}
@@ -227,11 +264,11 @@ export default function StartMatch({ navigation }) {
         </View>
       </Modal>
       {/* Squad Modal */}
-      <Modal visible={squadModal} animationType="slide" transparent>
+      <Modal visible={squadModal} animationType="fade" transparent>
         <View
           style={{
             position: "absolute",
-            backgroundColor: "#07FFF0",
+            backgroundColor: "#c0c589",
             transform: [{ translateX: 27 }, { translateY: 80 }],
             width: "85%",
             height: "85%",
@@ -240,24 +277,42 @@ export default function StartMatch({ navigation }) {
             paddingTop: 50,
           }}
         >
-          <Text style={{ fontSize: 24, marginBottom: 20, color: "#FE7F0A",fontWeight:'bold', }}>
-            Add players to {selectedTeam && selectedTeam.name}
+          <Text
+            style={{
+              fontSize: 24,
+              marginBottom: 20,
+              color: "#88309a",
+              fontWeight: "bold",
+            }}
+          >
+            Select {selectedTeam && selectedTeam.name} Squad
           </Text>
-          <ScrollView>
+          <ScrollView style={{ width: "100%", padding: 50, paddingTop: 0 }}>
             {selectedTeam &&
               selectedTeam.players.map((player) => (
-                <TouchableOpacity
+                <View
                   key={player.id}
-                  onPress={() =>
-                    selectedTeam === team1
-                      ? setteam1Squad([...team1Squad, player])
-                      : setteam2Squad([...team2Squad, player])
-                  }
+                  style={{
+                    backgroundColor: "#b8dde0",
+                    marginBottom: 5,
+                    alignItems: "center",
+                    paddingHorizontal: 10,
+                    flexDirection: "row",
+                  }}
                 >
-                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                  <Text style={{ fontSize: 18, marginBottom: 10, flex: 1 }}>
                     {player.name}
                   </Text>
-                </TouchableOpacity>
+                  {squad.includes(player) ? (
+                    <TouchableOpacity onPress={() => handleSquadUpdate(player)}>
+                      <Entypo name="minus" size={25} color="red" />
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity onPress={() => handleSquadUpdate(player)}>
+                      <Entypo name="plus" size={25} color="green" />
+                    </TouchableOpacity>
+                  )}
+                </View>
               ))}
           </ScrollView>
           <TouchableOpacity

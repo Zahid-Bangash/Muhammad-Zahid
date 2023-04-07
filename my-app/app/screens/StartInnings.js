@@ -12,10 +12,10 @@ import Entypo from "@expo/vector-icons/Entypo";
 import AppButton from "../components/AppButton";
 
 import { db } from "../config/firebase-config";
-import { collection,addDoc,doc } from "firebase/firestore";
+import { collection, addDoc, doc } from "firebase/firestore";
 
 export default function StartInnings({ route }) {
-  const { battingTeam, bowlingTeam,matchId } = route.params;
+  const { battingTeam, bowlingTeam, matchId } = route.params;
   const [striker, setstriker] = useState(null);
   const [nonStriker, setnonStriker] = useState(null);
   const [bowler, setbowler] = useState(null);
