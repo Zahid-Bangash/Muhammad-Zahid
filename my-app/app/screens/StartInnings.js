@@ -43,7 +43,6 @@ export default function StartInnings({ route }) {
     addDoc(inningsRef, {
       totalRuns: 0,
       wicketsDown: 0,
-      totalOvers: 10,
       oversDelivered: 0,
       ballsDelivered: 0,
       runRate: 0,
@@ -54,36 +53,29 @@ export default function StartInnings({ route }) {
       projectedScore: 0,
       currentBatsmen: [
         {
-          name: "Batsman 1",
-          runsScored: 30,
-          ballsFaced: 40,
-          fours: 4,
-          sixes: 1,
-          strikeRate: 75,
-        },
-        {
-          name: "Batsman 2",
-          runsScored: 40,
-          ballsFaced: 50,
-          fours: 5,
+          name: striker.name,
+          runsScored: 0,
+          ballsFaced: 0,
+          fours: 0,
           sixes: 0,
-          strikeRate: 80,
+          strikeRate: 0,
         },
-      ],
-      outBatsmen: [
         {
-          name: "Batsman 3",
-          runsScored: 10,
-          ballsFaced: 15,
-          dismissalType: "bowled",
+          name: nonStriker.name,
+          runsScored: 0,
+          ballsFaced: 0,
+          fours: 0,
+          sixes: 0,
+          strikeRate: 0,
         },
       ],
+      outBatsmen: [],
       currentBowler: {
-        name: "Bowler 1",
-        overs: 4,
-        runsGiven: 25,
-        wicketsTaken: 1,
-        maidenOvers: 1,
+        name: bowler.name,
+        overs: 0,
+        runsGiven: 0,
+        wicketsTaken: 0,
+        maidenOvers: 0,
       },
     })
       .then((docRef) => {
@@ -136,7 +128,7 @@ export default function StartInnings({ route }) {
           </Text>
         </TouchableWithoutFeedback>
       </View>
-      {/* <Modal visible={batsmenModal} animationType="slide" transparent>
+      <Modal visible={batsmenModal} animationType="slide" transparent>
         <View
           style={{
             position: "absolute",
@@ -174,7 +166,7 @@ export default function StartInnings({ route }) {
             <Entypo name="circle-with-cross" size={45} color="red" />
           </TouchableOpacity>
         </View>
-      </Modal> */}
+      </Modal>
       <Text
         style={{
           fontWeight: "bold",
@@ -191,7 +183,7 @@ export default function StartInnings({ route }) {
           {bowler ? bowler.name : "Select Bowler"}
         </Text>
       </TouchableWithoutFeedback>
-      {/* <Modal visible={bowlersModal} animationType="slide" transparent>
+      <Modal visible={bowlersModal} animationType="slide" transparent>
         <View
           style={{
             position: "absolute",
@@ -227,8 +219,10 @@ export default function StartInnings({ route }) {
             <Entypo name="circle-with-cross" size={45} color="red" />
           </TouchableOpacity>
         </View>
-      </Modal> */}
-      <AppButton style={{ width: "50%" }}>Start Scoring</AppButton>
+      </Modal>
+      <AppButton style={{ width: "50%" }} onPress={startInnings}>
+        Start Scoring
+      </AppButton>
     </View>
   );
 }
