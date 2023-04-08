@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,23 +6,79 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   ScrollView,
+  Alert,
 } from "react-native";
 import Swiper from "react-native-swiper";
 import Entypo from "@expo/vector-icons/Entypo";
 
+import { db } from "../config/firebase-config";
+import { doc, onSnapshot } from "firebase/firestore";
+
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
 
-export default function MatchCenter() {
+export default function MatchCenter({ route, navigation }) {
+  const { matchId, inningsId } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
 
-  const handleButtonPress = (index) => {
-    setSwiperIndex(index);
-  };
+  const [matchData, setMatchData] = useState({});
+  const [inningsData, setInningsData] = useState({});
+
+  useEffect(() => {
+    const matchDocRef = doc(db, "matches", matchId);
+    const inningsDocRef = doc(
+      db,
+      "matches",
+      matchId,
+      "First innings",
+      inningsId
+    );
+
+    const matchUnsubscribe = onSnapshot(matchDocRef, (doc) => {
+      const data = doc.data();
+      setMatchData(data);
+    });
+
+    const inningsUnsubscribe = onSnapshot(inningsDocRef, (doc) => {
+      const data = doc.data();
+      setInningsData(data);
+    });
+
+    return () => {
+      matchUnsubscribe();
+      inningsUnsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      e.preventDefault();
+      Alert.alert("Confirm", "Are you sure you want to leave the match?", [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => {
+            unsubscribe();
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Home" }],
+            });
+          },
+        },
+      ]);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   const renderPagination = () => (
     <View style={styles.pagination}>
       <TouchableOpacity
-        onPress={() => handleButtonPress(0)}
+        onPress={() => setSwiperIndex(0)}
         style={[styles.button, swiperIndex === 0 && styles.activeButton]}
       >
         <Text
@@ -35,7 +91,7 @@ export default function MatchCenter() {
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => handleButtonPress(1)}
+        onPress={() => setSwiperIndex(1)}
         style={[styles.button, swiperIndex === 1 && styles.activeButton]}
       >
         <Text
@@ -48,7 +104,7 @@ export default function MatchCenter() {
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => handleButtonPress(2)}
+        onPress={() => setSwiperIndex(2)}
         style={[styles.button, swiperIndex === 2 && styles.activeButton]}
       >
         <Text
@@ -62,6 +118,7 @@ export default function MatchCenter() {
       </TouchableOpacity>
     </View>
   );
+
   return (
     <Swiper
       loop={false}
@@ -83,7 +140,11 @@ export default function MatchCenter() {
         >
           <Text>Team</Text>
           <Text style={{ fontWeight: "bold", fontSize: 40, color: "#8f4705" }}>
-            150-0
+            {Object.keys(inningsData).length > 0 ? inningsData.totalRuns : "99"}
+            -
+            {Object.keys(inningsData).length > 0
+              ? inningsData.wicketsDown
+              : "hh"}
           </Text>
           <Text>(0.4/5)</Text>
         </View>

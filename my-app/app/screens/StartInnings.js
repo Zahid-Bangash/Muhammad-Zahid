@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Modal,
   ScrollView,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import AppButton from "../components/AppButton";
@@ -14,8 +15,9 @@ import AppButton from "../components/AppButton";
 import { db } from "../config/firebase-config";
 import { collection, addDoc, doc } from "firebase/firestore";
 
-export default function StartInnings({ route }) {
+export default function StartInnings({ route, navigation }) {
   const { battingTeam, bowlingTeam, matchId } = route.params;
+
   const [striker, setstriker] = useState(null);
   const [nonStriker, setnonStriker] = useState(null);
   const [bowler, setbowler] = useState(null);
@@ -80,11 +82,17 @@ export default function StartInnings({ route }) {
     })
       .then((docRef) => {
         console.log("Innings document written with ID: ", docRef.id);
+        navigation.navigate("Match Center", {
+          matchId: matchId,
+          inningsId: docRef.id,
+        });
       })
       .catch((error) => {
         console.error("Error adding innings document: ", error);
       });
   };
+
+
   return (
     <View style={styles.container}>
       <Text

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,10 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
+  Alert,
+  BackHandler,
 } from "react-native";
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Entypo from "@expo/vector-icons/Entypo";
 
@@ -20,9 +23,9 @@ import { db } from "../config/firebase-config";
 
 import MyTeamsNavigator from "../navigation/MyTeamsNavigator";
 
-export default function StartMatch({ navigation }) {
+export default function StartMatch({ navigation,route }) {
   const { teams } = useContext(TeamsContext);
-
+  const isFocused = useIsFocused();
   const [matchDetails, setmatchDetails] = useState({
     venue: "",
     date: new Date(),
@@ -141,7 +144,7 @@ export default function StartMatch({ navigation }) {
         },
         status: "InProgress",
       });
-      console.log("Match started with ID: ", matchRef.id);
+      console.log("Match created with ID: ", matchRef.id);
       navigation.navigate("Start Innings", {
         battingTeam: battingTeam,
         bowlingTeam: bowlingTeam,
@@ -156,7 +159,33 @@ export default function StartMatch({ navigation }) {
       console.error("Error starting match: ", err);
     }
   };
+  
+  useEffect(() => {
+    const removeListener = navigation.addListener("beforeRemove", (e) => {
+      if (navigation.isFocused()) {
+        e.preventDefault();
+        Alert.alert("Are you sure you want to leave?", "You are on the initial screen.", [
+          {
+            text: "Cancel",
+            style: "cancel",
+            onPress: () => {},
+          },
+          {
+            text: "OK",
+            onPress: () => {
+              // You can add any navigation action here, such as going to another screen
+              navigation.navigate("SomeScreen");
+            },
+          },
+        ]);
+      }
+    });
 
+    return () => {
+      removeListener();
+    };
+  }, [navigation]);
+  
   return (
     <View style={styles.container}>
       <View
