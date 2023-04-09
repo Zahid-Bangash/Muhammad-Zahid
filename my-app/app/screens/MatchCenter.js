@@ -12,7 +12,13 @@ import Swiper from "react-native-swiper";
 import Entypo from "@expo/vector-icons/Entypo";
 
 import { db } from "../config/firebase-config";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import {
+  doc,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+  collection,
+} from "firebase/firestore";
 
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
@@ -25,9 +31,13 @@ export default function MatchCenter({ route, navigation }) {
   const [inningsData, setInningsData] = useState({});
 
   const handleScore = (runs) => {
+    if (updatedInningsData.isComplete === true) {
+      alert("Innings is completed");
+      return;
+    }
     const updatedInningsData = { ...inningsData };
     const currentOver =
-    updatedInningsData.overs[updatedInningsData.overs.length - 1];
+      updatedInningsData.overs[updatedInningsData.overs.length - 1];
 
     const newBall = {
       ballName: `ball${currentOver.balls.length + 1}`,
@@ -43,8 +53,9 @@ export default function MatchCenter({ route, navigation }) {
     updatedInningsData.totalRuns += runs;
 
     updatedInningsData.currentBatsmen[0].runsScored += runs;
-    if(runs===4) updatedInningsData.currentBatsmen[0].fours += 1;
-    if(runs===6) updatedInningsData.currentBatsmen[0].sixes += 1;
+    updatedInningsData.currentBowler.runsGiven += runs;
+    if (runs === 4) updatedInningsData.currentBatsmen[0].fours += 1;
+    if (runs === 6) updatedInningsData.currentBatsmen[0].sixes += 1;
 
     if (runs % 2 !== 0) {
       const temp = updatedInningsData.currentBatsmen[0];
@@ -53,18 +64,19 @@ export default function MatchCenter({ route, navigation }) {
       updatedInningsData.currentBatsmen[1] = temp;
     }
 
-    if (
-      inningsData.overs.length === inningsData.totalOvers &&
-      currentOver.balls.length === 6
-    )
-      inningsData.isComplete = true;
-    setInningsData(updatedInningsData);
-    updateInningsData();
+    if (updatedInningsData.overs.length === updatedInningsData.totalOvers)
+      updatedInningsData.isComplete = true;
+    updateInningsData(updatedInningsData);
+    if (updatedInningsData.isComplete === true) alert("Innings completed");
   };
 
-  const updateInningsData = async () => {
+  const updateInningsData = async (updatedInningsData) => {
     try {
-      await setDoc(doc(db, "innings", inningsId), inningsData);
+      const matchRef = doc(db, "matches", matchId);
+      const inningsRef = collection(matchRef, "First innings");
+      const inningsDocRef = doc(inningsRef, inningsId);
+
+      await updateDoc(inningsDocRef, updatedInningsData);
       console.log("Innings data updated successfully!");
     } catch (error) {
       console.error("Error updating innings data:", error);
@@ -199,11 +211,11 @@ export default function MatchCenter({ route, navigation }) {
           <Text>
             (
             {Object.keys(inningsData).length > 0
-              ? inningsData.ballsDelivered
+              ? inningsData.overs[inningsData.overs.length - 1].balls.length
               : "0"}
             .
             {Object.keys(inningsData).length > 0
-              ? inningsData.overs.length
+              ? inningsData.overs.length - 1
               : "0"}
             /{Object.keys(matchData).length > 0 ? matchData.totalOvers : "0"})
           </Text>
@@ -393,7 +405,7 @@ export default function MatchCenter({ route, navigation }) {
           }}
         >
           <View style={{ flex: 1, flexDirection: "row" }}>
-            <TouchableWithoutFeedback onPress={() => console.log("dot")}>
+            <TouchableWithoutFeedback onPress={() => handleScore(0)}>
               <View style={styles.buttonCell}>
                 <Entypo name="dot-single" size={30} />
               </View>
@@ -439,7 +451,7 @@ export default function MatchCenter({ route, navigation }) {
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>4</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("6")}>
+            <TouchableWithoutFeedback onPress={() => handleScore(6)}>
               <View style={styles.buttonCell}>
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>6</Text>
               </View>

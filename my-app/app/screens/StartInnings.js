@@ -16,7 +16,7 @@ import { db } from "../config/firebase-config";
 import { collection, addDoc, doc } from "firebase/firestore";
 
 export default function StartInnings({ route, navigation }) {
-  const { battingTeam, bowlingTeam, matchId } = route.params;
+  const { battingTeam, bowlingTeam, squad1, squad2, matchId } = route.params;
 
   const [striker, setstriker] = useState(null);
   const [nonStriker, setnonStriker] = useState(null);
@@ -47,7 +47,7 @@ export default function StartInnings({ route, navigation }) {
       wicketsDown: 0,
       oversDelivered: 0,
       ballsDelivered: 0,
-      overs: [{ bowler: bowler.name, balls: [] }],
+      overs: [{ balls: [], bowler: bowler.name }],
       runRate: 0,
       extras: {
         noBalls: 0,
@@ -73,14 +73,17 @@ export default function StartInnings({ route, navigation }) {
         },
       ],
       outBatsmen: [],
-      currentBowler: {
-        name: bowler.name,
-        overs: 0,
-        runsGiven: 0,
-        wicketsTaken: 0,
-        maidenOvers: 0,
-        eco: 0,
-      },
+      currentBowler: bowler.name,
+      bowlers: [
+        {
+          name: "",
+          overs: 0,
+          runsGiven: 0,
+          wicketsTaken: 0,
+          maidenOvers: 0,
+          eco: 0,
+        },
+      ],
       isCompleted: false,
     })
       .then((docRef) => {
@@ -95,6 +98,9 @@ export default function StartInnings({ route, navigation }) {
       });
   };
 
+  const battingSquad = squad1.type === "batting" ? squad1 : squad2;
+  const bowlingSquad = squad1.type === "bowling" ? squad1 : squad2;
+
   return (
     <View style={styles.container}>
       <Text
@@ -106,7 +112,7 @@ export default function StartInnings({ route, navigation }) {
           padding: 5,
         }}
       >
-        Batting-{battingTeam.name}
+        Batting-{battingTeam}
       </Text>
       <View
         style={{
@@ -152,8 +158,8 @@ export default function StartInnings({ route, navigation }) {
           }}
         >
           <ScrollView>
-            {battingTeam.players &&
-              battingTeam.players.map((player) => (
+            {battingSquad.players &&
+              battingSquad.players.map((player) => (
                 <TouchableOpacity
                   key={player.id}
                   onPress={() => {
@@ -186,7 +192,7 @@ export default function StartInnings({ route, navigation }) {
           padding: 5,
         }}
       >
-        Bowling-{bowlingTeam.name}
+        Bowling-{bowlingTeam}
       </Text>
       <TouchableWithoutFeedback onPress={() => setbowlersModal(true)}>
         <Text style={{ fontWeight: "bold", fontSize: 17 }}>
@@ -207,8 +213,8 @@ export default function StartInnings({ route, navigation }) {
           }}
         >
           <ScrollView>
-            {bowlingTeam.players &&
-              bowlingTeam.players.map((player) => (
+            {bowlingSquad.players &&
+              bowlingSquad.players.map((player) => (
                 <TouchableOpacity
                   key={player.id}
                   onPress={() => {
@@ -224,7 +230,7 @@ export default function StartInnings({ route, navigation }) {
           </ScrollView>
           <TouchableOpacity
             style={{ position: "absolute", top: 5, right: 5 }}
-            onPress={() => setbatsmenModal(false)}
+            onPress={() => setbowlersModal(false)}
           >
             <Entypo name="circle-with-cross" size={45} color="red" />
           </TouchableOpacity>

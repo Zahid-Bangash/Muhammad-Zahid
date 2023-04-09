@@ -31,8 +31,8 @@ export default function StartMatch({ route, navigation }) {
   });
   const [team1, setTeam1] = useState(null);
   const [team2, setTeam2] = useState(null);
-  const [team1Squad, setteam1Squad] = useState([]);
-  const [team2Squad, setteam2Squad] = useState([]);
+  const [team1Squad, setteam1Squad] = useState({ type: "", players: [] });
+  const [team2Squad, setteam2Squad] = useState({ type: "", players: [] });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -69,17 +69,29 @@ export default function StartMatch({ route, navigation }) {
   const squad = selectedTeam === team1 ? team1Squad : team2Squad;
 
   const handleSquadUpdate = (player) => {
-    if (selectedTeam === team1) {
-      if (team1Squad.includes(player)) {
-        setteam1Squad(team1Squad.filter((p) => p !== player));
+    if (selectedTeam.id === team1.id) {
+      if (team1Squad.players.includes(player)) {
+        setteam1Squad({
+          ...team1Squad,
+          players: team1Squad.players.filter((p) => p !== player),
+        });
       } else {
-        setteam1Squad([...team1Squad, player]);
+        setteam1Squad({
+          ...team1Squad,
+          players: [...team1Squad.players, player],
+        });
       }
-    } else if (selectedTeam === team2) {
-      if (team2Squad.includes(player)) {
-        setteam2Squad(team2Squad.filter((p) => p !== player));
+    } else if (selectedTeam.id === team2.id) {
+      if (team2Squad.players.includes(player)) {
+        setteam2Squad({
+          ...team2Squad,
+          players: team2Squad.players.filter((p) => p !== player),
+        });
       } else {
-        setteam2Squad([...team2Squad, player]);
+        setteam2Squad({
+          ...team2Squad,
+          players: [...team2Squad.players, player],
+        });
       }
     }
   };
@@ -139,15 +151,17 @@ export default function StartMatch({ route, navigation }) {
           winnerTeam: tossWinner.name,
           decision: decision,
         },
-        battingTeam: battingTeam.name,
-        bowlingTeam: bowlingTeam.name,
-        totalOvers:matchDetails.overs,
+        battingTeam: battingTeam,
+        bowlingTeam: bowlingTeam,
+        totalOvers: matchDetails.overs,
         status: "InProgress",
       });
       console.log("Match created with ID: ", matchRef.id);
       navigation.navigate("Start Innings", {
         battingTeam: battingTeam,
         bowlingTeam: bowlingTeam,
+        squad1: team1Squad,
+        squad2: team2Squad,
         matchId: matchRef.id,
       });
       setTossModalVisible(false);
@@ -306,7 +320,7 @@ export default function StartMatch({ route, navigation }) {
                   <Text style={{ fontSize: 18, marginBottom: 10, flex: 1 }}>
                     {player.name}
                   </Text>
-                  {squad.includes(player) ? (
+                  {squad.players.includes(player) ? (
                     <TouchableOpacity onPress={() => handleSquadUpdate(player)}>
                       <Entypo name="minus" size={25} color="red" />
                     </TouchableOpacity>
@@ -499,8 +513,14 @@ export default function StartMatch({ route, navigation }) {
               onPress={() => {
                 setDecision("Bat");
                 tossWinner === team1
-                  ? (setbattingTeam(team1), setbowlingTeam(team2))
-                  : (setbattingTeam(team2), setbowlingTeam(team1));
+                  ? (setbattingTeam(team1.name),
+                    setbowlingTeam(team2.name),
+                    setteam1Squad({ ...team1Squad, type: "batting" }),
+                    setteam2Squad({ ...team2Squad, type: "bowling" }))
+                  : (setbattingTeam(team2.name),
+                    setbowlingTeam(team1.name),
+                    setteam2Squad({ ...team2Squad, type: "batting" }),
+                    setteam1Squad({ ...team1Squad, type: "bowling" }));
               }}
             >
               <View
@@ -524,8 +544,14 @@ export default function StartMatch({ route, navigation }) {
               onPress={() => {
                 setDecision("Bowl");
                 tossWinner === team1
-                  ? (setbattingTeam(team2), setbowlingTeam(team1))
-                  : (setbattingTeam(team1), setbowlingTeam(team2));
+                  ? (setbattingTeam(team2.name),
+                    setbowlingTeam(team1.name),
+                    setteam1Squad({ ...team1Squad, type: "bowling" }),
+                    setteam2Squad({ ...team2Squad, type: "batting" }))
+                  : (setbattingTeam(team1.name),
+                    setbowlingTeam(team2.name),
+                    setteam2Squad({ ...team2Squad, type: "bowling" }),
+                    setteam1Squad({ ...team1Squad, type: "batting" }));
               }}
             >
               <View
