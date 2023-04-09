@@ -7,7 +7,7 @@ import { StartMatch, StartInnings, MatchCenter } from "../screens";
 
 const Stack = createNativeStackNavigator();
 
-const StartMatchNavigator = ({ navigation }) => (
+const StartMatchNavigator = () => (
   <Stack.Navigator
     initialRouteName="Create Match"
     screenOptions={{
@@ -23,18 +23,21 @@ const StartMatchNavigator = ({ navigation }) => (
     <Stack.Screen
       name="Create Match"
       component={StartMatch}
-      options={{
+      options={({ navigation }) => ({
         headerLeft: () => (
           <TouchableOpacity
             style={{ marginRight: 30 }}
             onPress={() => {
-              navigation.goBack();
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Home" }],
+              });
             }}
           >
             <Ionicons name="arrow-back" size={25} color="white" />
           </TouchableOpacity>
         ),
-      }}
+      })}
     />
     <Stack.Screen name="Start Innings" component={StartInnings} />
     <Stack.Screen name="Match Center" component={MatchCenter} />

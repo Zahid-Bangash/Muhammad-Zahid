@@ -12,7 +12,7 @@ import Swiper from "react-native-swiper";
 import Entypo from "@expo/vector-icons/Entypo";
 
 import { db } from "../config/firebase-config";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
 
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
@@ -23,6 +23,53 @@ export default function MatchCenter({ route, navigation }) {
 
   const [matchData, setMatchData] = useState({});
   const [inningsData, setInningsData] = useState({});
+
+  const handleScore = (runs) => {
+    const updatedInningsData = { ...inningsData };
+    const currentOver =
+    updatedInningsData.overs[updatedInningsData.overs.length - 1];
+
+    const newBall = {
+      ballName: `ball${currentOver.balls.length + 1}`,
+      runs: runs,
+    };
+    currentOver.balls.push(newBall);
+
+    if (currentOver.balls.length === 6) {
+      const newOver = { Bowler: "", balls: [] };
+      updatedInningsData.overs.push(newOver);
+    }
+
+    updatedInningsData.totalRuns += runs;
+
+    updatedInningsData.currentBatsmen[0].runsScored += runs;
+    if(runs===4) updatedInningsData.currentBatsmen[0].fours += 1;
+    if(runs===6) updatedInningsData.currentBatsmen[0].sixes += 1;
+
+    if (runs % 2 !== 0) {
+      const temp = updatedInningsData.currentBatsmen[0];
+      updatedInningsData.currentBatsmen[0] =
+        updatedInningsData.currentBatsmen[1];
+      updatedInningsData.currentBatsmen[1] = temp;
+    }
+
+    if (
+      inningsData.overs.length === inningsData.totalOvers &&
+      currentOver.balls.length === 6
+    )
+      inningsData.isComplete = true;
+    setInningsData(updatedInningsData);
+    updateInningsData();
+  };
+
+  const updateInningsData = async () => {
+    try {
+      await setDoc(doc(db, "innings", inningsId), inningsData);
+      console.log("Innings data updated successfully!");
+    } catch (error) {
+      console.error("Error updating innings data:", error);
+    }
+  };
 
   useEffect(() => {
     const matchDocRef = doc(db, "matches", matchId);
@@ -138,15 +185,28 @@ export default function MatchCenter({ route, navigation }) {
             borderColor: "gray",
           }}
         >
-          <Text>Team</Text>
+          <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+            {Object.keys(matchData).length > 0
+              ? matchData.battingTeam
+              : "Batting-Team"}
+          </Text>
           <Text style={{ fontWeight: "bold", fontSize: 40, color: "#8f4705" }}>
-            {Object.keys(inningsData).length > 0 ? inningsData.totalRuns : "99"}
-            -
+            {Object.keys(inningsData).length > 0 ? inningsData.totalRuns : "0"}-
             {Object.keys(inningsData).length > 0
               ? inningsData.wicketsDown
-              : "hh"}
+              : "0"}
           </Text>
-          <Text>(0.4/5)</Text>
+          <Text>
+            (
+            {Object.keys(inningsData).length > 0
+              ? inningsData.ballsDelivered
+              : "0"}
+            .
+            {Object.keys(inningsData).length > 0
+              ? inningsData.overs.length
+              : "0"}
+            /{Object.keys(matchData).length > 0 ? matchData.totalOvers : "0"})
+          </Text>
         </View>
         <View
           style={{
@@ -165,33 +225,82 @@ export default function MatchCenter({ route, navigation }) {
             }}
           >
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>Batsman</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>Zahid*</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>Bangash</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[0].name
+                : "Striker"}
+              *
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[1].name
+                : "Non Striker"}
+            </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>R</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>54</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>54</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[0].runsScored
+                : "0"}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[1].runsScored
+                : "0"}
+            </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>B</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>54</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>54</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[0].ballsFaced
+                : "0"}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[1].ballsFaced
+                : "0"}
+            </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>4s</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>5</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>54</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[0].fours
+                : "0"}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[1].fours
+                : "0"}
+            </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>6s</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>1</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>54</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[0].sixes
+                : "0"}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[1].sixes
+                : "0"}
+            </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>SR</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>254</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>54</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[0].strikeRate
+                : "0"}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBatsmen[1].strikeRate
+                : "0"}
+            </Text>
           </View>
         </View>
         <View
@@ -212,27 +321,51 @@ export default function MatchCenter({ route, navigation }) {
             }}
           >
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>Bowler</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>Zahid</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBowler.name
+                : "Bowler"}
+            </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>O</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>54</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBowler.overs
+                : "0"}
+            </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>M</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>54</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBowler.maidenOvers
+                : "0"}
+            </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>R</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>5</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBowler.runsGiven
+                : "0"}
+            </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>W</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>1</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBowler.wicketsTaken
+                : "0"}
+            </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>Eco</Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>254</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {Object.keys(inningsData).length > 0
+                ? inningsData.currentBowler.eco
+                : "0"}
+            </Text>
           </View>
         </View>
         <View
@@ -265,17 +398,17 @@ export default function MatchCenter({ route, navigation }) {
                 <Entypo name="dot-single" size={30} />
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("1")}>
+            <TouchableWithoutFeedback onPress={() => handleScore(1)}>
               <View style={styles.buttonCell}>
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>1</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("2")}>
+            <TouchableWithoutFeedback onPress={() => handleScore(2)}>
               <View style={styles.buttonCell}>
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>2</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("3")}>
+            <TouchableWithoutFeedback onPress={() => handleScore(3)}>
               <View style={styles.buttonCell}>
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>3</Text>
               </View>
@@ -301,7 +434,7 @@ export default function MatchCenter({ route, navigation }) {
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>Bye</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("4")}>
+            <TouchableWithoutFeedback onPress={() => handleScore(4)}>
               <View style={styles.buttonCell}>
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>4</Text>
               </View>

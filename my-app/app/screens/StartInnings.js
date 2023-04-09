@@ -47,6 +47,7 @@ export default function StartInnings({ route, navigation }) {
       wicketsDown: 0,
       oversDelivered: 0,
       ballsDelivered: 0,
+      overs: [{ bowler: bowler.name, balls: [] }],
       runRate: 0,
       extras: {
         noBalls: 0,
@@ -78,7 +79,9 @@ export default function StartInnings({ route, navigation }) {
         runsGiven: 0,
         wicketsTaken: 0,
         maidenOvers: 0,
+        eco: 0,
       },
+      isCompleted: false,
     })
       .then((docRef) => {
         console.log("Innings document written with ID: ", docRef.id);
@@ -92,7 +95,6 @@ export default function StartInnings({ route, navigation }) {
       });
   };
 
-
   return (
     <View style={styles.container}>
       <Text
@@ -104,7 +106,7 @@ export default function StartInnings({ route, navigation }) {
           padding: 5,
         }}
       >
-        Batting-Team A
+        Batting-{battingTeam.name}
       </Text>
       <View
         style={{
@@ -120,7 +122,7 @@ export default function StartInnings({ route, navigation }) {
           }}
         >
           <Text style={{ fontWeight: "bold", fontSize: 17 }}>
-            {striker ? `Striker:${striker.name}` : "Select Striker"}
+            {striker ? `Striker: ${striker.name}` : "Select Striker"}
           </Text>
         </TouchableWithoutFeedback>
         <TouchableWithoutFeedback
@@ -131,7 +133,7 @@ export default function StartInnings({ route, navigation }) {
         >
           <Text style={{ fontWeight: "bold", fontSize: 17 }}>
             {nonStriker
-              ? `Non Striker:${nonStriker.name}`
+              ? `Non Striker: ${nonStriker.name}`
               : "Select Non Striker"}
           </Text>
         </TouchableWithoutFeedback>
@@ -184,11 +186,11 @@ export default function StartInnings({ route, navigation }) {
           padding: 5,
         }}
       >
-        Bowling-Team B
+        Bowling-{bowlingTeam.name}
       </Text>
       <TouchableWithoutFeedback onPress={() => setbowlersModal(true)}>
         <Text style={{ fontWeight: "bold", fontSize: 17 }}>
-          {bowler ? bowler.name : "Select Bowler"}
+          {bowler ? `Bowler: ${bowler.name}` : "Select Bowler"}
         </Text>
       </TouchableWithoutFeedback>
       <Modal visible={bowlersModal} animationType="slide" transparent>

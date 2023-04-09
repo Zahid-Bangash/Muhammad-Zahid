@@ -7,10 +7,7 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
-  Alert,
-  BackHandler,
 } from "react-native";
-import { useNavigation, useIsFocused } from '@react-navigation/native';
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Entypo from "@expo/vector-icons/Entypo";
 
@@ -23,9 +20,9 @@ import { db } from "../config/firebase-config";
 
 import MyTeamsNavigator from "../navigation/MyTeamsNavigator";
 
-export default function StartMatch({ navigation,route }) {
+export default function StartMatch({ route, navigation }) {
   const { teams } = useContext(TeamsContext);
-  const isFocused = useIsFocused();
+
   const [matchDetails, setmatchDetails] = useState({
     venue: "",
     date: new Date(),
@@ -142,6 +139,9 @@ export default function StartMatch({ navigation,route }) {
           winnerTeam: tossWinner.name,
           decision: decision,
         },
+        battingTeam: battingTeam.name,
+        bowlingTeam: bowlingTeam.name,
+        totalOvers:matchDetails.overs,
         status: "InProgress",
       });
       console.log("Match created with ID: ", matchRef.id);
@@ -159,33 +159,7 @@ export default function StartMatch({ navigation,route }) {
       console.error("Error starting match: ", err);
     }
   };
-  
-  useEffect(() => {
-    const removeListener = navigation.addListener("beforeRemove", (e) => {
-      if (navigation.isFocused()) {
-        e.preventDefault();
-        Alert.alert("Are you sure you want to leave?", "You are on the initial screen.", [
-          {
-            text: "Cancel",
-            style: "cancel",
-            onPress: () => {},
-          },
-          {
-            text: "OK",
-            onPress: () => {
-              // You can add any navigation action here, such as going to another screen
-              navigation.navigate("SomeScreen");
-            },
-          },
-        ]);
-      }
-    });
 
-    return () => {
-      removeListener();
-    };
-  }, [navigation]);
-  
   return (
     <View style={styles.container}>
       <View
