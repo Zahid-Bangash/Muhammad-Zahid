@@ -80,6 +80,15 @@ export default function MatchCenter({ route, navigation }) {
     inningsDataCopy.totalRuns += runs;
     inningsDataCopy.currentBatsmen[0].runsScored += runs;
     inningsDataCopy.currentBatsmen[0].ballsFaced += 1;
+    const strikeRate =
+      (inningsDataCopy.currentBatsmen[0].runsScored /
+        inningsDataCopy.currentBatsmen[0].ballsFaced) *
+      100;
+    inningsDataCopy.currentBatsmen[0].strikeRate = strikeRate.toFixed(2);
+    inningsDataCopy.runRate =
+      inningsDataCopy.oversDelivered === 0
+        ? inningsDataCopy.totalRuns
+        : inningsDataCopy.totalRuns / inningsDataCopy.oversDelivered;
     inningsDataCopy.currentBowler.runsGiven += runs;
     inningsDataCopy.currentOver.push(runs);
     if (runs === 4) {
@@ -107,10 +116,9 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
       inningsDataCopy.currentBatsmen[1] = temp;
     }
-    console.log(matchData.totalOvers,inningsDataCopy.oversDelivered,inningsDataCopy.oversDelivered.toFixed(1) === matchData.totalOvers.toFixed(1));
     if (inningsDataCopy.oversDelivered === matchData.totalOvers)
       inningsDataCopy.isComplete = true;
-    
+
     updateData(inningsDataCopy);
     if (inningsDataCopy.isComplete === true) alert("Innings completed");
   };
@@ -126,6 +134,12 @@ export default function MatchCenter({ route, navigation }) {
     } catch (error) {
       console.error("Error updating innings data:", error);
     }
+  };
+
+  const getBgColor = (runs) => {
+    if (runs === 4) return "blue";
+    else if (runs === 6) return "#3db106";
+    else return "#5e6959";
   };
 
   useEffect(() => {
@@ -257,6 +271,20 @@ export default function MatchCenter({ route, navigation }) {
         </View>
         <View
           style={{
+            flex: 1.3,
+            borderBottomWidth: 1,
+            borderColor: "gray",
+            width: "100%",
+            flexDirection: "row",
+            justifyContent:'space-around',
+          }}
+        >
+          <Text>Extras - 5</Text>
+          <Text>Partnership - 50(23)</Text>
+          <Text>CRR - 24.0</Text>
+        </View>
+        <View
+          style={{
             flex: 2.5,
             borderBottomWidth: 0.5,
             borderColor: "gray",
@@ -380,7 +408,7 @@ export default function MatchCenter({ route, navigation }) {
         </View>
         <View
           style={{
-            flex: 1.5,
+            flex: 1.3,
             borderBottomWidth: 0.5,
             borderColor: "gray",
             width: "100%",
@@ -392,36 +420,28 @@ export default function MatchCenter({ route, navigation }) {
           <Text style={{ fontWeight: "bold" }}>This Over</Text>
           <View style={{ width: "80%", flexDirection: "row" }}>
             {inningsData.currentOver.length > 0 &&
-              inningsData.currentOver.map((ball, index) => (
+              inningsData.currentOver.map((runs, index) => (
                 <View
                   key={index}
                   style={{
                     width: 40,
                     height: 40,
                     borderWidth: 1,
-                    borderColor: "blue",
+                    borderColor: getBgColor(runs),
                     borderRadius: 20,
-                    // marginHorizontal: 20,
-                    backgroundColor: "blue",
+                    marginHorizontal: 5,
+                    backgroundColor: getBgColor(runs),
                     justifyContent: "center",
                     alignItems: "center",
                   }}
                 >
                   <Text style={{ color: "white", fontWeight: "bold" }}>
-                    {ball}
+                    {runs}
                   </Text>
                 </View>
               ))}
           </View>
         </View>
-        <View
-          style={{
-            flex: 1.3,
-            borderBottomWidth: 1,
-            borderColor: "gray",
-            width: "100%",
-          }}
-        ></View>
         <View
           style={{
             flex: 4,
