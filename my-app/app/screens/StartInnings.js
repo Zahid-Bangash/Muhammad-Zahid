@@ -48,10 +48,8 @@ export default function StartInnings({ route, navigation }) {
       oversDelivered: 0,
       ballsDelivered: 0,
       runRate: 0,
-      extras: {
-        noBalls: 0,
-        wideBalls: 0,
-      },
+      extras: 0,
+      partnership: { runs: 0, balls: 0 },
       projectedScore: 0,
       currentOver: [],
       currentBatsmen: [
@@ -62,6 +60,8 @@ export default function StartInnings({ route, navigation }) {
           fours: 0,
           sixes: 0,
           strikeRate: 0,
+          dismissalType: "",
+          dismissalBowler: "",
         },
         {
           name: nonStriker.name,
@@ -70,6 +70,8 @@ export default function StartInnings({ route, navigation }) {
           fours: 0,
           sixes: 0,
           strikeRate: 0,
+          dismissalType: "",
+          dismissalBowler: "",
         },
       ],
       outBatsmen: [],

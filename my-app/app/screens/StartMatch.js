@@ -7,9 +7,12 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
+  TextInput,
+  KeyboardAvoidingView,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Entypo from "@expo/vector-icons/Entypo";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 import TeamsContext from "../components/TeamsContext";
 import AppButton from "../components/AppButton";
@@ -22,7 +25,7 @@ import MyTeamsNavigator from "../navigation/MyTeamsNavigator";
 
 export default function StartMatch({ route, navigation }) {
   const { teams } = useContext(TeamsContext);
-
+  const [bottom, setbottom] = useState(0);
   const [matchDetails, setmatchDetails] = useState({
     venue: "",
     date: new Date(),
@@ -586,6 +589,93 @@ export default function StartMatch({ route, navigation }) {
       >
         Create
       </AppButton>
+
+      {/* <Modal visible={true} animationType="fade" transparent>
+        <View
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "25%",
+            backgroundColor: "#ebc67f",
+            bottom: 0,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 22,
+            }}
+          >
+            Wide ball
+          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-around",
+              width: "70%",
+            }}
+          >
+            <Text style={{ fontSize: 20 }}>WD</Text>
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderWidth: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "green",
+              }}
+            >
+              <Text style={{ fontWeight: "bold", color: "white" }}>1</Text>
+            </View>
+            <Entypo name="plus" size={25} />
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderWidth: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <TextInput
+                placeholder="1"
+                style={{ textAlign: "center", fontWeight: "bold" }}
+                placeholderTextColor="black"
+              />
+            </View>
+            <FontAwesome5 name="equals" size={17} />
+            <Text style={{ fontSize: 17, fontWeight: "bold" }}>4</Text>
+          </View>
+          <View style={{ flexDirection: "row" }}>
+            <AppButton
+              style={{
+                width: "50%",
+                borderRadius: 0,
+                backgroundColor: "#727369",
+                height: 50,
+              }}
+            >
+              Cancel
+            </AppButton>
+            <AppButton
+              style={{
+                width: "50%",
+                borderRadius: 0,
+                height: 50,
+                backgroundColor: "green",
+              }}
+            >
+              OK
+            </AppButton>
+          </View>
+        </View>
+      </Modal> */}
     </View>
   );
 }

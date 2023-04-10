@@ -7,6 +7,7 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   Alert,
+  Modal,
 } from "react-native";
 import Swiper from "react-native-swiper";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -27,6 +28,7 @@ export default function MatchCenter({ route, navigation }) {
   const { matchId, inningsId } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
 
+  const [modalVisible, setmodalVisible] = useState(false);
   const [matchData, setMatchData] = useState({});
   const [inningsData, setInningsData] = useState({
     totalRuns: 0,
@@ -34,10 +36,8 @@ export default function MatchCenter({ route, navigation }) {
     oversDelivered: 0,
     ballsDelivered: 0,
     runRate: 0,
-    extras: {
-      noBalls: 0,
-      wideBalls: 0,
-    },
+    extras: 0,
+    partnership: { runs: 0, balls: 0 },
     projectedScore: 0,
     currentOver: [],
     currentBatsmen: [
@@ -48,6 +48,8 @@ export default function MatchCenter({ route, navigation }) {
         fours: 0,
         sixes: 0,
         strikeRate: 0,
+        dismissalType:'',
+        dismissalBowler:'',
       },
       {
         name: "Non Striker",
@@ -56,6 +58,8 @@ export default function MatchCenter({ route, navigation }) {
         fours: 0,
         sixes: 0,
         strikeRate: 0,
+        dismissalType:'',
+        dismissalBowler:'',
       },
     ],
     outBatsmen: [],
@@ -77,7 +81,9 @@ export default function MatchCenter({ route, navigation }) {
       alert("Innings is completed");
       return;
     }
-    inningsDataCopy.totalRuns += runs;
+    // inningsDataCopy.totalRuns += runs;
+    inningsDataCopy.partnership.runs += runs;
+    inningsDataCopy.partnership.balls++;
     inningsDataCopy.currentBatsmen[0].runsScored += runs;
     inningsDataCopy.currentBatsmen[0].ballsFaced += 1;
     const strikeRate =
@@ -85,6 +91,12 @@ export default function MatchCenter({ route, navigation }) {
         inningsDataCopy.currentBatsmen[0].ballsFaced) *
       100;
     inningsDataCopy.currentBatsmen[0].strikeRate = strikeRate.toFixed(2);
+    const economy =
+      inningsDataCopy.currentBowler.overs === 0
+        ? inningsDataCopy.currentBowler.runsGiven
+        : inningsData.currentBowler.runsGiven /
+          inningsDataCopy.currentBowler.overs;
+    inningsData.currentBowler.eco = economy.toFixed(2);
     inningsDataCopy.runRate =
       inningsDataCopy.oversDelivered === 0
         ? inningsDataCopy.totalRuns
@@ -109,6 +121,8 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.oversDelivered += 1;
       inningsDataCopy.currentBowler.overs += 1;
       inningsDataCopy.ballsDelivered = 0;
+      if (inningsData.currentBowler.runsGiven === 0)
+        inningsDataCopy.currentBowler.maidenOvers++;
       alert("Over End");
       inningsDataCopy.currentOver = [];
       //changing strike
@@ -276,12 +290,19 @@ export default function MatchCenter({ route, navigation }) {
             borderColor: "gray",
             width: "100%",
             flexDirection: "row",
-            justifyContent:'space-around',
+            justifyContent: "space-around",
+            alignItems: "center",
           }}
         >
-          <Text>Extras - 5</Text>
-          <Text>Partnership - 50(23)</Text>
-          <Text>CRR - 24.0</Text>
+          <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+            Extras - {inningsData.extras}
+          </Text>
+          <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+            {`Partnership - ${inningsData.partnership.runs}(${inningsData.partnership.balls})`}
+          </Text>
+          <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+            CRR - {inningsData.runRate}
+          </Text>
         </View>
         <View
           style={{
@@ -450,6 +471,11 @@ export default function MatchCenter({ route, navigation }) {
             padding: 5,
           }}
         >
+          <Modal visible={modalVisible} animationType="fade" transparent>
+          <View style={{position:'absolute',width:'80%',height:'50%',}}>
+
+          </View>
+          </Modal>
           <View style={{ flex: 1, flexDirection: "row" }}>
             <TouchableWithoutFeedback onPress={() => handleScore(0)}>
               <View style={styles.buttonCell}>
