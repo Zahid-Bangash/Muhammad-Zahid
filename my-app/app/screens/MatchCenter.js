@@ -48,8 +48,8 @@ export default function MatchCenter({ route, navigation }) {
         fours: 0,
         sixes: 0,
         strikeRate: 0,
-        dismissalType:'',
-        dismissalBowler:'',
+        dismissalType: "",
+        dismissalBowler: "",
       },
       {
         name: "Non Striker",
@@ -58,8 +58,8 @@ export default function MatchCenter({ route, navigation }) {
         fours: 0,
         sixes: 0,
         strikeRate: 0,
-        dismissalType:'',
-        dismissalBowler:'',
+        dismissalType: "",
+        dismissalBowler: "",
       },
     ],
     outBatsmen: [],
@@ -471,11 +471,6 @@ export default function MatchCenter({ route, navigation }) {
             padding: 5,
           }}
         >
-          <Modal visible={modalVisible} animationType="fade" transparent>
-          <View style={{position:'absolute',width:'80%',height:'50%',}}>
-
-          </View>
-          </Modal>
           <View style={{ flex: 1, flexDirection: "row" }}>
             <TouchableWithoutFeedback onPress={() => handleScore(0)}>
               <View style={styles.buttonCell}>
