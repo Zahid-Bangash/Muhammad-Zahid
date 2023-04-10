@@ -403,7 +403,7 @@ export default function StartMatch({ route, navigation }) {
         autoCorrect={false}
         value={matchDetails.overs}
         onChangeText={(text) =>
-          setmatchDetails({ ...matchDetails, overs: text })
+          setmatchDetails({ ...matchDetails, overs: parseInt(text) })
         }
         style={{ marginTop: 20 }}
       />

@@ -47,13 +47,13 @@ export default function StartInnings({ route, navigation }) {
       wicketsDown: 0,
       oversDelivered: 0,
       ballsDelivered: 0,
-      overs: [{ balls: [], bowler: bowler.name }],
       runRate: 0,
       extras: {
         noBalls: 0,
         wideBalls: 0,
       },
       projectedScore: 0,
+      currentOver: [],
       currentBatsmen: [
         {
           name: striker.name,
@@ -73,17 +73,15 @@ export default function StartInnings({ route, navigation }) {
         },
       ],
       outBatsmen: [],
-      currentBowler: bowler.name,
-      bowlers: [
-        {
-          name: "",
-          overs: 0,
-          runsGiven: 0,
-          wicketsTaken: 0,
-          maidenOvers: 0,
-          eco: 0,
-        },
-      ],
+      currentBowler: {
+        name: bowler.name,
+        overs: 0,
+        runsGiven: 0,
+        wicketsTaken: 0,
+        maidenOvers: 0,
+        eco: 0,
+      },
+      bowlers: [],
       isCompleted: false,
     })
       .then((docRef) => {

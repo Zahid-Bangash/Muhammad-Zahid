@@ -28,55 +28,100 @@ export default function MatchCenter({ route, navigation }) {
   const [swiperIndex, setSwiperIndex] = useState(0);
 
   const [matchData, setMatchData] = useState({});
-  const [inningsData, setInningsData] = useState({});
+  const [inningsData, setInningsData] = useState({
+    totalRuns: 0,
+    wicketsDown: 0,
+    oversDelivered: 0,
+    ballsDelivered: 0,
+    runRate: 0,
+    extras: {
+      noBalls: 0,
+      wideBalls: 0,
+    },
+    projectedScore: 0,
+    currentOver: [],
+    currentBatsmen: [
+      {
+        name: "Striker",
+        runsScored: 0,
+        ballsFaced: 0,
+        fours: 0,
+        sixes: 0,
+        strikeRate: 0,
+      },
+      {
+        name: "Non Striker",
+        runsScored: 0,
+        ballsFaced: 0,
+        fours: 0,
+        sixes: 0,
+        strikeRate: 0,
+      },
+    ],
+    outBatsmen: [],
+    currentBowler: {
+      name: "Bowler",
+      overs: 0,
+      runsGiven: 0,
+      wicketsTaken: 0,
+      maidenOvers: 0,
+      eco: 0,
+    },
+    bowlers: [],
+    isCompleted: false,
+  });
 
   const handleScore = (runs) => {
-    if (updatedInningsData.isComplete === true) {
+    const inningsDataCopy = { ...inningsData };
+    if (inningsDataCopy.isComplete === true) {
       alert("Innings is completed");
       return;
     }
-    const updatedInningsData = { ...inningsData };
-    const currentOver =
-      updatedInningsData.overs[updatedInningsData.overs.length - 1];
-
-    const newBall = {
-      ballName: `ball${currentOver.balls.length + 1}`,
-      runs: runs,
-    };
-    currentOver.balls.push(newBall);
-
-    if (currentOver.balls.length === 6) {
-      const newOver = { Bowler: "", balls: [] };
-      updatedInningsData.overs.push(newOver);
+    inningsDataCopy.totalRuns += runs;
+    inningsDataCopy.currentBatsmen[0].runsScored += runs;
+    inningsDataCopy.currentBatsmen[0].ballsFaced += 1;
+    inningsDataCopy.currentBowler.runsGiven += runs;
+    inningsDataCopy.currentOver.push(runs);
+    if (runs === 4) {
+      inningsDataCopy.currentBatsmen[0].fours += 1;
     }
-
-    updatedInningsData.totalRuns += runs;
-
-    updatedInningsData.currentBatsmen[0].runsScored += runs;
-    updatedInningsData.currentBowler.runsGiven += runs;
-    if (runs === 4) updatedInningsData.currentBatsmen[0].fours += 1;
-    if (runs === 6) updatedInningsData.currentBatsmen[0].sixes += 1;
-
+    if (runs === 6) {
+      inningsDataCopy.currentBatsmen[0].sixes += 1;
+    }
+    inningsDataCopy.ballsDelivered += 1;
+    //changing strike
     if (runs % 2 !== 0) {
-      const temp = updatedInningsData.currentBatsmen[0];
-      updatedInningsData.currentBatsmen[0] =
-        updatedInningsData.currentBatsmen[1];
-      updatedInningsData.currentBatsmen[1] = temp;
+      const temp = inningsDataCopy.currentBatsmen[0];
+      inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
+      inningsDataCopy.currentBatsmen[1] = temp;
     }
-
-    if (updatedInningsData.overs.length === updatedInningsData.totalOvers)
-      updatedInningsData.isComplete = true;
-    updateInningsData(updatedInningsData);
-    if (updatedInningsData.isComplete === true) alert("Innings completed");
+    //over ends
+    if (inningsDataCopy.ballsDelivered === 6) {
+      inningsDataCopy.oversDelivered += 1;
+      inningsDataCopy.currentBowler.overs += 1;
+      inningsDataCopy.ballsDelivered = 0;
+      alert("Over End");
+      inningsDataCopy.currentOver = [];
+      //changing strike
+      const temp = inningsDataCopy.currentBatsmen[0];
+      inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
+      inningsDataCopy.currentBatsmen[1] = temp;
+    }
+    console.log(matchData.totalOvers,inningsDataCopy.oversDelivered,inningsDataCopy.oversDelivered.toFixed(1) === matchData.totalOvers.toFixed(1));
+    if (inningsDataCopy.oversDelivered === matchData.totalOvers)
+      inningsDataCopy.isComplete = true;
+    
+    updateData(inningsDataCopy);
+    if (inningsDataCopy.isComplete === true) alert("Innings completed");
   };
 
-  const updateInningsData = async (updatedInningsData) => {
+  const updateData = async (updatedData) => {
     try {
       const matchRef = doc(db, "matches", matchId);
       const inningsRef = collection(matchRef, "First innings");
       const inningsDocRef = doc(inningsRef, inningsId);
 
-      await updateDoc(inningsDocRef, updatedInningsData);
+      await updateDoc(inningsDocRef, updatedData, { merge: true });
       console.log("Innings data updated successfully!");
     } catch (error) {
       console.error("Error updating innings data:", error);
@@ -203,21 +248,11 @@ export default function MatchCenter({ route, navigation }) {
               : "Batting-Team"}
           </Text>
           <Text style={{ fontWeight: "bold", fontSize: 40, color: "#8f4705" }}>
-            {Object.keys(inningsData).length > 0 ? inningsData.totalRuns : "0"}-
-            {Object.keys(inningsData).length > 0
-              ? inningsData.wicketsDown
-              : "0"}
+            {inningsData.totalRuns}-{inningsData.wicketsDown}
           </Text>
           <Text>
-            (
-            {Object.keys(inningsData).length > 0
-              ? inningsData.overs[inningsData.overs.length - 1].balls.length
-              : "0"}
-            .
-            {Object.keys(inningsData).length > 0
-              ? inningsData.overs.length - 1
-              : "0"}
-            /{Object.keys(matchData).length > 0 ? matchData.totalOvers : "0"})
+            ({inningsData.ballsDelivered}.{inningsData.oversDelivered}/
+            {Object.keys(matchData).length > 0 ? matchData.totalOvers : "0"})
           </Text>
         </View>
         <View
@@ -238,80 +273,55 @@ export default function MatchCenter({ route, navigation }) {
           >
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>Batsman</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[0].name
-                : "Striker"}
-              *
+              {inningsData.currentBatsmen[0].name}*
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[1].name
-                : "Non Striker"}
+              {inningsData.currentBatsmen[1].name}
             </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>R</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[0].runsScored
-                : "0"}
+              {inningsData.currentBatsmen[0].runsScored}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[1].runsScored
-                : "0"}
+              {inningsData.currentBatsmen[1].runsScored}
             </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>B</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[0].ballsFaced
-                : "0"}
+              {inningsData.currentBatsmen[0].ballsFaced}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[1].ballsFaced
-                : "0"}
+              {inningsData.currentBatsmen[1].ballsFaced}
             </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>4s</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[0].fours
-                : "0"}
+              {inningsData.currentBatsmen[0].fours}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[1].fours
-                : "0"}
+              {inningsData.currentBatsmen[1].fours}
             </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>6s</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[0].sixes
-                : "0"}
+              {inningsData.currentBatsmen[0].sixes}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[1].sixes
-                : "0"}
+              {inningsData.currentBatsmen[1].sixes}
             </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>SR</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[0].strikeRate
-                : "0"}
+              {inningsData.currentBatsmen[0].strikeRate}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBatsmen[1].strikeRate
-                : "0"}
+              {inningsData.currentBatsmen[1].strikeRate}
             </Text>
           </View>
         </View>
@@ -334,49 +344,37 @@ export default function MatchCenter({ route, navigation }) {
           >
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>Bowler</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBowler.name
-                : "Bowler"}
+              {inningsData.currentBowler.name}
             </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>O</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBowler.overs
-                : "0"}
+              {inningsData.currentBowler.overs}
             </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>M</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBowler.maidenOvers
-                : "0"}
+              {inningsData.currentBowler.maidenOvers}
             </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>R</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBowler.runsGiven
-                : "0"}
+              {inningsData.currentBowler.runsGiven}
             </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>W</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBowler.wicketsTaken
-                : "0"}
+              {inningsData.currentBowler.wicketsTaken}
             </Text>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>Eco</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {Object.keys(inningsData).length > 0
-                ? inningsData.currentBowler.eco
-                : "0"}
+              {inningsData.currentBowler.eco}
             </Text>
           </View>
         </View>
@@ -386,8 +384,36 @@ export default function MatchCenter({ route, navigation }) {
             borderBottomWidth: 0.5,
             borderColor: "gray",
             width: "100%",
+            flexDirection: "row",
+            justifyContent: "space-around",
+            alignItems: "center",
           }}
-        ></View>
+        >
+          <Text style={{ fontWeight: "bold" }}>This Over</Text>
+          <View style={{ width: "80%", flexDirection: "row" }}>
+            {inningsData.currentOver.length > 0 &&
+              inningsData.currentOver.map((ball, index) => (
+                <View
+                  key={index}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderWidth: 1,
+                    borderColor: "blue",
+                    borderRadius: 20,
+                    // marginHorizontal: 20,
+                    backgroundColor: "blue",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "white", fontWeight: "bold" }}>
+                    {ball}
+                  </Text>
+                </View>
+              ))}
+          </View>
+        </View>
         <View
           style={{
             flex: 1.3,
