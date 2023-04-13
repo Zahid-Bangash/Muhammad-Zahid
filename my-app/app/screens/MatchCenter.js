@@ -23,14 +23,26 @@ import {
 
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
+import ScoringModal from "../components/ScoringModal";
 
 export default function MatchCenter({ route, navigation }) {
   const { matchId, inningsId } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
 
-  const [modalVisible, setmodalVisible] = useState(false);
+  const [customScoreVisible, setcustomScoreVisible] = useState(false);
+  const [noBallVisible, setnoBallVisible] = useState(false);
+  const [wideBallVisible, setwideBallVisible] = useState(false);
+  const [byeVisible, setbyeVisible] = useState(false);
+  const [legByeVisible, setlegByeVisible] = useState(false);
+
+  const [customScore, setcustomScore] = useState(0);
+  const [noBall, setnoBall] = useState(1);
+  const [wideBall, setwideBall] = useState(1);
+  const [bye, setbye] = useState(1);
+  const [legBye, setlegBye] = useState(1);
+
   const [matchData, setMatchData] = useState({});
-  const [inningsData, setInningsData] = useState({
+  const intitialInningsData={
     totalRuns: 0,
     wicketsDown: 0,
     oversDelivered: 0,
@@ -73,7 +85,11 @@ export default function MatchCenter({ route, navigation }) {
     },
     bowlers: [],
     isCompleted: false,
-  });
+  };
+
+  const [inningsData, setInningsData] = useState(intitialInningsData);
+
+  const [previousState, setpreviousState] = useState(intitialInningsData);
 
   const handleScore = (runs) => {
     const inningsDataCopy = { ...inningsData };
@@ -81,7 +97,7 @@ export default function MatchCenter({ route, navigation }) {
       alert("Innings is completed");
       return;
     }
-    // inningsDataCopy.totalRuns += runs;
+    inningsDataCopy.totalRuns += runs;
     inningsDataCopy.partnership.runs += runs;
     inningsDataCopy.partnership.balls++;
     inningsDataCopy.currentBatsmen[0].runsScored += runs;
@@ -134,6 +150,7 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.isComplete = true;
 
     updateData(inningsDataCopy);
+    // setpreviousState(inningsData);
     if (inningsDataCopy.isComplete === true) alert("Innings completed");
   };
 
@@ -155,6 +172,12 @@ export default function MatchCenter({ route, navigation }) {
     else if (runs === 6) return "#3db106";
     else return "#5e6959";
   };
+
+  // const handleUndo = () => {
+  //   setInningsData(previousState);
+  //   updateData(previousState);
+  //   setpreviousState(intitialInningsData);
+  // };
 
   useEffect(() => {
     const matchDocRef = doc(db, "matches", matchId);
@@ -189,7 +212,7 @@ export default function MatchCenter({ route, navigation }) {
         {
           text: "Cancel",
           onPress: () => {},
-          style: "cancel",
+          style: "No",
         },
         {
           text: "Yes",
@@ -492,7 +515,7 @@ export default function MatchCenter({ route, navigation }) {
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>3</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("undo")}>
+            <TouchableWithoutFeedback onPress={()=>console.log("undo")}>
               <View style={[styles.buttonCell, { borderRightWidth: 0 }]}>
                 <Text
                   style={{ fontWeight: "bold", fontSize: 17, color: "green" }}
@@ -508,7 +531,7 @@ export default function MatchCenter({ route, navigation }) {
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>Wide</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("Bye")}>
+            <TouchableWithoutFeedback onPress={() => setbyeVisible(true)}>
               <View style={styles.buttonCell}>
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>Bye</Text>
               </View>
@@ -534,31 +557,28 @@ export default function MatchCenter({ route, navigation }) {
             </TouchableWithoutFeedback>
           </View>
           <View style={{ flex: 1, flexDirection: "row" }}>
-            <TouchableWithoutFeedback onPress={() => console.log("nb")}>
+            <TouchableWithoutFeedback onPress={() => setnoBallVisible(true)}>
               <View style={[styles.buttonCell, { borderBottomWidth: 0 }]}>
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>NB</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("lb")}>
+            <TouchableWithoutFeedback onPress={() => setlegByeVisible(true)}>
               <View style={[styles.buttonCell, { borderBottomWidth: 0 }]}>
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>LB</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("5,7")}>
+            <TouchableWithoutFeedback
+              onPress={() => setcustomScoreVisible(true)}
+            >
               <View style={[styles.buttonCell, { borderBottomWidth: 0 }]}>
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>5,7</Text>
-              </View>
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("input")}>
-              <View style={[styles.buttonCell, { borderBottomWidth: 0 }]}>
-                <Entypo name="pencil" size={25} />
               </View>
             </TouchableWithoutFeedback>
             <TouchableWithoutFeedback onPress={() => console.log("more")}>
               <View
                 style={[
                   styles.buttonCell,
-                  { borderRightWidth: 0, borderBottomWidth: 0 },
+                  { borderRightWidth: 0, borderBottomWidth: 0, flex: 2 },
                 ]}
               >
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>More</Text>
@@ -566,6 +586,41 @@ export default function MatchCenter({ route, navigation }) {
             </TouchableWithoutFeedback>
           </View>
         </View>
+        <ScoringModal
+          title="Custom Runs"
+          visibility={customScoreVisible}
+          setVisibility={setcustomScoreVisible}
+          value={customScore}
+          setValue={setcustomScore}
+        />
+        <ScoringModal
+          title="No Ball"
+          visibility={noBallVisible}
+          setVisibility={setnoBallVisible}
+          value={noBall}
+          setValue={setnoBall}
+        />
+        <ScoringModal
+          title="Wide Ball"
+          visibility={wideBallVisible}
+          setVisibility={setwideBallVisible}
+          value={wideBall}
+          setValue={setwideBall}
+        />
+        <ScoringModal
+          title="Bye Runs"
+          visibility={byeVisible}
+          setVisibility={setbyeVisible}
+          value={bye}
+          setValue={setbye}
+        />
+        <ScoringModal
+          title="Leg  Bye Runs"
+          visibility={legByeVisible}
+          setVisibility={setlegByeVisible}
+          value={legBye}
+          setValue={setlegBye}
+        />
       </View>
       <View style={styles.slide}>
         <ScrollView contentContainerStyle={{ marginTop: 44, width: "100%" }}>
