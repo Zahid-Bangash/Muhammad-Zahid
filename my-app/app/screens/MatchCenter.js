@@ -37,12 +37,12 @@ export default function MatchCenter({ route, navigation }) {
 
   const [customScore, setcustomScore] = useState(0);
   const [noBall, setnoBall] = useState(1);
-  const [wideBall, setwideBall] = useState(1);
+  const [wideRuns, setwideRuns] = useState(1);
   const [bye, setbye] = useState(1);
   const [legBye, setlegBye] = useState(1);
 
   const [matchData, setMatchData] = useState({});
-  const intitialInningsData={
+  const intitialInningsData = {
     totalRuns: 0,
     wicketsDown: 0,
     oversDelivered: 0,
@@ -89,35 +89,71 @@ export default function MatchCenter({ route, navigation }) {
 
   const [inningsData, setInningsData] = useState(intitialInningsData);
 
-  const [previousState, setpreviousState] = useState(intitialInningsData);
+  const [previousState, setpreviousState] = useState([]);
 
-  const handleScore = (runs) => {
+  const handleScore = (
+    runs,
+    isWide = false,
+    wideRuns = 0,
+    isNoBall = false,
+    noBallRuns = 0,
+    isBye = false,
+    byeRuns = 0,
+    isLegBye = false,
+    legByeRuns = 0
+  ) => {
+    setpreviousState([
+      ...previousState,
+      JSON.parse(JSON.stringify(inningsData)),
+    ]);
+
     const inningsDataCopy = { ...inningsData };
     if (inningsDataCopy.isComplete === true) {
       alert("Innings is completed");
       return;
     }
+    if (isWide) {
+      inningsDataCopy.extras += wideRuns;
+      inningsDataCopy.totalRuns += wideRuns;
+    }
+    if (isBye) {
+      inningsDataCopy.extras += byeRuns;
+      inningsDataCopy.totalRuns += byeRuns;
+    }
+    if (isLegBye) {
+      inningsDataCopy.extras += legByeRuns;
+      inningsDataCopy.totalRuns += legByeRuns;
+    }
+    if (isNoBall) {
+      inningsDataCopy.extras += legByeRuns;
+      inningsDataCopy.totalRuns += legByeRuns;
+    }
     inningsDataCopy.totalRuns += runs;
     inningsDataCopy.partnership.runs += runs;
-    inningsDataCopy.partnership.balls++;
+    if (!isWide && !isNoBall) inningsDataCopy.partnership.balls++;
     inningsDataCopy.currentBatsmen[0].runsScored += runs;
-    inningsDataCopy.currentBatsmen[0].ballsFaced += 1;
+    if (!isWide && !isNoBall) inningsDataCopy.currentBatsmen[0].ballsFaced++;
     const strikeRate =
       (inningsDataCopy.currentBatsmen[0].runsScored /
         inningsDataCopy.currentBatsmen[0].ballsFaced) *
       100;
+    console.log(
+      (inningsDataCopy.currentBatsmen[0].runsScored /
+        inningsDataCopy.currentBatsmen[0].ballsFaced) *
+        100
+    );
     inningsDataCopy.currentBatsmen[0].strikeRate = strikeRate.toFixed(2);
+    inningsDataCopy.currentBowler.runsGiven += runs;
     const economy =
       inningsDataCopy.currentBowler.overs === 0
         ? inningsDataCopy.currentBowler.runsGiven
-        : inningsData.currentBowler.runsGiven /
+        : inningsDataCopy.currentBowler.runsGiven /
           inningsDataCopy.currentBowler.overs;
-    inningsData.currentBowler.eco = economy.toFixed(2);
+    inningsDataCopy.currentBowler.eco = economy.toFixed(2);
     inningsDataCopy.runRate =
       inningsDataCopy.oversDelivered === 0
         ? inningsDataCopy.totalRuns
         : inningsDataCopy.totalRuns / inningsDataCopy.oversDelivered;
-    inningsDataCopy.currentBowler.runsGiven += runs;
     inningsDataCopy.currentOver.push(runs);
     if (runs === 4) {
       inningsDataCopy.currentBatsmen[0].fours += 1;
@@ -125,9 +161,15 @@ export default function MatchCenter({ route, navigation }) {
     if (runs === 6) {
       inningsDataCopy.currentBatsmen[0].sixes += 1;
     }
-    inningsDataCopy.ballsDelivered += 1;
+    if (!isWide && !isNoBall) inningsDataCopy.ballsDelivered++;
     //changing strike
-    if (runs % 2 !== 0) {
+    if (
+      runs % 2 !== 0 ||
+      (wideRuns !== 1 && wideRuns % 2 !== 0) ||
+      legByeRuns % 2 !== 0 ||
+      byeRuns % 2 !== 0 ||
+      (noBallRuns !== 1 && noBallRuns % 2 !== 0)
+    ) {
       const temp = inningsDataCopy.currentBatsmen[0];
       inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
       inningsDataCopy.currentBatsmen[1] = temp;
@@ -148,9 +190,7 @@ export default function MatchCenter({ route, navigation }) {
     }
     if (inningsDataCopy.oversDelivered === matchData.totalOvers)
       inningsDataCopy.isComplete = true;
-
     updateData(inningsDataCopy);
-    // setpreviousState(inningsData);
     if (inningsDataCopy.isComplete === true) alert("Innings completed");
   };
 
@@ -173,11 +213,13 @@ export default function MatchCenter({ route, navigation }) {
     else return "#5e6959";
   };
 
-  // const handleUndo = () => {
-  //   setInningsData(previousState);
-  //   updateData(previousState);
-  //   setpreviousState(intitialInningsData);
-  // };
+  const handleUndo = () => {
+    if (previousState.length > 0) {
+      const prevState = previousState.pop();
+      setpreviousState([...previousState]);
+      updateData(prevState);
+    }
+  };
 
   useEffect(() => {
     const matchDocRef = doc(db, "matches", matchId);
@@ -210,9 +252,8 @@ export default function MatchCenter({ route, navigation }) {
       e.preventDefault();
       Alert.alert("Confirm", "Are you sure you want to leave the match?", [
         {
-          text: "Cancel",
+          text: "No",
           onPress: () => {},
-          style: "No",
         },
         {
           text: "Yes",
@@ -280,6 +321,7 @@ export default function MatchCenter({ route, navigation }) {
       index={swiperIndex}
       onIndexChanged={(index) => setSwiperIndex(index)}
       renderPagination={renderPagination}
+      nestedScrollEnabled
     >
       <View style={[styles.slide]}>
         <View
@@ -455,14 +497,12 @@ export default function MatchCenter({ route, navigation }) {
             flex: 1.3,
             borderBottomWidth: 0.5,
             borderColor: "gray",
-            width: "100%",
             flexDirection: "row",
             justifyContent: "space-around",
             alignItems: "center",
           }}
         >
-          <Text style={{ fontWeight: "bold" }}>This Over</Text>
-          <View style={{ width: "80%", flexDirection: "row" }}>
+          <ScrollView horizontal>
             {inningsData.currentOver.length > 0 &&
               inningsData.currentOver.map((runs, index) => (
                 <View
@@ -484,7 +524,7 @@ export default function MatchCenter({ route, navigation }) {
                   </Text>
                 </View>
               ))}
-          </View>
+          </ScrollView>
         </View>
         <View
           style={{
@@ -515,7 +555,7 @@ export default function MatchCenter({ route, navigation }) {
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>3</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={()=>console.log("undo")}>
+            <TouchableWithoutFeedback onPress={handleUndo}>
               <View style={[styles.buttonCell, { borderRightWidth: 0 }]}>
                 <Text
                   style={{ fontWeight: "bold", fontSize: 17, color: "green" }}
@@ -526,7 +566,7 @@ export default function MatchCenter({ route, navigation }) {
             </TouchableWithoutFeedback>
           </View>
           <View style={{ flex: 1, flexDirection: "row" }}>
-            <TouchableWithoutFeedback onPress={() => console.log("wide")}>
+            <TouchableWithoutFeedback onPress={() => setwideBallVisible(true)}>
               <View style={styles.buttonCell}>
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>Wide</Text>
               </View>
@@ -592,6 +632,11 @@ export default function MatchCenter({ route, navigation }) {
           setVisibility={setcustomScoreVisible}
           value={customScore}
           setValue={setcustomScore}
+          onOkPress={() => {
+            handleScore((runs = customScore));
+            setcustomScore(0);
+            setcustomScoreVisible(false);
+          }}
         />
         <ScoringModal
           title="No Ball"
@@ -599,13 +644,23 @@ export default function MatchCenter({ route, navigation }) {
           setVisibility={setnoBallVisible}
           value={noBall}
           setValue={setnoBall}
+          onOkPress={() => {
+            handleScore((runs = 0), (isNoBall = true), noBall);
+            setnoBall(1);
+            setnoBallVisible(false);
+          }}
         />
         <ScoringModal
-          title="Wide Ball"
+          title="Wide Runs"
           visibility={wideBallVisible}
           setVisibility={setwideBallVisible}
-          value={wideBall}
-          setValue={setwideBall}
+          value={wideRuns}
+          setValue={setwideRuns}
+          onOkPress={() => {
+            handleScore((runs = 0), (isWide = true), wideRuns);
+            setwideRuns(1);
+            setwideBallVisible(false);
+          }}
         />
         <ScoringModal
           title="Bye Runs"
@@ -613,6 +668,11 @@ export default function MatchCenter({ route, navigation }) {
           setVisibility={setbyeVisible}
           value={bye}
           setValue={setbye}
+          onOkPress={() => {
+            handleScore((runs = 0), (isBye = true), bye);
+            setbye(1);
+            setbyeVisible(false);
+          }}
         />
         <ScoringModal
           title="Leg  Bye Runs"
@@ -620,6 +680,11 @@ export default function MatchCenter({ route, navigation }) {
           setVisibility={setlegByeVisible}
           value={legBye}
           setValue={setlegBye}
+          onOkPress={() => {
+            handleScore((runs = 0), (isLegBye = true), legBye);
+            setlegBye(1);
+            setlegByeVisible(false);
+          }}
         />
       </View>
       <View style={styles.slide}>

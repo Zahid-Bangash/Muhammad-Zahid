@@ -9,6 +9,7 @@ export default function ScoringModal({
   title,
   value,
   setValue,
+  onOkPress,
 }) {
   return (
     <Modal visible={visibility} animationType="fade" transparent>
@@ -49,7 +50,7 @@ export default function ScoringModal({
               }}
               placeholderTextColor="black"
               value={value.toString()}
-              onChangeText={(val) => setValue(val)}
+              onChangeText={(val) => setValue(isNaN(parseInt(val))? 0 :parseInt(val))}
             />
           </View>
         </View>
@@ -61,7 +62,10 @@ export default function ScoringModal({
               backgroundColor: "#727369",
               height: "100%",
             }}
-            onPress={() => setVisibility(false)}
+            onPress={() => {
+              setVisibility(false);
+              setValue(1);
+            }}
           >
             Cancel
           </AppButton>
@@ -72,6 +76,7 @@ export default function ScoringModal({
               height: "100%",
               backgroundColor: "green",
             }}
+            onPress={onOkPress}
           >
             OK
           </AppButton>
