@@ -641,7 +641,7 @@ export default function MatchCenter({ route, navigation }) {
           value={customScore}
           setValue={setcustomScore}
           onOkPress={() => {
-            handleScore((runs = customScore));
+            handleScore(customScore);
             setcustomScore(0);
             setcustomScoreVisible(false);
           }}
@@ -653,7 +653,17 @@ export default function MatchCenter({ route, navigation }) {
           value={noBall}
           setValue={setnoBall}
           onOkPress={() => {
-            handleScore((runs = 0), (isNoBall = true), (noBallRuns = noBall));
+            handleScore(
+              (runs = 0),
+              (isWide = false),
+              (wdRuns = 0),
+              (isNoBall = true),
+              (noBallRuns = noBall),
+              (isBye = false),
+              (byeRuns = 0),
+              (isLegBye = false),
+              (legByeRuns = 0)
+            );
             setnoBall(1);
             setnoBallVisible(false);
           }}
@@ -665,7 +675,17 @@ export default function MatchCenter({ route, navigation }) {
           value={wideRuns}
           setValue={setwideRuns}
           onOkPress={() => {
-            handleScore((runs = 0), (isWide = true), (wdRuns = wideRuns));
+            handleScore(
+              (runs = 0),
+              (isWide = true),
+              (wdRuns = wideRuns),
+              (isNoBall = false),
+              (noBallRuns = 0),
+              (isBye = false),
+              (byeRuns = 0),
+              (isLegBye = false),
+              (legByeRuns = 0)
+            );
             setwideRuns(1);
             setwideBallVisible(false);
           }}
@@ -677,7 +697,17 @@ export default function MatchCenter({ route, navigation }) {
           value={bye}
           setValue={setbye}
           onOkPress={() => {
-            handleScore((runs = 0), (isBye = true), (byeRuns = bye));
+            handleScore(
+              (runs = 0),
+              (isWide = false),
+              (wdRuns = 0),
+              (isNoBall = false),
+              (noBallRuns = 0),
+              (isBye = true),
+              (byeRuns = bye),
+              (isLegBye = false),
+              (legByeRuns = 0)
+            );
             setbye(1);
             setbyeVisible(false);
           }}
@@ -689,7 +719,17 @@ export default function MatchCenter({ route, navigation }) {
           value={legBye}
           setValue={setlegBye}
           onOkPress={() => {
-            handleScore((runs = 0), (isLegBye = true), (legByeRuns = legBye));
+            handleScore(
+              (runs = 0),
+              (isWide = false),
+              (wdRuns = 0),
+              (isNoBall = false),
+              (noBallRuns = 0),
+              (isBye = false),
+              (byeRuns = 0),
+              (isLegBye = true),
+              (legByeRuns = legBye)
+            );
             setlegBye(1);
             setlegByeVisible(false);
           }}
