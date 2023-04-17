@@ -163,6 +163,14 @@ export default function StartInnings({ route, navigation }) {
                 <TouchableOpacity
                   key={player.id}
                   onPress={() => {
+                    if (toBeSelected === "striker" && player === nonStriker) {
+                      alert("Choose different players");
+                      return;
+                    }
+                    if (toBeSelected === "non-striker" && player === striker) {
+                      alert("Choose different players");
+                      return;
+                    }
                     toBeSelected === "striker"
                       ? setstriker(player)
                       : setnonStriker(player);

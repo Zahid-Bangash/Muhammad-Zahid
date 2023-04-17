@@ -514,6 +514,10 @@ export default function StartMatch({ route, navigation }) {
           >
             <TouchableWithoutFeedback
               onPress={() => {
+                if (!tossWinner) {
+                  alert("Select who won the toss first");
+                  return;
+                }
                 setDecision("Bat");
                 tossWinner === team1
                   ? (setbattingTeam(team1.name),
@@ -545,6 +549,10 @@ export default function StartMatch({ route, navigation }) {
             </TouchableWithoutFeedback>
             <TouchableWithoutFeedback
               onPress={() => {
+                if (!tossWinner) {
+                  alert("Select who won the toss first");
+                  return;
+                }
                 setDecision("Bowl");
                 tossWinner === team1
                   ? (setbattingTeam(team2.name),

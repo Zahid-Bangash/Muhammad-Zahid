@@ -94,7 +94,7 @@ export default function MatchCenter({ route, navigation }) {
   const handleScore = (
     runs,
     isWide = false,
-    wideRuns = 0,
+    wdRuns = 0,
     isNoBall = false,
     noBallRuns = 0,
     isBye = false,
@@ -112,21 +112,28 @@ export default function MatchCenter({ route, navigation }) {
       alert("Innings is completed");
       return;
     }
+    console.log(isWide);
     if (isWide) {
-      inningsDataCopy.extras += wideRuns;
-      inningsDataCopy.totalRuns += wideRuns;
+      inningsDataCopy.extras += wdRuns;
+      inningsDataCopy.totalRuns += wdRuns;
+      inningsDataCopy.currentOver.push(`Wd${wdRuns}`);
+      inningsDataCopy.currentBowler.runsGiven += wdRuns;
     }
     if (isBye) {
       inningsDataCopy.extras += byeRuns;
       inningsDataCopy.totalRuns += byeRuns;
+      inningsDataCopy.currentOver.push(`bye${byeRuns}`);
     }
     if (isLegBye) {
       inningsDataCopy.extras += legByeRuns;
       inningsDataCopy.totalRuns += legByeRuns;
+      inningsDataCopy.currentOver.push(`lb${legByeRuns}`);
     }
     if (isNoBall) {
-      inningsDataCopy.extras += legByeRuns;
-      inningsDataCopy.totalRuns += legByeRuns;
+      inningsDataCopy.extras += noBallRuns;
+      inningsDataCopy.totalRuns += noBallRuns;
+      inningsDataCopy.currentOver.push(`nb${noBallRuns}`);
+      inningsDataCopy.currentBowler.runsGiven += noBallRuns;
     }
     inningsDataCopy.totalRuns += runs;
     inningsDataCopy.partnership.runs += runs;
@@ -154,7 +161,8 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.oversDelivered === 0
         ? inningsDataCopy.totalRuns
         : inningsDataCopy.totalRuns / inningsDataCopy.oversDelivered;
-    inningsDataCopy.currentOver.push(runs);
+    if (!isNoBall && !isWide && !isBye && !isLegBye)
+      inningsDataCopy.currentOver.push(runs);
     if (runs === 4) {
       inningsDataCopy.currentBatsmen[0].fours += 1;
     }
@@ -165,7 +173,7 @@ export default function MatchCenter({ route, navigation }) {
     //changing strike
     if (
       runs % 2 !== 0 ||
-      (wideRuns !== 1 && wideRuns % 2 !== 0) ||
+      (wdRuns !== 1 && wdRuns % 2 !== 0) ||
       legByeRuns % 2 !== 0 ||
       byeRuns % 2 !== 0 ||
       (noBallRuns !== 1 && noBallRuns % 2 !== 0)
@@ -464,7 +472,7 @@ export default function MatchCenter({ route, navigation }) {
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>O</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {inningsData.currentBowler.overs}
+              {inningsData.currentBowler.overs}.{inningsData.ballsDelivered}
             </Text>
           </View>
           <View style={styles.cell}>
@@ -504,23 +512,23 @@ export default function MatchCenter({ route, navigation }) {
         >
           <ScrollView horizontal>
             {inningsData.currentOver.length > 0 &&
-              inningsData.currentOver.map((runs, index) => (
+              inningsData.currentOver.map((element, index) => (
                 <View
                   key={index}
                   style={{
                     width: 40,
                     height: 40,
                     borderWidth: 1,
-                    borderColor: getBgColor(runs),
+                    borderColor: getBgColor(element),
                     borderRadius: 20,
                     marginHorizontal: 5,
-                    backgroundColor: getBgColor(runs),
+                    backgroundColor: getBgColor(element),
                     justifyContent: "center",
                     alignItems: "center",
                   }}
                 >
                   <Text style={{ color: "white", fontWeight: "bold" }}>
-                    {runs}
+                    {element}
                   </Text>
                 </View>
               ))}
@@ -645,7 +653,7 @@ export default function MatchCenter({ route, navigation }) {
           value={noBall}
           setValue={setnoBall}
           onOkPress={() => {
-            handleScore((runs = 0), (isNoBall = true), noBall);
+            handleScore((runs = 0), (isNoBall = true), (noBallRuns = noBall));
             setnoBall(1);
             setnoBallVisible(false);
           }}
@@ -657,7 +665,7 @@ export default function MatchCenter({ route, navigation }) {
           value={wideRuns}
           setValue={setwideRuns}
           onOkPress={() => {
-            handleScore((runs = 0), (isWide = true), wideRuns);
+            handleScore((runs = 0), (isWide = true), (wdRuns = wideRuns));
             setwideRuns(1);
             setwideBallVisible(false);
           }}
@@ -669,7 +677,7 @@ export default function MatchCenter({ route, navigation }) {
           value={bye}
           setValue={setbye}
           onOkPress={() => {
-            handleScore((runs = 0), (isBye = true), bye);
+            handleScore((runs = 0), (isBye = true), (byeRuns = bye));
             setbye(1);
             setbyeVisible(false);
           }}
@@ -681,7 +689,7 @@ export default function MatchCenter({ route, navigation }) {
           value={legBye}
           setValue={setlegBye}
           onOkPress={() => {
-            handleScore((runs = 0), (isLegBye = true), legBye);
+            handleScore((runs = 0), (isLegBye = true), (legByeRuns = legBye));
             setlegBye(1);
             setlegByeVisible(false);
           }}
