@@ -24,11 +24,13 @@ import {
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
 import ScoringModal from "../components/ScoringModal";
+import AppButton from "../components/AppButton";
 
 export default function MatchCenter({ route, navigation }) {
   const { matchId, inningsId } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
 
+  //extras states
   const [customScoreVisible, setcustomScoreVisible] = useState(false);
   const [noBallVisible, setnoBallVisible] = useState(false);
   const [wideBallVisible, setwideBallVisible] = useState(false);
@@ -41,6 +43,12 @@ export default function MatchCenter({ route, navigation }) {
   const [bye, setbye] = useState(1);
   const [legBye, setlegBye] = useState(1);
 
+  //Out states
+  const [outModal, setoutModal] = useState(false);
+  const [dismissalType, setdismissalType] = useState("");
+  const [selectedDType, setselectedDType] = useState(null);
+
+  //Initial Data
   const [matchData, setMatchData] = useState({});
   const intitialInningsData = {
     totalRuns: 0,
@@ -61,7 +69,6 @@ export default function MatchCenter({ route, navigation }) {
         sixes: 0,
         strikeRate: 0,
         dismissalType: "",
-        dismissalBowler: "",
       },
       {
         name: "Non Striker",
@@ -71,7 +78,6 @@ export default function MatchCenter({ route, navigation }) {
         sixes: 0,
         strikeRate: 0,
         dismissalType: "",
-        dismissalBowler: "",
       },
     ],
     outBatsmen: [],
@@ -91,6 +97,7 @@ export default function MatchCenter({ route, navigation }) {
 
   const [previousState, setpreviousState] = useState([]);
 
+  //functions
   const handleScore = (
     runs,
     isWide = false,
@@ -100,8 +107,11 @@ export default function MatchCenter({ route, navigation }) {
     isBye = false,
     byeRuns = 0,
     isLegBye = false,
-    legByeRuns = 0
+    legByeRuns = 0,
+    isOut = false,
+    dismissalType = ""
   ) => {
+    //Undo
     setpreviousState([
       ...previousState,
       JSON.parse(JSON.stringify(inningsData)),
@@ -112,7 +122,7 @@ export default function MatchCenter({ route, navigation }) {
       alert("Innings is completed");
       return;
     }
-    console.log(isWide);
+    //Handle extras
     if (isWide) {
       inningsDataCopy.extras += wdRuns;
       inningsDataCopy.totalRuns += wdRuns;
@@ -135,20 +145,18 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.currentOver.push(`nb${noBallRuns}`);
       inningsDataCopy.currentBowler.runsGiven += noBallRuns;
     }
+    //Handle runs
     inningsDataCopy.totalRuns += runs;
     inningsDataCopy.partnership.runs += runs;
     if (!isWide && !isNoBall) inningsDataCopy.partnership.balls++;
     inningsDataCopy.currentBatsmen[0].runsScored += runs;
     if (!isWide && !isNoBall) inningsDataCopy.currentBatsmen[0].ballsFaced++;
     const strikeRate =
-      (inningsDataCopy.currentBatsmen[0].runsScored /
-        inningsDataCopy.currentBatsmen[0].ballsFaced) *
-      100;
-    console.log(
-      (inningsDataCopy.currentBatsmen[0].runsScored /
-        inningsDataCopy.currentBatsmen[0].ballsFaced) *
-        100
-    );
+      inningsDataCopy.currentBatsmen[0].runsScored === 0
+        ? 0
+        : (inningsDataCopy.currentBatsmen[0].runsScored /
+            inningsDataCopy.currentBatsmen[0].ballsFaced) *
+          100;
     inningsDataCopy.currentBatsmen[0].strikeRate = strikeRate.toFixed(2);
     inningsDataCopy.currentBowler.runsGiven += runs;
     const economy =
@@ -163,6 +171,7 @@ export default function MatchCenter({ route, navigation }) {
         : inningsDataCopy.totalRuns / inningsDataCopy.oversDelivered;
     if (!isNoBall && !isWide && !isBye && !isLegBye)
       inningsDataCopy.currentOver.push(runs);
+    //Handle boundaries
     if (runs === 4) {
       inningsDataCopy.currentBatsmen[0].fours += 1;
     }
@@ -227,6 +236,25 @@ export default function MatchCenter({ route, navigation }) {
       setpreviousState([...previousState]);
       updateData(prevState);
     }
+  };
+
+  const changeStrike = () => {
+    Alert.alert("Change Strike", "Are you sure you want to change strike?", [
+      {
+        text: "No",
+        onPress: () => {},
+      },
+      {
+        text: "Yes",
+        onPress: () => {
+          const inningsDataCopy = { ...inningsData };
+          const temp = inningsDataCopy.currentBatsmen[0];
+          inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
+          inningsDataCopy.currentBatsmen[1] = temp;
+          updateData(inningsDataCopy);
+        },
+      },
+    ]);
   };
 
   useEffect(() => {
@@ -397,9 +425,11 @@ export default function MatchCenter({ route, navigation }) {
             <Text style={{ fontWeight: "bold", color: "grey" }}>
               {inningsData.currentBatsmen[0].name}*
             </Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {inningsData.currentBatsmen[1].name}
-            </Text>
+            <TouchableWithoutFeedback onPress={changeStrike}>
+              <Text style={{ fontWeight: "bold", color: "grey" }}>
+                {inningsData.currentBatsmen[1].name}
+              </Text>
+            </TouchableWithoutFeedback>
           </View>
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>R</Text>
@@ -594,7 +624,7 @@ export default function MatchCenter({ route, navigation }) {
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>6</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("out")}>
+            <TouchableWithoutFeedback onPress={() => setoutModal(true)}>
               <View style={[styles.buttonCell, { borderRightWidth: 0 }]}>
                 <Text
                   style={{ fontWeight: "bold", fontSize: 17, color: "red" }}
@@ -734,6 +764,96 @@ export default function MatchCenter({ route, navigation }) {
             setlegByeVisible(false);
           }}
         />
+        <Modal animationType="fade" visible={outModal} transparent>
+          <View
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: 300,
+              backgroundColor: "#ebc67f",
+              bottom: 0,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontWeight: "bold", fontSize: 20 }}>How?</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                width: "100%",
+              }}
+            >
+              <TouchableOpacity onPress={() => console.log("aaa")}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>Bowled</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => console.log("bbb")}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>Caught</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => console.log("ccc")}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+                  Stumped
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => console.log("ddd")}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>LBW</Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                width: "100%",
+              }}
+            >
+              <TouchableOpacity onPress={() => setdismissalType("Run Out")}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+                  Run Out
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => console.log("bbb")}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+                  Hit Wicket
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => console.log("ccc")}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+                  Retired
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => console.log("ddd")}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+                  Hit the ball Twice
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{ flexDirection: "row", height: 50 }}>
+              <AppButton
+                style={{
+                  width: "50%",
+                  borderRadius: 0,
+                  backgroundColor: "#727369",
+                  height: "100%",
+                }}
+                onPress={() => setoutModal(false)}
+              >
+                Cancel
+              </AppButton>
+              <AppButton
+                style={{
+                  width: "50%",
+                  borderRadius: 0,
+                  height: "100%",
+                  backgroundColor: "green",
+                }}
+              >
+                OK
+              </AppButton>
+            </View>
+          </View>
+        </Modal>
       </View>
       <View style={styles.slide}>
         <ScrollView contentContainerStyle={{ marginTop: 44, width: "100%" }}>

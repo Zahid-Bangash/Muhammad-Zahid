@@ -72,6 +72,7 @@ const AppNavigator = () => (
           drawerIcon: ({ size, color }) => (
             <Ionicons name="play-sharp" size={size} color={color} />
           ),
+          swipeEnabled:false
         }}
       />
       <Drawer.Screen

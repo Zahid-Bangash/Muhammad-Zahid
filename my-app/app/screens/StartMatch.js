@@ -202,8 +202,12 @@ export default function StartMatch({ route, navigation }) {
                 borderRadius: 50,
                 elevation: 5,
                 backgroundColor: "white",
+                justifyContent: "center",
+                alignItems: "center",
               }}
-            ></View>
+            >
+              <Entypo name="plus" size={40} />
+            </View>
           </TouchableWithoutFeedback>
           <Text style={{ fontWeight: "bold" }}>
             {team1 ? team1.name : "Team A"}
@@ -224,8 +228,12 @@ export default function StartMatch({ route, navigation }) {
                 borderRadius: 50,
                 elevation: 5,
                 backgroundColor: "white",
+                justifyContent: "center",
+                alignItems: "center",
               }}
-            ></View>
+            >
+              <Entypo name="plus" size={40} />
+            </View>
           </TouchableWithoutFeedback>
           <Text style={{ fontWeight: "bold" }}>
             {team2 ? team2.name : "Team B"}

@@ -11,6 +11,7 @@ const StartMatchNavigator = () => (
   <Stack.Navigator
     initialRouteName="Create Match"
     screenOptions={{
+      
       headerStyle: {
         backgroundColor: "#a10517",
       },

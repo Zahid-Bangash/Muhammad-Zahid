@@ -18,13 +18,16 @@ import { collection, addDoc, doc } from "firebase/firestore";
 export default function StartInnings({ route, navigation }) {
   const { battingTeam, bowlingTeam, squad1, squad2, matchId } = route.params;
 
+  const [batsmen, setbatsmen] = useState(
+    squad1.type === "batting" ? squad1.players : squad2.players
+  );
+  const [remainingBatsmen, setremainingBatsmen] = useState([]);
   const [striker, setstriker] = useState(null);
   const [nonStriker, setnonStriker] = useState(null);
   const [bowler, setbowler] = useState(null);
   const [batsmenModal, setbatsmenModal] = useState(false);
   const [bowlersModal, setbowlersModal] = useState(false);
   const [toBeSelected, settoBeSelected] = useState("striker");
-
   const startInnings = () => {
     if (!striker) {
       alert("Select Striker");
@@ -75,6 +78,7 @@ export default function StartInnings({ route, navigation }) {
         },
       ],
       outBatsmen: [],
+      remainingBatsmen: remainingBatsmen,
       currentBowler: {
         name: bowler.name,
         overs: 0,
@@ -98,8 +102,8 @@ export default function StartInnings({ route, navigation }) {
       });
   };
 
-  const battingSquad = squad1.type === "batting" ? squad1 : squad2;
-  const bowlingSquad = squad1.type === "bowling" ? squad1 : squad2;
+  // let batsmen = squad1.type === "batting" ? squad1.players : squad2.players;
+  const bowlers = squad1.type === "bowling" ? squad1.players : squad2.players;
 
   return (
     <View style={styles.container}>
@@ -158,30 +162,31 @@ export default function StartInnings({ route, navigation }) {
           }}
         >
           <ScrollView>
-            {battingSquad.players &&
-              battingSquad.players.map((player) => (
-                <TouchableOpacity
-                  key={player.id}
-                  onPress={() => {
-                    if (toBeSelected === "striker" && player === nonStriker) {
-                      alert("Choose different players");
-                      return;
-                    }
-                    if (toBeSelected === "non-striker" && player === striker) {
-                      alert("Choose different players");
-                      return;
-                    }
-                    toBeSelected === "striker"
-                      ? setstriker(player)
-                      : setnonStriker(player);
-                    setbatsmenModal(false);
-                  }}
-                >
-                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
-                    {player.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+            {batsmen.map((player) => (
+              <TouchableOpacity
+                key={player.id}
+                onPress={() => {
+                  if (toBeSelected === "striker" && player === nonStriker) {
+                    alert("Choose different players");
+                    return;
+                  }
+                  if (toBeSelected === "non-striker" && player === striker) {
+                    alert("Choose different players");
+                    return;
+                  }
+                  toBeSelected === "striker"
+                    ? setstriker(player)
+                    : setnonStriker(player);
+                  setbatsmenModal(false);
+                  setremainingBatsmen(batsmen.filter((p) => p !== player));
+                  setbatsmen(batsmen.filter((p) => p !== player));
+                }}
+              >
+                <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                  {player.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
           <TouchableOpacity
             style={{ position: "absolute", top: 5, right: 5 }}
@@ -221,20 +226,19 @@ export default function StartInnings({ route, navigation }) {
           }}
         >
           <ScrollView>
-            {bowlingSquad.players &&
-              bowlingSquad.players.map((player) => (
-                <TouchableOpacity
-                  key={player.id}
-                  onPress={() => {
-                    setbowler(player);
-                    setbowlersModal(false);
-                  }}
-                >
-                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
-                    {player.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+            {bowlers.map((player) => (
+              <TouchableOpacity
+                key={player.id}
+                onPress={() => {
+                  setbowler(player);
+                  setbowlersModal(false);
+                }}
+              >
+                <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                  {player.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
           <TouchableOpacity
             style={{ position: "absolute", top: 5, right: 5 }}
