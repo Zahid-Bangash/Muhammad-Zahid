@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   Modal,
   ScrollView,
   TouchableWithoutFeedback,
-  Alert,
 } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import AppButton from "../components/AppButton";
@@ -17,11 +16,13 @@ import { collection, addDoc, doc } from "firebase/firestore";
 
 export default function StartInnings({ route, navigation }) {
   const { battingTeam, bowlingTeam, squad1, squad2, matchId } = route.params;
-
-  const [batsmen, setbatsmen] = useState(
+  const [battingSquad, setbattingSquad] = useState(
     squad1.type === "batting" ? squad1.players : squad2.players
   );
-  const [remainingBatsmen, setremainingBatsmen] = useState([]);
+  const [bowlers, setbowlers] = useState(
+    squad1.type === "bowling" ? squad1.players : squad2.players
+  );
+  const [remainingBatsmen, setremainingBatsmen] = useState(battingSquad);
   const [striker, setstriker] = useState(null);
   const [nonStriker, setnonStriker] = useState(null);
   const [bowler, setbowler] = useState(null);
@@ -43,7 +44,7 @@ export default function StartInnings({ route, navigation }) {
     }
 
     const matchRef = doc(db, "matches", matchId);
-    const inningsRef = collection(matchRef, "First innings");
+    const inningsRef = collection(matchRef, "innings");
 
     addDoc(inningsRef, {
       totalRuns: 0,
@@ -52,9 +53,11 @@ export default function StartInnings({ route, navigation }) {
       ballsDelivered: 0,
       runRate: 0,
       extras: 0,
-      partnership: { runs: 0, balls: 0 },
       projectedScore: 0,
+      partnership: { runs: 0, balls: 0 },
       currentOver: [],
+      battingSquad: battingSquad,
+      bowlingSquad: bowlers,
       currentBatsmen: [
         {
           name: striker.name,
@@ -63,8 +66,7 @@ export default function StartInnings({ route, navigation }) {
           fours: 0,
           sixes: 0,
           strikeRate: 0,
-          dismissalType: "",
-          dismissalBowler: "",
+          dismissalType: null,
         },
         {
           name: nonStriker.name,
@@ -73,8 +75,7 @@ export default function StartInnings({ route, navigation }) {
           fours: 0,
           sixes: 0,
           strikeRate: 0,
-          dismissalType: "",
-          dismissalBowler: "",
+          dismissalType: null,
         },
       ],
       outBatsmen: [],
@@ -102,9 +103,6 @@ export default function StartInnings({ route, navigation }) {
       });
   };
 
-  // let batsmen = squad1.type === "batting" ? squad1.players : squad2.players;
-  const bowlers = squad1.type === "bowling" ? squad1.players : squad2.players;
-
   return (
     <View style={styles.container}>
       <Text
@@ -129,6 +127,7 @@ export default function StartInnings({ route, navigation }) {
           onPress={() => {
             setbatsmenModal(true);
             settoBeSelected("striker");
+            if (striker) setremainingBatsmen([...remainingBatsmen, striker]);
           }}
         >
           <Text style={{ fontWeight: "bold", fontSize: 17 }}>
@@ -139,6 +138,8 @@ export default function StartInnings({ route, navigation }) {
           onPress={() => {
             setbatsmenModal(true);
             settoBeSelected("non-striker");
+            if (nonStriker)
+              setremainingBatsmen([...remainingBatsmen, nonStriker]);
           }}
         >
           <Text style={{ fontWeight: "bold", fontSize: 17 }}>
@@ -162,24 +163,18 @@ export default function StartInnings({ route, navigation }) {
           }}
         >
           <ScrollView>
-            {batsmen.map((player) => (
+            {remainingBatsmen.map((player) => (
               <TouchableOpacity
                 key={player.id}
                 onPress={() => {
-                  if (toBeSelected === "striker" && player === nonStriker) {
-                    alert("Choose different players");
-                    return;
-                  }
-                  if (toBeSelected === "non-striker" && player === striker) {
-                    alert("Choose different players");
-                    return;
-                  }
                   toBeSelected === "striker"
                     ? setstriker(player)
                     : setnonStriker(player);
                   setbatsmenModal(false);
-                  setremainingBatsmen(batsmen.filter((p) => p !== player));
-                  setbatsmen(batsmen.filter((p) => p !== player));
+                  setremainingBatsmen(
+                    remainingBatsmen.filter((p) => p !== player)
+                  );
+                  setbatsmenModal(false);
                 }}
               >
                 <Text style={{ fontSize: 18, marginBottom: 10 }}>
@@ -188,14 +183,9 @@ export default function StartInnings({ route, navigation }) {
               </TouchableOpacity>
             ))}
           </ScrollView>
-          <TouchableOpacity
-            style={{ position: "absolute", top: 5, right: 5 }}
-            onPress={() => setbatsmenModal(false)}
-          >
-            <Entypo name="circle-with-cross" size={45} color="red" />
-          </TouchableOpacity>
         </View>
       </Modal>
+
       <Text
         style={{
           fontWeight: "bold",

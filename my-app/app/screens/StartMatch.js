@@ -154,10 +154,9 @@ export default function StartMatch({ route, navigation }) {
           winnerTeam: tossWinner.name,
           decision: decision,
         },
-        battingTeam: battingTeam,
-        bowlingTeam: bowlingTeam,
         totalOvers: matchDetails.overs,
         status: "InProgress",
+        result: "",
       });
       console.log("Match created with ID: ", matchRef.id);
       navigation.navigate("Start Innings", {

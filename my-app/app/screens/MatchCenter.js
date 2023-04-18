@@ -44,10 +44,9 @@ export default function MatchCenter({ route, navigation }) {
   const [legBye, setlegBye] = useState(1);
 
   //Out states
-  const [outModal, setoutModal] = useState(false);
-  const [dismissalType, setdismissalType] = useState("");
-  const [selectedDType, setselectedDType] = useState(null);
-
+  const [dismissalTypesModal, setDismissalTypesModal] = useState(false);
+  const [dismissalType, setdismissalType] = useState(null);
+  const [newBatsmanModal, setnewBatsmanModal] = useState(false);
   //Initial Data
   const [matchData, setMatchData] = useState({});
   const intitialInningsData = {
@@ -60,6 +59,8 @@ export default function MatchCenter({ route, navigation }) {
     partnership: { runs: 0, balls: 0 },
     projectedScore: 0,
     currentOver: [],
+    battingSquad: [],
+    bowlingSquad: [],
     currentBatsmen: [
       {
         name: "Striker",
@@ -68,7 +69,7 @@ export default function MatchCenter({ route, navigation }) {
         fours: 0,
         sixes: 0,
         strikeRate: 0,
-        dismissalType: "",
+        dismissalType: null,
       },
       {
         name: "Non Striker",
@@ -77,10 +78,11 @@ export default function MatchCenter({ route, navigation }) {
         fours: 0,
         sixes: 0,
         strikeRate: 0,
-        dismissalType: "",
+        dismissalType: null,
       },
     ],
     outBatsmen: [],
+    remainingBatsmen: [],
     currentBowler: {
       name: "Bowler",
       overs: 0,
@@ -109,7 +111,7 @@ export default function MatchCenter({ route, navigation }) {
     isLegBye = false,
     legByeRuns = 0,
     isOut = false,
-    dismissalType = ""
+    newBatsman = null
   ) => {
     //Undo
     setpreviousState([
@@ -148,9 +150,14 @@ export default function MatchCenter({ route, navigation }) {
     //Handle runs
     inningsDataCopy.totalRuns += runs;
     inningsDataCopy.partnership.runs += runs;
-    if (!isWide && !isNoBall) inningsDataCopy.partnership.balls++;
     inningsDataCopy.currentBatsmen[0].runsScored += runs;
+    inningsDataCopy.currentBowler.runsGiven += runs;
+    if (!isWide && !isNoBall) inningsDataCopy.partnership.balls++;
     if (!isWide && !isNoBall) inningsDataCopy.currentBatsmen[0].ballsFaced++;
+    if (!isWide && !isNoBall) inningsDataCopy.ballsDelivered++;
+    const economy =
+      inningsDataCopy.totalRuns / (inningsDataCopy.ballsDelivered / 6);
+    inningsDataCopy.currentBowler.eco = economy.toFixed(2);
     const strikeRate =
       inningsDataCopy.currentBatsmen[0].runsScored === 0
         ? 0
@@ -158,18 +165,10 @@ export default function MatchCenter({ route, navigation }) {
             inningsDataCopy.currentBatsmen[0].ballsFaced) *
           100;
     inningsDataCopy.currentBatsmen[0].strikeRate = strikeRate.toFixed(2);
-    inningsDataCopy.currentBowler.runsGiven += runs;
-    const economy =
-      inningsDataCopy.currentBowler.overs === 0
-        ? inningsDataCopy.currentBowler.runsGiven
-        : inningsDataCopy.currentBowler.runsGiven /
-          inningsDataCopy.currentBowler.overs;
-    inningsDataCopy.currentBowler.eco = economy.toFixed(2);
-    inningsDataCopy.runRate =
-      inningsDataCopy.oversDelivered === 0
-        ? inningsDataCopy.totalRuns
-        : inningsDataCopy.totalRuns / inningsDataCopy.oversDelivered;
-    if (!isNoBall && !isWide && !isBye && !isLegBye)
+    const runrate =
+      inningsDataCopy.totalRuns / (inningsDataCopy.ballsDelivered / 6);
+    inningsDataCopy.runRate = runrate.toFixed(2);
+    if (!isNoBall && !isWide && !isBye && !isLegBye && !isOut)
       inningsDataCopy.currentOver.push(runs);
     //Handle boundaries
     if (runs === 4) {
@@ -178,24 +177,25 @@ export default function MatchCenter({ route, navigation }) {
     if (runs === 6) {
       inningsDataCopy.currentBatsmen[0].sixes += 1;
     }
-    if (!isWide && !isNoBall) inningsDataCopy.ballsDelivered++;
     //changing strike
     if (
       runs % 2 !== 0 ||
-      (wdRuns !== 1 && wdRuns % 2 !== 0) ||
-      legByeRuns % 2 !== 0 ||
+      (wdRuns !== 0 && wdRuns % 2 === 0) ||
+      (noBallRuns !== 0 && noBallRuns % 2 === 0) ||
       byeRuns % 2 !== 0 ||
-      (noBallRuns !== 1 && noBallRuns % 2 !== 0)
+      legByeRuns % 2 !== 0
     ) {
       const temp = inningsDataCopy.currentBatsmen[0];
       inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
       inningsDataCopy.currentBatsmen[1] = temp;
     }
     //over ends
-    if (inningsDataCopy.ballsDelivered === 6) {
+    if (
+      inningsDataCopy.ballsDelivered % 6 === 0 &&
+      inningsDataCopy.ballsDelivered !== 0
+    ) {
       inningsDataCopy.oversDelivered += 1;
       inningsDataCopy.currentBowler.overs += 1;
-      inningsDataCopy.ballsDelivered = 0;
       if (inningsData.currentBowler.runsGiven === 0)
         inningsDataCopy.currentBowler.maidenOvers++;
       alert("Over End");
@@ -204,6 +204,36 @@ export default function MatchCenter({ route, navigation }) {
       const temp = inningsDataCopy.currentBatsmen[0];
       inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
       inningsDataCopy.currentBatsmen[1] = temp;
+    }
+    //Handle out
+    if (isOut) {
+      inningsDataCopy.wicketsDown++;
+      inningsDataCopy.currentBowler.wicketsTaken++;
+      inningsDataCopy.currentBatsmen[0].dismissalType = dismissalType;
+      inningsDataCopy.outBatsmen.push(inningsDataCopy.currentBatsmen[0]);
+      inningsDataCopy.currentBatsmen.splice(0, 1);
+      inningsDataCopy.currentOver.push("W");
+      setdismissalType(null);
+      if (inningsDataCopy.remainingBatsmen.length !== 0) {
+        inningsDataCopy.currentBatsmen.push({
+          name: newBatsman,
+          runsScored: 0,
+          ballsFaced: 0,
+          fours: 0,
+          sixes: 0,
+          strikeRate: 0,
+          dismissalType: null,
+        });
+        //strike
+        const temp = inningsDataCopy.currentBatsmen[0];
+        inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
+        inningsDataCopy.currentBatsmen[1] = temp;
+        inningsDataCopy.remainingBatsmen =
+          inningsDataCopy.remainingBatsmen.filter((p) => p.name !== newBatsman);
+      } else {
+        inningsDataCopy.isCompleted = true;
+        alert("compl");
+      }
     }
     if (inningsDataCopy.oversDelivered === matchData.totalOvers)
       inningsDataCopy.isComplete = true;
@@ -214,7 +244,7 @@ export default function MatchCenter({ route, navigation }) {
   const updateData = async (updatedData) => {
     try {
       const matchRef = doc(db, "matches", matchId);
-      const inningsRef = collection(matchRef, "First innings");
+      const inningsRef = collection(matchRef, "innings");
       const inningsDocRef = doc(inningsRef, inningsId);
 
       await updateDoc(inningsDocRef, updatedData, { merge: true });
@@ -232,9 +262,20 @@ export default function MatchCenter({ route, navigation }) {
 
   const handleUndo = () => {
     if (previousState.length > 0) {
-      const prevState = previousState.pop();
-      setpreviousState([...previousState]);
-      updateData(prevState);
+      Alert.alert("Confirm", "Are you sure you want to Undo previous ball?", [
+        {
+          text: "No",
+          onPress: () => {},
+        },
+        {
+          text: "Yes",
+          onPress: () => {
+            const prevState = previousState.pop();
+            setpreviousState([...previousState]);
+            updateData(prevState);
+          },
+        },
+      ]);
     }
   };
 
@@ -259,13 +300,7 @@ export default function MatchCenter({ route, navigation }) {
 
   useEffect(() => {
     const matchDocRef = doc(db, "matches", matchId);
-    const inningsDocRef = doc(
-      db,
-      "matches",
-      matchId,
-      "First innings",
-      inningsId
-    );
+    const inningsDocRef = doc(db, "matches", matchId, "innings", inningsId);
 
     const matchUnsubscribe = onSnapshot(matchDocRef, (doc) => {
       const data = doc.data();
@@ -304,7 +339,9 @@ export default function MatchCenter({ route, navigation }) {
       ]);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, [navigation]);
 
   const renderPagination = () => (
@@ -427,7 +464,8 @@ export default function MatchCenter({ route, navigation }) {
             </Text>
             <TouchableWithoutFeedback onPress={changeStrike}>
               <Text style={{ fontWeight: "bold", color: "grey" }}>
-                {inningsData.currentBatsmen[1].name}
+                {inningsData.currentBatsmen[1] &&
+                  inningsData.currentBatsmen[1].name}
               </Text>
             </TouchableWithoutFeedback>
           </View>
@@ -437,7 +475,8 @@ export default function MatchCenter({ route, navigation }) {
               {inningsData.currentBatsmen[0].runsScored}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {inningsData.currentBatsmen[1].runsScored}
+              {inningsData.currentBatsmen[1] &&
+                inningsData.currentBatsmen[1].runsScored}
             </Text>
           </View>
           <View style={styles.cell}>
@@ -446,7 +485,8 @@ export default function MatchCenter({ route, navigation }) {
               {inningsData.currentBatsmen[0].ballsFaced}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {inningsData.currentBatsmen[1].ballsFaced}
+              {inningsData.currentBatsmen[1] &&
+                inningsData.currentBatsmen[1].ballsFaced}
             </Text>
           </View>
           <View style={styles.cell}>
@@ -455,7 +495,8 @@ export default function MatchCenter({ route, navigation }) {
               {inningsData.currentBatsmen[0].fours}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {inningsData.currentBatsmen[1].fours}
+              {inningsData.currentBatsmen[1] &&
+                inningsData.currentBatsmen[1].fours}
             </Text>
           </View>
           <View style={styles.cell}>
@@ -464,7 +505,8 @@ export default function MatchCenter({ route, navigation }) {
               {inningsData.currentBatsmen[0].sixes}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {inningsData.currentBatsmen[1].sixes}
+              {inningsData.currentBatsmen[1] &&
+                inningsData.currentBatsmen[1].sixes}
             </Text>
           </View>
           <View style={styles.cell}>
@@ -473,7 +515,8 @@ export default function MatchCenter({ route, navigation }) {
               {inningsData.currentBatsmen[0].strikeRate}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {inningsData.currentBatsmen[1].strikeRate}
+              {inningsData.currentBatsmen[1] &&
+                inningsData.currentBatsmen[1].strikeRate}
             </Text>
           </View>
         </View>
@@ -624,7 +667,9 @@ export default function MatchCenter({ route, navigation }) {
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>6</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => setoutModal(true)}>
+            <TouchableWithoutFeedback
+              onPress={() => setDismissalTypesModal(true)}
+            >
               <View style={[styles.buttonCell, { borderRightWidth: 0 }]}>
                 <Text
                   style={{ fontWeight: "bold", fontSize: 17, color: "red" }}
@@ -764,7 +809,7 @@ export default function MatchCenter({ route, navigation }) {
             setlegByeVisible(false);
           }}
         />
-        <Modal animationType="fade" visible={outModal} transparent>
+        <Modal animationType="fade" visible={dismissalTypesModal} transparent>
           <View
             style={{
               position: "absolute",
@@ -786,19 +831,49 @@ export default function MatchCenter({ route, navigation }) {
                 width: "100%",
               }}
             >
-              <TouchableOpacity onPress={() => console.log("aaa")}>
-                <Text style={{ fontWeight: "bold", fontSize: 15 }}>Bowled</Text>
+              <TouchableOpacity onPress={() => setdismissalType("Bowled")}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    color: dismissalType === "Bowled" ? "red" : "black",
+                  }}
+                >
+                  Bowled
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => console.log("bbb")}>
-                <Text style={{ fontWeight: "bold", fontSize: 15 }}>Caught</Text>
+              <TouchableOpacity onPress={() => setdismissalType("Caught")}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    color: dismissalType === "Caught" ? "red" : "black",
+                  }}
+                >
+                  Caught
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => console.log("ccc")}>
-                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+              <TouchableOpacity onPress={() => setdismissalType("Stumped")}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    color: dismissalType === "Stumped" ? "red" : "black",
+                  }}
+                >
                   Stumped
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => console.log("ddd")}>
-                <Text style={{ fontWeight: "bold", fontSize: 15 }}>LBW</Text>
+              <TouchableOpacity onPress={() => setdismissalType("LBW")}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    color: dismissalType === "LBW" ? "red" : "black",
+                  }}
+                >
+                  LBW
+                </Text>
               </TouchableOpacity>
             </View>
             <View
@@ -809,22 +884,49 @@ export default function MatchCenter({ route, navigation }) {
               }}
             >
               <TouchableOpacity onPress={() => setdismissalType("Run Out")}>
-                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    color: dismissalType === "Run Out" ? "red" : "black",
+                  }}
+                >
                   Run Out
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => console.log("bbb")}>
-                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+              <TouchableOpacity onPress={() => setdismissalType("Hit Wicket")}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    color: dismissalType === "Hit Wicket" ? "red" : "black",
+                  }}
+                >
                   Hit Wicket
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => console.log("ccc")}>
-                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+              <TouchableOpacity onPress={() => setdismissalType("Retired")}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    color: dismissalType === "Retired" ? "red" : "black",
+                  }}
+                >
                   Retired
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => console.log("ddd")}>
-                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+              <TouchableOpacity
+                onPress={() => setdismissalType("Hit the ball Twice")}
+              >
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    color:
+                      dismissalType === "Hit the ball Twice" ? "red" : "black",
+                  }}
+                >
                   Hit the ball Twice
                 </Text>
               </TouchableOpacity>
@@ -837,7 +939,10 @@ export default function MatchCenter({ route, navigation }) {
                   backgroundColor: "#727369",
                   height: "100%",
                 }}
-                onPress={() => setoutModal(false)}
+                onPress={() => {
+                  setDismissalTypesModal(false);
+                  setdismissalType(null);
+                }}
               >
                 Cancel
               </AppButton>
@@ -848,10 +953,86 @@ export default function MatchCenter({ route, navigation }) {
                   height: "100%",
                   backgroundColor: "green",
                 }}
+                onPress={() => {
+                  if (dismissalType === null) {
+                    alert("Select dismissal type first");
+                    return;
+                  }
+                  if (inningsData.remainingBatsmen.length === 0) {
+                    handleScore(
+                      (runs = 0),
+                      (isWide = false),
+                      (wdRuns = 0),
+                      (isNoBall = false),
+                      (noBallRuns = 0),
+                      (isBye = false),
+                      (byeRuns = 0),
+                      (isLegBye = false),
+                      (legByeRuns = 0),
+                      (isOut = true),
+                      (newBatsman = null)
+                    );
+                    setDismissalTypesModal(false);
+                    return;
+                  }
+                  setnewBatsmanModal(true);
+                  setDismissalTypesModal(false);
+                }}
               >
                 OK
               </AppButton>
             </View>
+          </View>
+        </Modal>
+        <Modal visible={newBatsmanModal} animationType="slide" transparent>
+          <View
+            style={{
+              position: "absolute",
+              backgroundColor: "#07FFF0",
+              transform: [{ translateX: 28 }, { translateY: 80 }],
+              width: "85%",
+              height: "85%",
+              alignItems: "center",
+              borderRadius: 20,
+              padding: 50,
+            }}
+          >
+            <ScrollView>
+              {inningsData.remainingBatsmen.map((player) => (
+                <TouchableOpacity
+                  key={player.id}
+                  onPress={() => {
+                    handleScore(
+                      (runs = 0),
+                      (isWide = false),
+                      (wdRuns = 0),
+                      (isNoBall = false),
+                      (noBallRuns = 0),
+                      (isBye = false),
+                      (byeRuns = 0),
+                      (isLegBye = false),
+                      (legByeRuns = 0),
+                      (isOut = true),
+                      (newBatsman = player.name)
+                    );
+                    setnewBatsmanModal(false);
+                  }}
+                >
+                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                    {player.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              style={{ position: "absolute", top: 5, right: 5 }}
+              onPress={() => {
+                setnewBatsmanModal(false);
+                setdismissalType(null);
+              }}
+            >
+              <Entypo name="circle-with-cross" size={45} color="red" />
+            </TouchableOpacity>
           </View>
         </Modal>
       </View>
@@ -1182,5 +1363,8 @@ const styles = StyleSheet.create({
     borderRightWidth: 0.5,
     alignItems: "center",
     justifyContent: "center",
+  },
+  ouText: {
+    color: "red",
   },
 });
