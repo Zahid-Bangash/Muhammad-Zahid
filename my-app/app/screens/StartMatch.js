@@ -100,14 +100,14 @@ export default function StartMatch({ route, navigation }) {
   };
 
   const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
     setShowDatePicker(false);
+    const currentDate = selectedDate || date;
     setmatchDetails({ ...matchDetails, date: currentDate });
   };
 
   const handleTimeChange = (event, selectedTime) => {
-    const currentTime = selectedTime || date;
     setShowTimePicker(false);
+    const currentTime = selectedTime || date;
     setmatchDetails({ ...matchDetails, time: currentTime });
   };
 

@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { async } from "@firebase/util";
 
 import { ref, uploadBytes } from "firebase/storage";
 import { auth, storage } from "../config/firebase-config";
+
+import AppButton from "../components/AppButton";
 
 export default function ProfileScreen({ navigation }) {
   const [image, setImage] = useState(null);
@@ -52,7 +47,7 @@ export default function ProfileScreen({ navigation }) {
   // }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <View
         style={{
           alignItems: "center",
@@ -82,20 +77,12 @@ export default function ProfileScreen({ navigation }) {
         </TouchableOpacity>
       </View>
       <Text style={{ fontSize: 25, fontWeight: "bold" }}>Zahid Bangash</Text>
-      <TouchableOpacity style={{ marginTop: 5 }}>
-        <Text
-          style={{
-            color: "red",
-            alignSelf: "flex-end",
-            fontWeight: "bold",
-            fontSize: 18,
-            textDecorationLine: "underline",
-          }}
-          onPress={() => navigation.navigate("Edit Profile")}
-        >
-          Edit info
-        </Text>
-      </TouchableOpacity>
+      <View
+        style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}
+      >
+        <Ionicons name="location" size={19} color="#FE7F0A" />
+        <Text style={{ marginLeft: 10, fontSize: 17 }}>Attock</Text>
+      </View>
       <View
         style={{
           width: "90%",
@@ -106,27 +93,33 @@ export default function ProfileScreen({ navigation }) {
         }}
       >
         <View>
-          <Text>FULL NAME</Text>
+          <Text style={{ marginTop: 20 }}>FULL NAME</Text>
           <Text style={{ fontWeight: "bold" }}>Muhammad Zahid</Text>
-          <Text>PLAYING ROLE</Text>
+          <Text style={{ marginTop: 20 }}>PLAYING ROLE</Text>
           <Text style={{ fontWeight: "bold" }}>Batter</Text>
-          <Text>BOWLING STYLE</Text>
+          <Text style={{ marginTop: 20 }}>BOWLING STYLE</Text>
           <Text style={{ fontWeight: "bold" }}>Right Arm Offbreak</Text>
-          <Text>EMAIL</Text>
+          <Text style={{ marginTop: 20 }}>EMAIL</Text>
           <Text style={{ fontWeight: "bold" }}>zahidbangash@gmail.com</Text>
         </View>
         <View>
-          <Text>DATE OF BIRTH</Text>
+          <Text style={{ marginTop: 20 }}>DATE OF BIRTH</Text>
           <Text style={{ fontWeight: "bold" }}>03.03.2001</Text>
-          <Text style={{ width: "100%" }}>BATTING STYLE</Text>
+          <Text style={{ marginTop: 20 }}>BATTING STYLE</Text>
           <Text style={{ fontWeight: "bold" }}>Right Hand Bat</Text>
-          <Text>DATE OF BIRTH</Text>
+          <Text style={{ marginTop: 20 }}>DATE OF BIRTH</Text>
           <Text style={{ fontWeight: "bold" }}>03.03.2001</Text>
-          <Text>MOBILE NUMBER</Text>
+          <Text style={{ marginTop: 20 }}>MOBILE NUMBER</Text>
           <Text style={{ fontWeight: "bold" }}>03125273883</Text>
         </View>
       </View>
-    </ScrollView>
+      <AppButton
+        style={{ width: "50%", marginTop: 70 }}
+        onPress={() => navigation.navigate("Edit Profile")}
+      >
+        Edit Info
+      </AppButton>
+    </View>
   );
 }
 
