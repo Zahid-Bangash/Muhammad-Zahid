@@ -1,50 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Button,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { async } from "@firebase/util";
 
-import { ref, uploadBytes } from "firebase/storage";
-import { auth, storage } from "../config/firebase-config";
-
+import { Camera } from "expo-camera";
+import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
+import { storage } from "../config/firebase-config";
 import AppButton from "../components/AppButton";
 
 export default function ProfileScreen({ navigation }) {
-  const [image, setImage] = useState(null);
-  // const [loading, setloading] = useState(false);
+  const [imageUri, setImageUri] = useState(null);
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-    console.log(result.uri);
-
-    if (!result.canceled) {
-      setImage(result.uri);
-      // setloading(true);
-      uploadImage();
+    const result = await ImagePicker.launchImageLibraryAsync();
+    if (!result.cancelled) {
+      // setImageUri(result.uri);
+      if (result.uri) {
+        const response = await fetch(result.uri);
+        const blob = await response.blob();
+        const imageName = result.uri.substring(result.uri.lastIndexOf("/") + 1);
+        const imageRef = ref(storage, "ProfileImages/dp");
+        await uploadBytes(imageRef, blob);
+        console.log("Image uploaded successfully");
+      }
     }
   };
 
-  const uploadImage = async () => {
-    // setloading(true);
-    const storageRef = ref(storage, auth.currentUser.uid);
-    const metadata = {
-      contentType: "image/jpeg",
-    };
-
-    uploadBytes(storageRef, image, metadata).then(() => {
-      alert("Uploaded a blob or file!");
-    });
-    // setloading(false);
-  };
-
-  // useEffect(() => {
-  //   uploadImage();
-  // }, []);
+  useEffect(() => {
+    const imageRef = ref(storage, "ProfileImages/dp.jpeg");
+    getDownloadURL(imageRef)
+      .then((url) => setImageUri(url))
+      .catch((error) => console.log(error));
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -56,10 +50,17 @@ export default function ProfileScreen({ navigation }) {
           marginTop: 10,
         }}
       >
-        <Image
-          source={require("../assets/profile.jpeg")}
-          style={{ width: 130, height: 130, borderRadius: 65 }}
-        />
+        {imageUri ? (
+          <Image
+            source={{ uri: imageUri }}
+            style={{ width: 130, height: 130, borderRadius: 65 }}
+          />
+        ) : (
+          <Image
+            source={require("../assets/profile.jpeg")}
+            style={{ width: 130, height: 130, borderRadius: 65 }}
+          />
+        )}
         <TouchableOpacity
           style={{
             backgroundColor: "white",

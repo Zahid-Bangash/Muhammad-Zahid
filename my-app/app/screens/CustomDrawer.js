@@ -28,17 +28,6 @@ export default function CustomDrawer(props) {
   const [userData, setuserData] = useState({});
   // const [img, setimg] = useState(null);
 
-  // const getData = async () => {
-  //   const docRef = doc(db, "users", auth.currentUser.uid);
-  //   const docSnap = await getDoc(docRef);
-
-  //   if (docSnap.exists()) {
-  //     setuserData(docSnap.data());
-  //   } else {
-  //     alert("user data not found!");
-  //   }
-  // };
-
   // const downLoadImage = () => {
   //   const forestRef = ref(storage, auth.currentUser.uid);
   //   getMetadata(forestRef)

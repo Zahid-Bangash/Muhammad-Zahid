@@ -18,7 +18,7 @@ import AppButton from "../components/AppButton";
 
 import { db, auth } from "../config/firebase-config";
 import { doc, updateDoc } from "firebase/firestore";
-export default function EditProfile() {
+export default function EditProfile({ navigation }) {
   const [userData, setUserData] = useState({
     name: "",
     location: "",
@@ -63,6 +63,7 @@ export default function EditProfile() {
         { merge: true }
       );
       console.log("Info updated successfully!");
+      navigation.navigate("My Profile");
     } catch (error) {
       console.error("Error updating info:", error);
     }
