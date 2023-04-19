@@ -50,6 +50,7 @@ const AppNavigator = () => (
           drawerIcon: ({ size, color }) => (
             <Ionicons name="person" size={size} color={color} />
           ),
+          swipeEnabled: false,
         }}
       />
       <Drawer.Screen
@@ -63,6 +64,7 @@ const AppNavigator = () => (
               color={color}
             />
           ),
+          swipeEnabled: false,
         }}
       />
       <Drawer.Screen
@@ -72,7 +74,7 @@ const AppNavigator = () => (
           drawerIcon: ({ size, color }) => (
             <Ionicons name="play-sharp" size={size} color={color} />
           ),
-          swipeEnabled:false
+          swipeEnabled: false,
         }}
       />
       <Drawer.Screen
@@ -91,6 +93,7 @@ const AppNavigator = () => (
           drawerIcon: ({ size, color }) => (
             <MaterialCommunityIcons name="cricket" size={size} color={color} />
           ),
+          swipeEnabled: false,
         }}
       />
       <Drawer.Screen
@@ -100,6 +103,7 @@ const AppNavigator = () => (
           drawerIcon: ({ size, color }) => (
             <Ionicons name="people" size={size} color={color} />
           ),
+          swipeEnabled: false,
         }}
       />
       <Drawer.Screen
@@ -109,6 +113,7 @@ const AppNavigator = () => (
           drawerIcon: ({ size, color }) => (
             <Entypo name="trophy" size={size} color={color} />
           ),
+          swipeEnabled: false,
         }}
       />
       <Drawer.Screen
@@ -122,6 +127,7 @@ const AppNavigator = () => (
               color={color}
             />
           ),
+          swipeEnabled: false,
         }}
       />
       <Drawer.Screen
@@ -131,6 +137,7 @@ const AppNavigator = () => (
           drawerIcon: ({ size, color }) => (
             <Ionicons name="stats-chart" size={size} color={color} />
           ),
+          swipeEnabled: false,
         }}
       />
     </Drawer.Navigator>

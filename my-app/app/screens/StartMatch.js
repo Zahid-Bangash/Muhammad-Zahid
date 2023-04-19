@@ -372,7 +372,6 @@ export default function StartMatch({ route, navigation }) {
             <AppTextInput
               placeholder="Date"
               autoComplete="off"
-              autoCorrect={false}
               editable={false}
               value={matchDetails.date.toLocaleDateString()}
             />
@@ -391,7 +390,6 @@ export default function StartMatch({ route, navigation }) {
             <AppTextInput
               placeholder="Time"
               autoComplete="off"
-              autoCorrect={false}
               editable={false}
               value={matchDetails.time.toLocaleTimeString()}
             />

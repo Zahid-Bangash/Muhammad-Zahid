@@ -19,7 +19,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Screen from "../components/Screen";
 
 import { auth, db, storage } from "../config/firebase-config";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 // import { ref, getMetadata } from "firebase/storage";
 
@@ -28,16 +28,16 @@ export default function CustomDrawer(props) {
   const [userData, setuserData] = useState({});
   // const [img, setimg] = useState(null);
 
-  const getData = async () => {
-    const docRef = doc(db, "users", auth.currentUser.uid);
-    const docSnap = await getDoc(docRef);
+  // const getData = async () => {
+  //   const docRef = doc(db, "users", auth.currentUser.uid);
+  //   const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-      setuserData(docSnap.data());
-    } else {
-      alert("user data not found!");
-    }
-  };
+  //   if (docSnap.exists()) {
+  //     setuserData(docSnap.data());
+  //   } else {
+  //     alert("user data not found!");
+  //   }
+  // };
 
   // const downLoadImage = () => {
   //   const forestRef = ref(storage, auth.currentUser.uid);
@@ -51,8 +51,13 @@ export default function CustomDrawer(props) {
   // };
 
   useEffect(() => {
-    getData();
-    // downLoadImage();
+    const userId = auth.currentUser && auth.currentUser.uid;
+    const docRef = doc(db, "users", userId);
+    const Unsubscribe = onSnapshot(docRef, (doc) => {
+      const data = doc.data();
+      setuserData(data);
+    });
+    return () => Unsubscribe();
   }, []);
 
   return (

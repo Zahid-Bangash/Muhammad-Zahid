@@ -9,8 +9,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import AuthNavigator from "./app/navigation/AuthNavigator";
 import AppNavigator from "./app/navigation/AppNavigator";
 export default function App() {
-  const [currentUser, setcurrentUser] = useState({});
-
+  const [currentUser, setcurrentUser] = useState(null);
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       setcurrentUser(user);
