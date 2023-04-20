@@ -23,9 +23,11 @@ export default function EditProfile({ navigation }) {
     name: "",
     location: "",
     dob: new Date("2010-01-01"),
-    number: null,
+    number: "",
     playingRole: "",
+    shirtNumber: "",
   });
+  console.log(userData.dob);
   const [showDatePicker, setshowDatePicker] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [playinngRole, setPlayingRole] = useState("None");
@@ -47,6 +49,22 @@ export default function EditProfile({ navigation }) {
   };
 
   const SaveInfo = async () => {
+    if (userData.name === "") {
+      alert("Enter your name");
+      return;
+    }
+    if (userData.location === "") {
+      alert("Enter your location");
+      return;
+    }
+    if (userData.number === "") {
+      alert("Enter your number");
+      return;
+    }
+    if (userData.shirtNumber === "") {
+      alert("Enter your shirt number");
+      return;
+    }
     try {
       const docRef = doc(db, "users", auth.currentUser.uid);
       await updateDoc(
@@ -54,16 +72,17 @@ export default function EditProfile({ navigation }) {
         {
           Name: userData.name,
           Location: userData.location,
-          DOB: userData.dob,
+          DOB: userData.dob.toLocaleDateString(),
           PlayingRole: playinngRole,
           BattingStyle: battingStyle,
-          bowlingStyle: bowlingStyle,
+          BowlingStyle: bowlingStyle,
           PhoneNumber: userData.number,
+          ShirtNumber: userData.shirtNumber,
         },
         { merge: true }
       );
       console.log("Info updated successfully!");
-      navigation.navigate("My Profile");
+      navigation.pop();
     } catch (error) {
       console.error("Error updating info:", error);
     }
@@ -150,7 +169,7 @@ export default function EditProfile({ navigation }) {
             height: 195,
             alignSelf: "center",
             backgroundColor: "#877a65",
-            top: 295,
+            top: 270,
             padding: 5,
             zIndex: 1,
             elevation: 5,
@@ -192,7 +211,7 @@ export default function EditProfile({ navigation }) {
             height: 70,
             alignSelf: "center",
             backgroundColor: "#877a65",
-            bottom: 260,
+            bottom: 285,
             padding: 5,
             zIndex: 1,
             elevation: 5,
@@ -234,7 +253,7 @@ export default function EditProfile({ navigation }) {
             height: 225,
             alignSelf: "center",
             backgroundColor: "#877a65",
-            bottom: 55,
+            bottom: 80,
             padding: 5,
             zIndex: 1,
             elevation: 5,
@@ -258,6 +277,12 @@ export default function EditProfile({ navigation }) {
         keyboardType="numeric"
         value={userData.number}
         onChangeText={(text) => setUserData({ ...userData, number: text })}
+      />
+      <AppTextInput
+        placeholder="Shirt Number"
+        keyboardType="numeric"
+        value={userData.shirtNumber}
+        onChangeText={(text) => setUserData({ ...userData, shirtNumber: text })}
       />
       <AppButton style={{ width: "50%", marginTop: 80 }} onPress={SaveInfo}>
         Save

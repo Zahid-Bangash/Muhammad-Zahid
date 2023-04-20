@@ -1,14 +1,24 @@
 import { useEffect, useState } from "react";
 import { createContext } from "react";
 
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
-import { db, storage } from "../config/firebase-config";
+import { auth, db, storage } from "../config/firebase-config";
 
 export const Context = createContext();
 
 const ContextProvider = ({ children }) => {
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState({
+    Name: "",
+    PhoneNumber: "",
+    Email: "",
+    DOB: "",
+    Location: "",
+    BattingStyle: "",
+    PlayingRole: "",
+    BowlingStyle: "",
+    ShirtNumber:'',
+  });
   const [teams, setTeams] = useState([]);
   const [profileImageUri, setprofileImageUri] = useState(null);
 
@@ -22,10 +32,17 @@ const ContextProvider = ({ children }) => {
       }));
       setTeams(teamsData);
 
-      const imageRef = ref(storage, "ProfileImages/dp.jpg");
+      const imageRef = ref(storage, "ProfileImages/dp");
       getDownloadURL(imageRef)
         .then((url) => setprofileImageUri(url))
         .catch((error) => console.log(error));
+
+      const userId = auth.currentUser && auth.currentUser.uid;
+      const docRef = doc(db, "users", userId);
+      onSnapshot(docRef, (doc) => {
+        const data = doc.data();
+        setUserData(data);
+      });
     };
 
     fetchData();

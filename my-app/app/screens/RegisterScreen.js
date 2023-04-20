@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import {
   View,
   TextInput,
@@ -48,6 +48,11 @@ export default function RegisterScreen({ navigation }) {
               Name: userData.name,
               PhoneNumber: userData.phoneNumber,
               Email: userData.email,
+              DOB: "",
+              Location: "",
+              BattingStyle: "",
+              PlayingRole: "",
+              BowlingStyle: "",
             });
             navigation.navigate("Welcome");
           })
@@ -67,58 +72,69 @@ export default function RegisterScreen({ navigation }) {
           alignItems: "center",
         }}
       >
-        <View style={{position:'absolute',width:'100%',alignItems:'center',bottom:230,}}>
-        <AppTextInput
-          placeholder="Name"
-          value={userData.name}
-          onChangeText={(text) => setuserData({ ...userData, name: text })}
-        />
-        <AppTextInput
-          placeholder="Phone Number"
-          keyboardType='numeric'
-          value={userData.phoneNumber}
-          onChangeText={(text) => setuserData({ ...userData, phoneNumber: text })}
-        />
-        <AppTextInput
-          placeholder="Email"
-          keyboardType="email-address"
-          value={userData.email}
-          onChangeText={(text) => setuserData({ ...userData, email: text })}
-        />
-        <AppTextInput
-          placeholder="Password"
-          secureTextEntry
-          autoCapitalize="none"
-          autoComplete="off"
-          autoCorrect={false}
-          secureTextEntry={passwordVisibility}
-          visibility={passwordVisibility}
-          onPress={() => setpasswordVisibility(!passwordVisibility)}
-          rightIcon={passwordVisibility ? "eye" : "md-eye-off-sharp"}
-          value={userData.password}
-          onChangeText={(text) => setuserData({ ...userData, password: text })}
-        />
-        <AppTextInput
-          placeholder="Confirm Password"
-          secureTextEntry
-          autoCapitalize="none"
-          autoComplete="off"
-          autoCorrect={false}
-          secureTextEntry={confirmVisibility}
-          visibility={confirmVisibility}
-          onPress={() => setconfirmVisibility(!confirmVisibility)}
-          rightIcon={confirmVisibility ? "eye" : "md-eye-off-sharp"}
-          value={userData.confirmPassword}
-          onChangeText={(text) =>
-            setuserData({ ...userData, confirmPassword: text })
-          }
-        />
-        <AppButton
-          onPress={handleSignUp}
-          style={{ marginTop: 30, backgroundColor: "#07FFF0",width:'82%' }}
+        <View
+          style={{
+            position: "absolute",
+            width: "100%",
+            alignItems: "center",
+            bottom: 230,
+          }}
         >
-          REGISTER
-        </AppButton>
+          <AppTextInput
+            placeholder="Name"
+            value={userData.name}
+            onChangeText={(text) => setuserData({ ...userData, name: text })}
+          />
+          <AppTextInput
+            placeholder="Phone Number"
+            keyboardType="numeric"
+            value={userData.phoneNumber}
+            onChangeText={(text) =>
+              setuserData({ ...userData, phoneNumber: text })
+            }
+          />
+          <AppTextInput
+            placeholder="Email"
+            keyboardType="email-address"
+            value={userData.email}
+            onChangeText={(text) => setuserData({ ...userData, email: text })}
+          />
+          <AppTextInput
+            placeholder="Password"
+            secureTextEntry
+            autoCapitalize="none"
+            autoComplete="off"
+            autoCorrect={false}
+            secureTextEntry={passwordVisibility}
+            visibility={passwordVisibility}
+            onPress={() => setpasswordVisibility(!passwordVisibility)}
+            rightIcon={passwordVisibility ? "eye" : "md-eye-off-sharp"}
+            value={userData.password}
+            onChangeText={(text) =>
+              setuserData({ ...userData, password: text })
+            }
+          />
+          <AppTextInput
+            placeholder="Confirm Password"
+            secureTextEntry
+            autoCapitalize="none"
+            autoComplete="off"
+            autoCorrect={false}
+            secureTextEntry={confirmVisibility}
+            visibility={confirmVisibility}
+            onPress={() => setconfirmVisibility(!confirmVisibility)}
+            rightIcon={confirmVisibility ? "eye" : "md-eye-off-sharp"}
+            value={userData.confirmPassword}
+            onChangeText={(text) =>
+              setuserData({ ...userData, confirmPassword: text })
+            }
+          />
+          <AppButton
+            onPress={handleSignUp}
+            style={{ marginTop: 30, backgroundColor: "#07FFF0", width: "82%" }}
+          >
+            REGISTER
+          </AppButton>
         </View>
       </ImageBackground>
     </Screen>

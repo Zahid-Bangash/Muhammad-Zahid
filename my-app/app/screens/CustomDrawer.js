@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   View,
   StyleSheet,
@@ -9,10 +9,12 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
 } from "react-native";
+
 import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
+
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -21,11 +23,13 @@ import Screen from "../components/Screen";
 import { auth, db, storage } from "../config/firebase-config";
 import { doc, onSnapshot } from "firebase/firestore";
 import { signOut } from "firebase/auth";
-// import { ref, getMetadata } from "firebase/storage";
+
+import { Context } from "../components/ContextProvider";
 
 export default function CustomDrawer(props) {
+  const { profileImageUri, userData } = useContext(Context);
   const navigation = useNavigation();
-  const [userData, setuserData] = useState({});
+  // const [userData, setuserData] = useState({});
   // const [img, setimg] = useState(null);
 
   // const downLoadImage = () => {
@@ -39,15 +43,15 @@ export default function CustomDrawer(props) {
   //     });
   // };
 
-  useEffect(() => {
-    const userId = auth.currentUser && auth.currentUser.uid;
-    const docRef = doc(db, "users", userId);
-    const Unsubscribe = onSnapshot(docRef, (doc) => {
-      const data = doc.data();
-      setuserData(data);
-    });
-    return () => Unsubscribe();
-  }, []);
+  // useEffect(() => {
+  //   const userId = auth.currentUser && auth.currentUser.uid;
+  //   const docRef = doc(db, "users", userId);
+  //   const Unsubscribe = onSnapshot(docRef, (doc) => {
+  //     const data = doc.data();
+  //     setuserData(data);
+  //   });
+  //   return () => Unsubscribe();
+  // }, []);
 
   return (
     <Screen>
@@ -66,14 +70,17 @@ export default function CustomDrawer(props) {
           <TouchableWithoutFeedback
             onPress={() => navigation.navigate("Profile")}
           >
-            <Image
-              source={require("../assets/profile.jpeg")}
-              style={{ width: 100, height: 100, borderRadius: 50 }}
-            />
-            {/* <Image
-            source={{uri:"gs://finalproject-78235.appspot.com/628dUZy5tzRBqp7aW7Clbnr3pGj2"}}
-              style={{ width: 100, height: 100, borderRadius: 50 }}
-            /> */}
+            {profileImageUri ? (
+              <Image
+                source={{ uri: profileImageUri }}
+                style={{ width: 100, height: 100, borderRadius: 50 }}
+              />
+            ) : (
+              <Image
+                source={require("../assets/profile.jpeg")}
+                style={{ width: 100, height: 100, borderRadius: 50 }}
+              />
+            )}
           </TouchableWithoutFeedback>
           <View style={{ marginLeft: 3 }}>
             <Text style={{ fontSize: 15, fontWeight: "bold" }}>

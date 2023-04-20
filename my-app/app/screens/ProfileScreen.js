@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import {Context} from '../components/ContextProvider';
+import { Context } from "../components/ContextProvider";
 
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
@@ -20,7 +20,7 @@ import { storage } from "../config/firebase-config";
 import AppButton from "../components/AppButton";
 
 export default function ProfileScreen({ navigation }) {
-  const { profileImageUri, setprofileImageUri } = useContext(Context);
+  const { profileImageUri, setprofileImageUri, userData } = useContext(Context);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync();
@@ -29,7 +29,7 @@ export default function ProfileScreen({ navigation }) {
       if (result.uri) {
         const response = await fetch(result.uri);
         const blob = await response.blob();
-        const imageRef = ref(storage, "ProfileImages/dp.jpg");
+        const imageRef = ref(storage, "ProfileImages/dp");
         await uploadBytes(imageRef, blob);
         console.log("Image uploaded successfully");
       }
@@ -73,12 +73,14 @@ export default function ProfileScreen({ navigation }) {
           <Ionicons name="camera" size={30} />
         </TouchableOpacity>
       </View>
-      <Text style={{ fontSize: 25, fontWeight: "bold" }}>Zahid Bangash</Text>
+      <Text style={{ fontSize: 25, fontWeight: "bold" }}>{userData.Name}</Text>
       <View
         style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}
       >
         <Ionicons name="location" size={19} color="#FE7F0A" />
-        <Text style={{ marginLeft: 10, fontSize: 17 }}>Attock</Text>
+        <Text style={{ marginLeft: 10, fontSize: 17 }}>
+          {userData.Location}
+        </Text>
       </View>
       <View
         style={{
@@ -91,23 +93,23 @@ export default function ProfileScreen({ navigation }) {
       >
         <View>
           <Text style={{ marginTop: 20 }}>FULL NAME</Text>
-          <Text style={{ fontWeight: "bold" }}>Muhammad Zahid</Text>
+          <Text style={{ fontWeight: "bold" }}>{userData.Name}</Text>
           <Text style={{ marginTop: 20 }}>PLAYING ROLE</Text>
-          <Text style={{ fontWeight: "bold" }}>Batter</Text>
+          <Text style={{ fontWeight: "bold" }}>{userData.PlayingRole}</Text>
           <Text style={{ marginTop: 20 }}>BOWLING STYLE</Text>
-          <Text style={{ fontWeight: "bold" }}>Right Arm Offbreak</Text>
+          <Text style={{ fontWeight: "bold" }}>{userData.BowlingStyle}</Text>
           <Text style={{ marginTop: 20 }}>EMAIL</Text>
-          <Text style={{ fontWeight: "bold" }}>zahidbangash@gmail.com</Text>
+          <Text style={{ fontWeight: "bold" }}>{userData.Email}</Text>
         </View>
         <View>
           <Text style={{ marginTop: 20 }}>DATE OF BIRTH</Text>
-          <Text style={{ fontWeight: "bold" }}>03.03.2001</Text>
+          <Text style={{ fontWeight: "bold" }}>{userData.DOB}</Text>
           <Text style={{ marginTop: 20 }}>BATTING STYLE</Text>
-          <Text style={{ fontWeight: "bold" }}>Right Hand Bat</Text>
-          <Text style={{ marginTop: 20 }}>DATE OF BIRTH</Text>
-          <Text style={{ fontWeight: "bold" }}>03.03.2001</Text>
+          <Text style={{ fontWeight: "bold" }}>{userData.BattingStyle}</Text>
+          <Text style={{ marginTop: 20 }}>Shirt Number</Text>
+          <Text style={{ fontWeight: "bold" }}>{userData.ShirtNumber}</Text>
           <Text style={{ marginTop: 20 }}>MOBILE NUMBER</Text>
-          <Text style={{ fontWeight: "bold" }}>03125273883</Text>
+          <Text style={{ fontWeight: "bold" }}>{userData.PhoneNumber}</Text>
         </View>
       </View>
       <AppButton
