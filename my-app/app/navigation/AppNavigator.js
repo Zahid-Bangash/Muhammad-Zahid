@@ -5,7 +5,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 
-import TeamsProvider from "../components/TeamsProvider";
+import ContextProvider from "../components/ContextProvider";
 import {
   GoLive,
   MyMatches,
@@ -24,7 +24,7 @@ import StartMatchNavigator from "./StartMatchNavigators";
 const Drawer = createDrawerNavigator();
 
 const AppNavigator = () => (
-  <TeamsProvider>
+  <ContextProvider>
     <Drawer.Navigator
       screenOptions={{
         headerShown: false,
@@ -141,7 +141,7 @@ const AppNavigator = () => (
         }}
       />
     </Drawer.Navigator>
-  </TeamsProvider>
+  </ContextProvider>
 );
 
 export default AppNavigator;

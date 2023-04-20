@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -7,38 +7,34 @@ import {
   TouchableOpacity,
   Button,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
+import {Context} from '../components/ContextProvider';
+
+import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
-import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
+
+import { ref, uploadBytes } from "@firebase/storage";
 import { storage } from "../config/firebase-config";
+
 import AppButton from "../components/AppButton";
 
 export default function ProfileScreen({ navigation }) {
-  const [imageUri, setImageUri] = useState(null);
+  const { profileImageUri, setprofileImageUri } = useContext(Context);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync();
     if (!result.cancelled) {
-      // setImageUri(result.uri);
+      setprofileImageUri(result.uri);
       if (result.uri) {
         const response = await fetch(result.uri);
         const blob = await response.blob();
-        const imageName = result.uri.substring(result.uri.lastIndexOf("/") + 1);
-        const imageRef = ref(storage, "ProfileImages/dp");
+        const imageRef = ref(storage, "ProfileImages/dp.jpg");
         await uploadBytes(imageRef, blob);
         console.log("Image uploaded successfully");
       }
     }
   };
-
-  useEffect(() => {
-    const imageRef = ref(storage, "ProfileImages/dp.jpeg");
-    getDownloadURL(imageRef)
-      .then((url) => setImageUri(url))
-      .catch((error) => console.log(error));
-  }, []);
 
   return (
     <View style={styles.container}>
@@ -50,9 +46,9 @@ export default function ProfileScreen({ navigation }) {
           marginTop: 10,
         }}
       >
-        {imageUri ? (
+        {profileImageUri ? (
           <Image
-            source={{ uri: imageUri }}
+            source={{ uri: profileImageUri }}
             style={{ width: 130, height: 130, borderRadius: 65 }}
           />
         ) : (

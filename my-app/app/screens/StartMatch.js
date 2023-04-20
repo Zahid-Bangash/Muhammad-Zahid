@@ -11,7 +11,7 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Entypo from "@expo/vector-icons/Entypo";
 
-import TeamsContext from "../components/TeamsContext";
+import { Context } from "../components/ContextProvider";
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
 
@@ -24,7 +24,7 @@ import ScoringModal from "../components/ScoringModal";
 export default function StartMatch({ route, navigation }) {
   const [noBall, setnoBall] = useState(0);
 
-  const { teams } = useContext(TeamsContext);
+  const { teams } = useContext(Context);
   const [bottom, setbottom] = useState(0);
   const [matchDetails, setmatchDetails] = useState({
     venue: "",

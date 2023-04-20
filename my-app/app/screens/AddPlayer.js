@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import TeamsContext from "../components/TeamsContext";
+import { Context } from "../components/ContextProvider";
 import {
   collection,
   getDocs,
@@ -16,7 +16,7 @@ import AppTextInput from "../components/AppTextInput";
 import PlayerCardForAddPlayer from "../components/PlayerCardForAddPlayer";
 
 export default function AddPlayer({ route }) {
-  const { teams, updateTeams } = useContext(TeamsContext);
+  const { teams, setTeams } = useContext(Context);
   const { teamId } = route.params;
 
   const [name, setname] = useState("");
@@ -51,7 +51,7 @@ export default function AddPlayer({ route }) {
         contact: user.PhoneNumber,
       });
       teamToUpdate = updatedTeam;
-      updateTeams(updatedTeams);
+      setTeams(updatedTeams);
       alert("Player Added to team");
     } catch (error) {
       console.error("Error adding player: ", error);
@@ -63,6 +63,7 @@ export default function AddPlayer({ route }) {
       searchByName();
     } else setUsers([]);
   }, [name]);
+  
   return (
     <View style={styles.container}>
       <AppTextInput

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import TeamsContext from "../components/TeamsContext";
+import { Context } from "../components/ContextProvider";
 import {
   collection,
   query,
@@ -22,7 +22,7 @@ import { db } from "../config/firebase-config";
 import PlayerCardForTeamDetails from "../components/PlayerCardForTeamDetails";
 
 export default function TeamDetails({ route, navigation }) {
-  const { teams, updateTeams } = useContext(TeamsContext);
+  const { teams, setTeams } = useContext(Context);
   const { teamId } = route.params;
   let team = teams.find((team) => team.id === teamId);
 
@@ -35,7 +35,7 @@ export default function TeamDetails({ route, navigation }) {
       .then(() => {
         const updatedTeams = [...teams];
         team = updatedTeam;
-        updateTeams(updatedTeams);
+        setTeams(updatedTeams);
         console.log("Removed");
       })
       .catch((error) => {

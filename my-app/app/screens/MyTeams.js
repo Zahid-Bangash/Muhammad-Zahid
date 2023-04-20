@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import TeamsContext from "../components/TeamsContext";
+import { Context } from "../components/ContextProvider";
 import {
   View,
   Text,
@@ -16,11 +16,11 @@ import TeamCard from "../components/cards/TeamCard";
 import TeamDetails from "./TeamDetails";
 
 export default function MyTeams({ navigation }) {
-  const { teams, updateTeams } = useContext(TeamsContext);
+  const { teams, setTeams } = useContext(Context);
 
   const deleteTeam = async (teamId) => {
     const updatedTeams = teams.filter((team) => team.id !== teamId);
-    updateTeams(updatedTeams);
+    setTeams(updatedTeams);
     await deleteDoc(doc(db, "teams", teamId));
   };
 

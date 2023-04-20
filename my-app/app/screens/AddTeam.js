@@ -1,6 +1,6 @@
 import React, { useState ,useContext} from "react";
 import { View, Text, StyleSheet } from "react-native";
-import TeamsContext from "../components/TeamsContext";
+import {Context} from "../components/ContextProvider";
 
 import { db } from "../config/firebase-config";
 import { addDoc, collection } from "firebase/firestore";
@@ -9,7 +9,7 @@ import AppTextInput from "../components/AppTextInput";
 import AppButton from "../components/AppButton";
 
 export default function Addteam({ navigation }) {
-  const { teams, updateTeams } = useContext(TeamsContext);
+  const { teams, setTeams } = useContext(Context);
 
   const [teamDetails, setteamDetails] = useState({
     name: "",
@@ -26,7 +26,7 @@ export default function Addteam({ navigation }) {
     try {
       const docRef = await addDoc(collection(db, "teams"), teamDetails);
       const updatedTeams = [...teams, { id: docRef.id, ...teamDetails }];
-      updateTeams(updatedTeams);
+      setTeams(updatedTeams);
       console.log("Team added");
       navigation.goBack();
     } catch (error) {
