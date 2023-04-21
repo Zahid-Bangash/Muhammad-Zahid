@@ -10,7 +10,7 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { deleteDoc, doc } from "firebase/firestore";
-import { db } from "../config/firebase-config";
+import { auth, db } from "../config/firebase-config";
 
 import TeamCard from "../components/cards/TeamCard";
 import TeamDetails from "./TeamDetails";
@@ -21,7 +21,7 @@ export default function MyTeams({ navigation }) {
   const deleteTeam = async (teamId) => {
     const updatedTeams = teams.filter((team) => team.id !== teamId);
     setTeams(updatedTeams);
-    await deleteDoc(doc(db, "teams", teamId));
+    await deleteDoc(doc(db, "users", auth.currentUser.uid, "Teams", teamId));
   };
 
   return (

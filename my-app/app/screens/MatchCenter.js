@@ -12,7 +12,7 @@ import {
 import Swiper from "react-native-swiper";
 import Entypo from "@expo/vector-icons/Entypo";
 
-import { db } from "../config/firebase-config";
+import { auth, db } from "../config/firebase-config";
 import {
   doc,
   onSnapshot,
@@ -243,7 +243,7 @@ export default function MatchCenter({ route, navigation }) {
 
   const updateData = async (updatedData) => {
     try {
-      const matchRef = doc(db, "matches", matchId);
+      const matchRef = doc(db, "users", auth.currentUser.uid,"Matches",matchId);
       const inningsRef = collection(matchRef, "innings");
       const inningsDocRef = doc(inningsRef, inningsId);
 
@@ -299,8 +299,22 @@ export default function MatchCenter({ route, navigation }) {
   };
 
   useEffect(() => {
-    const matchDocRef = doc(db, "matches", matchId);
-    const inningsDocRef = doc(db, "matches", matchId, "innings", inningsId);
+    const matchDocRef = doc(
+      db,
+      "users",
+      auth.currentUser.uid,
+      "Matches",
+      matchId
+    );
+    const inningsDocRef = doc(
+      db,
+      "users",
+      auth.currentUser.uid,
+      "Matches",
+      matchId,
+      "innings",
+      inningsId
+    );
 
     const matchUnsubscribe = onSnapshot(matchDocRef, (doc) => {
       const data = doc.data();

@@ -12,10 +12,10 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Context } from "../components/ContextProvider";
 
 import * as ImagePicker from "expo-image-picker";
-import { Camera } from "expo-camera";
+// import { Camera } from "expo-camera";
 
 import { ref, uploadBytes } from "@firebase/storage";
-import { storage } from "../config/firebase-config";
+import { auth, storage } from "../config/firebase-config";
 
 import AppButton from "../components/AppButton";
 
@@ -25,14 +25,12 @@ export default function ProfileScreen({ navigation }) {
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync();
     if (!result.cancelled) {
+      const response = await fetch(result.uri);
+      const blob = await response.blob();
+      const imageRef = ref(storage, `ProfileImages/dp${auth.currentUser.uid}`);
+      await uploadBytes(imageRef, blob);
       setprofileImageUri(result.uri);
-      if (result.uri) {
-        const response = await fetch(result.uri);
-        const blob = await response.blob();
-        const imageRef = ref(storage, "ProfileImages/dp");
-        await uploadBytes(imageRef, blob);
-        console.log("Image uploaded successfully");
-      }
+      console.log("Image uploaded successfully");
     }
   };
 

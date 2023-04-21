@@ -9,22 +9,22 @@ export const Context = createContext();
 
 const ContextProvider = ({ children }) => {
   const [userData, setUserData] = useState({
-    Name: "",
-    PhoneNumber: "",
-    Email: "",
-    DOB: "",
-    Location: "",
-    BattingStyle: "",
-    PlayingRole: "",
-    BowlingStyle: "",
-    ShirtNumber:'',
+    Name: "Your Name",
+    PhoneNumber: "Phone Number",
+    Email: "Email",
+    DOB: "-",
+    Location: "your city",
+    BattingStyle: "-",
+    PlayingRole: "-",
+    BowlingStyle: "-",
+    ShirtNumber: "-",
   });
   const [teams, setTeams] = useState([]);
   const [profileImageUri, setprofileImageUri] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const teamsCollectionRef = collection(db, "teams");
+      const teamsCollectionRef = collection(db, "users",auth.currentUser.uid,"Teams");
       const teamsSnapshot = await getDocs(teamsCollectionRef);
       const teamsData = teamsSnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -32,7 +32,7 @@ const ContextProvider = ({ children }) => {
       }));
       setTeams(teamsData);
 
-      const imageRef = ref(storage, "ProfileImages/dp");
+      const imageRef = ref(storage, `ProfileImages/dp${auth.currentUser.uid}`);
       getDownloadURL(imageRef)
         .then((url) => setprofileImageUri(url))
         .catch((error) => console.log(error));

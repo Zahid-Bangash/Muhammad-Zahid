@@ -11,7 +11,7 @@ import {
 import Entypo from "@expo/vector-icons/Entypo";
 import AppButton from "../components/AppButton";
 
-import { db } from "../config/firebase-config";
+import { auth, db } from "../config/firebase-config";
 import { collection, addDoc, doc } from "firebase/firestore";
 
 export default function StartInnings({ route, navigation }) {
@@ -43,7 +43,7 @@ export default function StartInnings({ route, navigation }) {
       return;
     }
 
-    const matchRef = doc(db, "matches", matchId);
+    const matchRef = doc(db, "users", auth.currentUser.uid, "Matches", matchId);
     const inningsRef = collection(matchRef, "innings");
 
     addDoc(inningsRef, {

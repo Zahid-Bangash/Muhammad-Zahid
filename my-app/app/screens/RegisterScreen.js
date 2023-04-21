@@ -13,7 +13,7 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from "firebase/auth";
-import { getFirestore, setDoc, doc } from "firebase/firestore";
+import { getFirestore, setDoc, doc, collection } from "firebase/firestore";
 
 import Screen from "../components/Screen";
 import AppButton from "../components/AppButton";
@@ -48,11 +48,12 @@ export default function RegisterScreen({ navigation }) {
               Name: userData.name,
               PhoneNumber: userData.phoneNumber,
               Email: userData.email,
-              DOB: "",
-              Location: "",
-              BattingStyle: "",
-              PlayingRole: "",
-              BowlingStyle: "",
+              DOB: "-",
+              Location: "-",
+              BattingStyle: "-",
+              PlayingRole: "-",
+              BowlingStyle: "-",
+              ShirtNumber: "-",
             });
             navigation.navigate("Welcome");
           })

@@ -16,7 +16,7 @@ import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
 
 import { addDoc, collection } from "firebase/firestore";
-import { db } from "../config/firebase-config";
+import { auth, db } from "../config/firebase-config";
 
 import MyTeamsNavigator from "../navigation/MyTeamsNavigator";
 import ScoringModal from "../components/ScoringModal";
@@ -141,23 +141,26 @@ export default function StartMatch({ route, navigation }) {
       return;
     }
     try {
-      const matchRef = await addDoc(collection(db, "matches"), {
-        title: `${team1.name} Vs ${team2.name}`,
-        teams: {
-          team1: { name: team1.name, squad: team1Squad },
-          team2: { name: team2.name, squad: team2Squad },
-        },
-        venue: matchDetails.venue,
-        date: matchDetails.date.toLocaleDateString(),
-        time: matchDetails.time.toLocaleTimeString(),
-        tossResult: {
-          winnerTeam: tossWinner.name,
-          decision: decision,
-        },
-        totalOvers: matchDetails.overs,
-        status: "InProgress",
-        result: "",
-      });
+      const matchRef = await addDoc(
+        collection(db, "users", auth.currentUser.uid, "Matches"),
+        {
+          title: `${team1.name} Vs ${team2.name}`,
+          teams: {
+            team1: { name: team1.name, squad: team1Squad },
+            team2: { name: team2.name, squad: team2Squad },
+          },
+          venue: matchDetails.venue,
+          date: matchDetails.date.toLocaleDateString(),
+          time: matchDetails.time.toLocaleTimeString(),
+          tossResult: {
+            winnerTeam: tossWinner.name,
+            decision: decision,
+          },
+          totalOvers: matchDetails.overs,
+          status: "InProgress",
+          result: "",
+        }
+      );
       console.log("Match created with ID: ", matchRef.id);
       navigation.navigate("Start Innings", {
         battingTeam: battingTeam,

@@ -10,7 +10,7 @@ import {
   updateDoc,
   arrayUnion,
 } from "firebase/firestore";
-import { db } from "../config/firebase-config";
+import { auth, db } from "../config/firebase-config";
 
 import AppTextInput from "../components/AppTextInput";
 import PlayerCardForAddPlayer from "../components/PlayerCardForAddPlayer";
@@ -33,7 +33,7 @@ export default function AddPlayer({ route }) {
   };
 
   const addPlayerToTeam = async (user) => {
-    const teamRef = doc(db, "teams", teamId);
+    const teamRef = doc(db, "users", auth.currentUser.uid, "Teams", teamId);
     try {
       await updateDoc(teamRef, {
         players: arrayUnion({
@@ -63,7 +63,7 @@ export default function AddPlayer({ route }) {
       searchByName();
     } else setUsers([]);
   }, [name]);
-  
+
   return (
     <View style={styles.container}>
       <AppTextInput

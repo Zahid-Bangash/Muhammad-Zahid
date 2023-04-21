@@ -2,8 +2,8 @@ import React, { useState ,useContext} from "react";
 import { View, Text, StyleSheet } from "react-native";
 import {Context} from "../components/ContextProvider";
 
-import { db } from "../config/firebase-config";
-import { addDoc, collection } from "firebase/firestore";
+import { auth, db } from "../config/firebase-config";
+import { addDoc, collection,doc } from "firebase/firestore";
 
 import AppTextInput from "../components/AppTextInput";
 import AppButton from "../components/AppButton";
@@ -24,7 +24,9 @@ export default function Addteam({ navigation }) {
       return;
     }
     try {
-      const docRef = await addDoc(collection(db, "teams"), teamDetails);
+      const userRef=doc(db,"users",auth.currentUser.uid);
+      const teamsRef=collection(userRef,"Teams");
+      const docRef = await addDoc(teamsRef, teamDetails);
       const updatedTeams = [...teams, { id: docRef.id, ...teamDetails }];
       setTeams(updatedTeams);
       console.log("Team added");

@@ -27,7 +27,6 @@ export default function EditProfile({ navigation }) {
     playingRole: "",
     shirtNumber: "",
   });
-  console.log(userData.dob);
   const [showDatePicker, setshowDatePicker] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [playinngRole, setPlayingRole] = useState("None");

@@ -17,7 +17,7 @@ import {
   arrayUnion,
   arrayRemove,
 } from "firebase/firestore";
-import { db } from "../config/firebase-config";
+import { auth, db } from "../config/firebase-config";
 
 import PlayerCardForTeamDetails from "../components/PlayerCardForTeamDetails";
 
@@ -27,7 +27,7 @@ export default function TeamDetails({ route, navigation }) {
   let team = teams.find((team) => team.id === teamId);
 
   const deletePlayer = async (index) => {
-    const teamDocRef = doc(db, "teams", teamId);
+    const teamDocRef = doc(db, "users", auth.currentUser.uid, "Teams", teamId);
     const updatedTeam = team.players.splice(index, 1);
     updateDoc(teamDocRef, {
       players: updatedTeam,
