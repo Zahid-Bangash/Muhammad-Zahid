@@ -20,7 +20,7 @@ const MyStatsNavigator = ({ navigation }) => (
     }}
   >
     <Stack.Screen
-      name="Stats"
+      name="My Statistics"
       component={MyStats}
       options={{
         headerLeft: () => (
