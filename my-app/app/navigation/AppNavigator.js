@@ -11,7 +11,6 @@ import {
   MyMatches,
   MyTournaments,
   MyClubs,
-  MyStats,
   CustomDrawer,
 } from "../screens";
 
@@ -20,6 +19,7 @@ import HomeNavigator from "./HomeNavigator";
 import ProfileNavigator from "./ProfileNavigator";
 import MyTeamsNavigator from "./MyTeamsNavigator";
 import StartMatchNavigator from "./StartMatchNavigators";
+import MyStatsNavigator from "./MyStatsNavigator";
 
 const Drawer = createDrawerNavigator();
 
@@ -132,7 +132,7 @@ const AppNavigator = () => (
       />
       <Drawer.Screen
         name="My Stats"
-        component={MyStats}
+        component={MyStatsNavigator}
         options={{
           drawerIcon: ({ size, color }) => (
             <Ionicons name="stats-chart" size={size} color={color} />

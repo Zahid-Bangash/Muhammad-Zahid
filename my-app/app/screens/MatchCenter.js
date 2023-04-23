@@ -243,7 +243,13 @@ export default function MatchCenter({ route, navigation }) {
 
   const updateData = async (updatedData) => {
     try {
-      const matchRef = doc(db, "users", auth.currentUser.uid,"Matches",matchId);
+      const matchRef = doc(
+        db,
+        "users",
+        auth.currentUser.uid,
+        "Matches",
+        matchId
+      );
       const inningsRef = collection(matchRef, "innings");
       const inningsDocRef = doc(inningsRef, inningsId);
 
@@ -1336,11 +1342,6 @@ export default function MatchCenter({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   slide: {
     flex: 1,
     justifyContent: "center",
