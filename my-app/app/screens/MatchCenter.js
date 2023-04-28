@@ -29,7 +29,10 @@ import AppButton from "../components/AppButton";
 export default function MatchCenter({ route, navigation }) {
   const { matchId, inningsId } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
-
+  const [inningsEndModal, setinningsEndModal] = useState(false);
+  //new over
+  const [oversModal, setoversModal] = useState(false);
+  const [newBowler, setnewBowler] = useState(null);
   //extras states
   const [customScoreVisible, setcustomScoreVisible] = useState(false);
   const [noBallVisible, setnoBallVisible] = useState(false);
@@ -50,6 +53,9 @@ export default function MatchCenter({ route, navigation }) {
   //Initial Data
   const [matchData, setMatchData] = useState({});
   const intitialInningsData = {
+    inningsNo: 0,
+    battingTeam: "Batting Team",
+    bowlingTeam: "Bowling Team",
     totalRuns: 0,
     wicketsDown: 0,
     oversDelivered: 0,
@@ -85,6 +91,7 @@ export default function MatchCenter({ route, navigation }) {
     remainingBatsmen: [],
     currentBowler: {
       name: "Bowler",
+      balls: 0,
       overs: 0,
       runsGiven: 0,
       wicketsTaken: 0,
@@ -113,17 +120,18 @@ export default function MatchCenter({ route, navigation }) {
     isOut = false,
     newBatsman = null
   ) => {
+    const inningsDataCopy = { ...inningsData };
+    if (inningsDataCopy.isCompleted === true) {
+      alert("Innings is completed");
+      return;
+    }
+
     //Undo
     setpreviousState([
       ...previousState,
       JSON.parse(JSON.stringify(inningsData)),
     ]);
 
-    const inningsDataCopy = { ...inningsData };
-    if (inningsDataCopy.isComplete === true) {
-      alert("Innings is completed");
-      return;
-    }
     //Handle extras
     if (isWide) {
       inningsDataCopy.extras += wdRuns;
@@ -154,9 +162,13 @@ export default function MatchCenter({ route, navigation }) {
     inningsDataCopy.currentBowler.runsGiven += runs;
     if (!isWide && !isNoBall) inningsDataCopy.partnership.balls++;
     if (!isWide && !isNoBall) inningsDataCopy.currentBatsmen[0].ballsFaced++;
-    if (!isWide && !isNoBall) inningsDataCopy.ballsDelivered++;
+    if (!isWide && !isNoBall) {
+      inningsDataCopy.ballsDelivered++;
+      inningsDataCopy.currentBowler.balls++;
+    }
     const economy =
-      inningsDataCopy.totalRuns / (inningsDataCopy.ballsDelivered / 6);
+      inningsDataCopy.currentBowler.runsGiven /
+      (inningsDataCopy.ballsDelivered / 6);
     inningsDataCopy.currentBowler.eco = economy.toFixed(2);
     const strikeRate =
       inningsDataCopy.currentBatsmen[0].runsScored === 0
@@ -198,12 +210,14 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.currentBowler.overs += 1;
       if (inningsData.currentBowler.runsGiven === 0)
         inningsDataCopy.currentBowler.maidenOvers++;
-      alert("Over End");
-      inningsDataCopy.currentOver = [];
-      //changing strike
-      const temp = inningsDataCopy.currentBatsmen[0];
-      inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
-      inningsDataCopy.currentBatsmen[1] = temp;
+      if (inningsDataCopy.oversDelivered !== matchData.totalOvers) {
+        setoversModal(true);
+        inningsDataCopy.currentOver = [];
+        //changing strike
+        const temp = inningsDataCopy.currentBatsmen[0];
+        inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
+        inningsDataCopy.currentBatsmen[1] = temp;
+      }
     }
     //Handle out
     if (isOut) {
@@ -232,16 +246,51 @@ export default function MatchCenter({ route, navigation }) {
           inningsDataCopy.remainingBatsmen.filter((p) => p.name !== newBatsman);
       } else {
         inningsDataCopy.isCompleted = true;
-        alert("compl");
       }
     }
     if (inningsDataCopy.oversDelivered === matchData.totalOvers)
       inningsDataCopy.isComplete = true;
-    updateData(inningsDataCopy);
-    if (inningsDataCopy.isComplete === true) alert("Innings completed");
+    updateInningsData(inningsDataCopy);
+    if (inningsDataCopy.isCompleted === true) {
+      if (inningsData.inningsNo === 2) {
+        if (inningsData.totalRuns >= matchData.target) {
+          const matchDataCopy = { ...matchData };
+          matchDataCopy.result = `${inningsDataCopy.battingTeam} won`;
+          updateMatchData(matchDataCopy);
+        }
+        Alert.alert("Confirm", "End Match?", [
+          {
+            text: "No",
+            onPress: () => {},
+          },
+          {
+            text: "Yes",
+            onPress: () => setSwiperIndex(2),
+          },
+        ]);
+      } else {
+        const matchDataCopy = { ...matchData };
+        matchDataCopy.target = inningsDataCopy.totalRuns + 1;
+        updateMatchData(matchDataCopy);
+        Alert.alert(
+          `Innings ${inningsDataCopy.inningsNo} completed`,
+          "Start Next Innings?",
+          [
+            {
+              text: "No",
+              onPress: () => {},
+            },
+            {
+              text: "Yes",
+              onPress: () => navigation.pop(),
+            },
+          ]
+        );
+      }
+    }
   };
 
-  const updateData = async (updatedData) => {
+  const updateInningsData = async (updatedData) => {
     try {
       const matchRef = doc(
         db,
@@ -260,10 +309,87 @@ export default function MatchCenter({ route, navigation }) {
     }
   };
 
+  const updateMatchData = async (updatedData) => {
+    try {
+      const matchRef = doc(
+        db,
+        "users",
+        auth.currentUser.uid,
+        "Matches",
+        matchId
+      );
+      await updateDoc(matchRef, updatedData, { merge: true });
+      console.log("Match data updated successfully!");
+    } catch (error) {
+      console.error("Error updating Match data:", error);
+    }
+  };
+
+  const EndInnings = () => {
+    if (inningsData.inningsNo === 1) {
+      const matchDataCopy = { ...matchData };
+      matchDataCopy.target = inningsData.totalRuns + 1;
+      updateMatchData(matchDataCopy);
+      Alert.alert(
+        `Innings ${inningsData.inningsNo} completed`,
+        "Start Next Innings?",
+        [
+          {
+            text: "No",
+            onPress: () => {},
+          },
+          {
+            text: "Yes",
+            onPress: () => navigation.pop(),
+          },
+        ]
+      );
+    } else {
+      if (inningsData.totalRuns >= matchData.target) {
+        const matchDataCopy = { ...matchData };
+        matchDataCopy.result = `${inningsData.battingTeam} won`;
+        updateMatchData(matchDataCopy);
+      }
+      Alert.alert("Confirm", "End Match?", [
+        {
+          text: "No",
+          onPress: () => {},
+        },
+        {
+          text: "Yes",
+          onPress: () => setSwiperIndex(2),
+        },
+      ]);
+    }
+  };
   const getBgColor = (runs) => {
     if (runs === 4) return "blue";
     else if (runs === 6) return "#3db106";
     else return "#5e6959";
+  };
+
+  const overCompleted = (newbowler) => {
+    const inningsDataCopy = { ...inningsData };
+    if (newbowler === inningsDataCopy.currentBowler.name) {
+      alert("A bowler can't do it consecutive");
+      return;
+    }
+    let foundBowler = inningsDataCopy.bowlers.find(
+      (bowler) => bowler.name === newbowler
+    );
+    if (foundBowler === undefined) {
+      inningsDataCopy.bowlers.push(inningsDataCopy.currentBowler);
+      inningsDataCopy.currentBowler = {
+        name: newbowler,
+        balls: 0,
+        overs: 0,
+        runsGiven: 0,
+        wicketsTaken: 0,
+        maidenOvers: 0,
+        eco: 0,
+      };
+    } else inningsDataCopy.currentBowler = foundBowler;
+    updateInningsData(inningsDataCopy);
   };
 
   const handleUndo = () => {
@@ -278,7 +404,7 @@ export default function MatchCenter({ route, navigation }) {
           onPress: () => {
             const prevState = previousState.pop();
             setpreviousState([...previousState]);
-            updateData(prevState);
+            updateInningsData(prevState);
           },
         },
       ]);
@@ -298,7 +424,7 @@ export default function MatchCenter({ route, navigation }) {
           const temp = inningsDataCopy.currentBatsmen[0];
           inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
           inningsDataCopy.currentBatsmen[1] = temp;
-          updateData(inningsDataCopy);
+          updateInningsData(inningsDataCopy);
         },
       },
     ]);
@@ -337,32 +463,6 @@ export default function MatchCenter({ route, navigation }) {
       inningsUnsubscribe();
     };
   }, []);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
-      e.preventDefault();
-      Alert.alert("Confirm", "Are you sure you want to leave the match?", [
-        {
-          text: "No",
-          onPress: () => {},
-        },
-        {
-          text: "Yes",
-          onPress: () => {
-            unsubscribe();
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Home" }],
-            });
-          },
-        },
-      ]);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [navigation]);
 
   const renderPagination = () => (
     <View style={styles.pagination}>
@@ -419,7 +519,7 @@ export default function MatchCenter({ route, navigation }) {
       <View style={[styles.slide]}>
         <View
           style={{
-            flex: 2.5,
+            flex: 2.8,
             width: "100%",
             marginTop: 44,
             justifyContent: "center",
@@ -429,38 +529,107 @@ export default function MatchCenter({ route, navigation }) {
           }}
         >
           <Text style={{ fontWeight: "bold", fontSize: 17 }}>
-            {Object.keys(matchData).length > 0
-              ? matchData.battingTeam
-              : "Batting-Team"}
+            {inningsData.battingTeam}
+          </Text>
+          <Text>
+            {inningsData.inningsNo === 1 ? "1st innings" : "2nd innings"}
           </Text>
           <Text style={{ fontWeight: "bold", fontSize: 40, color: "#8f4705" }}>
             {inningsData.totalRuns}-{inningsData.wicketsDown}
           </Text>
           <Text>
-            ({inningsData.ballsDelivered}.{inningsData.oversDelivered}/
-            {Object.keys(matchData).length > 0 ? matchData.totalOvers : "0"})
+            (
+            {Math.floor(inningsData.ballsDelivered / 6) +
+              (inningsData.ballsDelivered % 6) / 10}
+            /{Object.keys(matchData).length > 0 ? matchData.totalOvers : "0"})
           </Text>
         </View>
         <View
           style={{
-            flex: 1.3,
+            flex: 2,
             borderBottomWidth: 1,
             borderColor: "gray",
-            width: "100%",
-            flexDirection: "row",
             justifyContent: "space-around",
             alignItems: "center",
           }}
         >
-          <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-            Extras - {inningsData.extras}
-          </Text>
-          <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-            {`Partnership - ${inningsData.partnership.runs}(${inningsData.partnership.balls})`}
-          </Text>
-          <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-            CRR - {inningsData.runRate}
-          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: "bold",
+                fontSize: 15,
+                flex: 1,
+                marginLeft: 10,
+              }}
+            >
+              Extras - {inningsData.extras}
+            </Text>
+            <Text
+              style={{
+                fontWeight: "bold",
+                fontSize: 15,
+                flex: 1.5,
+                textAlign: "center",
+              }}
+            >
+              {`Partnership - ${inningsData.partnership.runs}(${inningsData.partnership.balls})`}
+            </Text>
+            <Text
+              style={{
+                fontWeight: "bold",
+                fontSize: 15,
+                flex: 1,
+                textAlign: "center",
+              }}
+            >
+              CRR - {inningsData.runRate}
+            </Text>
+          </View>
+          {inningsData.inningsNo === 2 ? (
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 15,
+                  flex: 1,
+                  marginLeft: 10,
+                }}
+              >
+                Target-{matchData.target}
+              </Text>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 15,
+                  flex: 1.5,
+                  textAlign: "center",
+                  color: "green",
+                }}
+              >
+                Need 50 OFF 60
+              </Text>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 15,
+                  flex: 1,
+                  textAlign: "center",
+                }}
+              >
+                Req.RR-5
+              </Text>
+            </View>
+          ) : null}
         </View>
         <View
           style={{
@@ -565,7 +734,8 @@ export default function MatchCenter({ route, navigation }) {
           <View style={styles.cell}>
             <Text style={{ fontWeight: "bold", fontSize: 15 }}>O</Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              {inningsData.currentBowler.overs}.{inningsData.ballsDelivered}
+              {inningsData.currentBowler.overs}.
+              {inningsData.currentBowler.balls}
             </Text>
           </View>
           <View style={styles.cell}>
@@ -717,7 +887,7 @@ export default function MatchCenter({ route, navigation }) {
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>5,7</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log("more")}>
+            <TouchableWithoutFeedback onPress={() => setinningsEndModal(true)}>
               <View
                 style={[
                   styles.buttonCell,
@@ -829,6 +999,33 @@ export default function MatchCenter({ route, navigation }) {
             setlegByeVisible(false);
           }}
         />
+        <Modal animationType="fade" visible={inningsEndModal} transparent>
+          <View
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: 200,
+              backgroundColor: "#ebc67f",
+              bottom: 0,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity onPress={EndInnings}>
+              <Text>End Innings</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ position: "absolute", top: 5, right: 5 }}
+              onPress={() => {
+                setinningsEndModal(false);
+              }}
+            >
+              <Entypo name="circle-with-cross" size={45} color="red" />
+            </TouchableOpacity>
+          </View>
+        </Modal>
         <Modal animationType="fade" visible={dismissalTypesModal} transparent>
           <View
             style={{
@@ -1049,6 +1246,44 @@ export default function MatchCenter({ route, navigation }) {
               onPress={() => {
                 setnewBatsmanModal(false);
                 setdismissalType(null);
+              }}
+            >
+              <Entypo name="circle-with-cross" size={45} color="red" />
+            </TouchableOpacity>
+          </View>
+        </Modal>
+        <Modal visible={oversModal} transparent animationType="fade">
+          <View
+            style={{
+              position: "absolute",
+              backgroundColor: "#07FFF0",
+              transform: [{ translateX: 28 }, { translateY: 80 }],
+              width: "85%",
+              height: "85%",
+              alignItems: "center",
+              borderRadius: 20,
+              padding: 50,
+            }}
+          >
+            <ScrollView>
+              {inningsData.bowlingSquad.map((bowler) => (
+                <TouchableOpacity
+                  key={bowler.id}
+                  onPress={() => {
+                    setoversModal(false);
+                    overCompleted(bowler.name);
+                  }}
+                >
+                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                    {bowler.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              style={{ position: "absolute", top: 5, right: 5 }}
+              onPress={() => {
+                setoversModal(false);
               }}
             >
               <Entypo name="circle-with-cross" size={45} color="red" />

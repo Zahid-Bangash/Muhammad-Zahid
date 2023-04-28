@@ -157,6 +157,7 @@ export default function StartMatch({ route, navigation }) {
             decision: decision,
           },
           totalOvers: matchDetails.overs,
+          target:'',
           status: "InProgress",
           result: "",
         }

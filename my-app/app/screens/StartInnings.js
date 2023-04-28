@@ -29,7 +29,10 @@ export default function StartInnings({ route, navigation }) {
   const [batsmenModal, setbatsmenModal] = useState(false);
   const [bowlersModal, setbowlersModal] = useState(false);
   const [toBeSelected, settoBeSelected] = useState("striker");
-  const startInnings = () => {
+
+  const [inningsNo, setinningsNo] = useState(1);
+
+  const startFirstInnings = () => {
     if (!striker) {
       alert("Select Striker");
       return;
@@ -47,6 +50,9 @@ export default function StartInnings({ route, navigation }) {
     const inningsRef = collection(matchRef, "innings");
 
     addDoc(inningsRef, {
+      inningsNo: 1,
+      battingTeam: battingTeam,
+      bowlingTeam: bowlingTeam,
       totalRuns: 0,
       wicketsDown: 0,
       oversDelivered: 0,
@@ -82,6 +88,7 @@ export default function StartInnings({ route, navigation }) {
       remainingBatsmen: remainingBatsmen,
       currentBowler: {
         name: bowler.name,
+        balls: 0,
         overs: 0,
         runsGiven: 0,
         wicketsTaken: 0,
@@ -92,7 +99,93 @@ export default function StartInnings({ route, navigation }) {
       isCompleted: false,
     })
       .then((docRef) => {
-        console.log("Innings document written with ID: ", docRef.id);
+        console.log("First Innings started with ID: ", docRef.id);
+        setinningsNo(2);
+        setstriker(null);
+        setnonStriker(null);
+        setbowler(null);
+        const temp = battingSquad;
+        setbowlers(temp);
+        setbattingSquad(bowlers);
+        setremainingBatsmen(bowlers);
+        navigation.navigate("Match Center", {
+          matchId: matchId,
+          inningsId: docRef.id,
+        });
+      })
+      .catch((error) => {
+        console.error("Error adding innings document: ", error);
+      });
+  };
+  const startSecondInnings = () => {
+    if (!striker) {
+      alert("Select Striker");
+      return;
+    }
+    if (!nonStriker) {
+      alert("Select Non Striker");
+      return;
+    }
+    if (!bowler) {
+      alert("Select Bowler");
+      return;
+    }
+
+    const matchRef = doc(db, "users", auth.currentUser.uid, "Matches", matchId);
+    const inningsRef = collection(matchRef, "innings");
+
+    addDoc(inningsRef, {
+      inningsNo: 2,
+      battingTeam: bowlingTeam,
+      bowlingTeam: battingTeam,
+      totalRuns: 0,
+      wicketsDown: 0,
+      oversDelivered: 0,
+      ballsDelivered: 0,
+      runRate: 0,
+      extras: 0,
+      projectedScore: 0,
+      partnership: { runs: 0, balls: 0 },
+      currentOver: [],
+      battingSquad: bowlers,
+      bowlingSquad: battingSquad,
+      currentBatsmen: [
+        {
+          name: striker.name,
+          runsScored: 0,
+          ballsFaced: 0,
+          fours: 0,
+          sixes: 0,
+          strikeRate: 0,
+          dismissalType: null,
+        },
+        {
+          name: nonStriker.name,
+          runsScored: 0,
+          ballsFaced: 0,
+          fours: 0,
+          sixes: 0,
+          strikeRate: 0,
+          dismissalType: null,
+        },
+      ],
+      outBatsmen: [],
+      remainingBatsmen: remainingBatsmen,
+      currentBowler: {
+        name: bowler.name,
+        balls: 0,
+        overs: 0,
+        runsGiven: 0,
+        wicketsTaken: 0,
+        maidenOvers: 0,
+        eco: 0,
+      },
+      bowlers: [],
+      isCompleted: false,
+    })
+      .then((docRef) => {
+        console.log("Second Innings started with ID: ", docRef.id);
+        setinningsNo(2);
         navigation.navigate("Match Center", {
           matchId: matchId,
           inningsId: docRef.id,
@@ -114,7 +207,7 @@ export default function StartInnings({ route, navigation }) {
           padding: 5,
         }}
       >
-        Batting-{battingTeam}
+        Batting-{inningsNo === 1 ? battingTeam : bowlingTeam}
       </Text>
       <View
         style={{
@@ -195,7 +288,7 @@ export default function StartInnings({ route, navigation }) {
           padding: 5,
         }}
       >
-        Bowling-{bowlingTeam}
+        Bowling-{inningsNo === 1 ? bowlingTeam : battingTeam}
       </Text>
       <TouchableWithoutFeedback onPress={() => setbowlersModal(true)}>
         <Text style={{ fontWeight: "bold", fontSize: 17 }}>
@@ -238,7 +331,12 @@ export default function StartInnings({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </Modal>
-      <AppButton style={{ width: "50%" }} onPress={startInnings}>
+      <AppButton
+        style={{ width: "50%" }}
+        onPress={() =>
+          inningsNo === 1 ? startFirstInnings() : startSecondInnings()
+        }
+      >
         Start Scoring
       </AppButton>
     </View>
