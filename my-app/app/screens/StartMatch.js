@@ -157,7 +157,7 @@ export default function StartMatch({ route, navigation }) {
             decision: decision,
           },
           totalOvers: matchDetails.overs,
-          target:'',
+          target: 0,
           status: "InProgress",
           result: "",
         }
@@ -254,7 +254,7 @@ export default function StartMatch({ route, navigation }) {
             height: "85%",
             alignItems: "center",
             borderRadius: 20,
-            padding: 50,
+            paddingVertical: 50,
           }}
         >
           <Text
@@ -267,14 +267,17 @@ export default function StartMatch({ route, navigation }) {
           >
             Choose a Team
           </Text>
-          <ScrollView style={{ width: "100%" }}>
+          <ScrollView
+            style={{ width: "100%" }}
+            contentContainerStyle={{ alignItems: "center" }}
+          >
             {teams.map((team) => (
               <TouchableOpacity
                 key={team.id}
                 onPress={() => handleSelectTeam(team)}
                 style={{
                   backgroundColor: "pink",
-                  width: "100%",
+                  width: "90%",
                   marginBottom: 5,
                   alignItems: "center",
                   justifyContent: "center",
@@ -318,7 +321,10 @@ export default function StartMatch({ route, navigation }) {
           >
             Select {selectedTeam && selectedTeam.name} Squad
           </Text>
-          <ScrollView style={{ width: "100%", padding: 50, paddingTop: 0 }}>
+          <ScrollView
+            style={{ width: "100%" }}
+            contentContainerStyle={{ alignItems: "center" }}
+          >
             {selectedTeam &&
               selectedTeam.players.map((player) => (
                 <View
@@ -329,6 +335,7 @@ export default function StartMatch({ route, navigation }) {
                     alignItems: "center",
                     paddingHorizontal: 10,
                     flexDirection: "row",
+                    width: "90%",
                   }}
                 >
                   <Text style={{ fontSize: 18, marginBottom: 10, flex: 1 }}>

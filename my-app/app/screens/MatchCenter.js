@@ -29,7 +29,7 @@ import AppButton from "../components/AppButton";
 export default function MatchCenter({ route, navigation }) {
   const { matchId, inningsId } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
-  const [inningsEndModal, setinningsEndModal] = useState(false);
+  const [moreModal, setmoreModal] = useState(false);
   //new over
   const [oversModal, setoversModal] = useState(false);
   const [newBowler, setnewBowler] = useState(null);
@@ -125,6 +125,10 @@ export default function MatchCenter({ route, navigation }) {
       alert("Innings is completed");
       return;
     }
+    if (inningsDataCopy.currentBowler.balls === 6) {
+      alert("Please select next bowler");
+      return;
+    }
 
     //Undo
     setpreviousState([
@@ -210,14 +214,8 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.currentBowler.overs += 1;
       if (inningsData.currentBowler.runsGiven === 0)
         inningsDataCopy.currentBowler.maidenOvers++;
-      if (inningsDataCopy.oversDelivered !== matchData.totalOvers) {
+      if (inningsDataCopy.oversDelivered !== matchData.totalOvers)
         setoversModal(true);
-        inningsDataCopy.currentOver = [];
-        //changing strike
-        const temp = inningsDataCopy.currentBatsmen[0];
-        inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
-        inningsDataCopy.currentBatsmen[1] = temp;
-      }
     }
     //Handle out
     if (isOut) {
@@ -249,7 +247,7 @@ export default function MatchCenter({ route, navigation }) {
       }
     }
     if (inningsDataCopy.oversDelivered === matchData.totalOvers)
-      inningsDataCopy.isComplete = true;
+      inningsDataCopy.isCompleted = true;
     updateInningsData(inningsDataCopy);
     if (inningsDataCopy.isCompleted === true) {
       if (inningsData.inningsNo === 2) {
@@ -369,16 +367,21 @@ export default function MatchCenter({ route, navigation }) {
   };
 
   const overCompleted = (newbowler) => {
-    const inningsDataCopy = { ...inningsData };
-    if (newbowler === inningsDataCopy.currentBowler.name) {
-      alert("A bowler can't do it consecutive");
+    if (inningsData.currentBowler.name === newbowler) {
+      alert("Choose different bowler");
       return;
     }
-    let foundBowler = inningsDataCopy.bowlers.find(
+    const inningsDataCopy = { ...inningsData };
+    const selectedBowler = inningsDataCopy.bowlers.find(
       (bowler) => bowler.name === newbowler
     );
-    if (foundBowler === undefined) {
+    const currentBowler = inningsDataCopy.bowlers.find(
+      (bowler) => bowler.name === inningsDataCopy.currentBowler.name
+    );
+
+    if (currentBowler === undefined)
       inningsDataCopy.bowlers.push(inningsDataCopy.currentBowler);
+    if (!selectedBowler) {
       inningsDataCopy.currentBowler = {
         name: newbowler,
         balls: 0,
@@ -388,7 +391,17 @@ export default function MatchCenter({ route, navigation }) {
         maidenOvers: 0,
         eco: 0,
       };
-    } else inningsDataCopy.currentBowler = foundBowler;
+    } else {
+      inningsDataCopy.currentBowler = { ...selectedBowler };
+      inningsDataCopy.bowlers = inningsDataCopy.bowlers.filter(
+        (bowler) => bowler.name !== selectedBowler.name
+      );
+    }
+    inningsDataCopy.currentOver = [];
+    //changing strike
+    const temp = inningsDataCopy.currentBatsmen[0];
+    inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
+    inningsDataCopy.currentBatsmen[1] = temp;
     updateInningsData(inningsDataCopy);
   };
 
@@ -887,7 +900,7 @@ export default function MatchCenter({ route, navigation }) {
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>5,7</Text>
               </View>
             </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => setinningsEndModal(true)}>
+            <TouchableWithoutFeedback onPress={() => setmoreModal(true)}>
               <View
                 style={[
                   styles.buttonCell,
@@ -999,7 +1012,7 @@ export default function MatchCenter({ route, navigation }) {
             setlegByeVisible(false);
           }}
         />
-        <Modal animationType="fade" visible={inningsEndModal} transparent>
+        <Modal animationType="fade" visible={moreModal} transparent>
           <View
             style={{
               position: "absolute",
@@ -1009,17 +1022,30 @@ export default function MatchCenter({ route, navigation }) {
               bottom: 0,
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
-              justifyContent: "center",
+              justifyContent: "space-around",
               alignItems: "center",
+              flexDirection: "row",
             }}
           >
             <TouchableOpacity onPress={EndInnings}>
-              <Text>End Innings</Text>
+              <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+                End Innings
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setoversModal(true);
+                setmoreModal(false);
+              }}
+            >
+              <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+                Next Over
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{ position: "absolute", top: 5, right: 5 }}
               onPress={() => {
-                setinningsEndModal(false);
+                setmoreModal(false);
               }}
             >
               <Entypo name="circle-with-cross" size={45} color="red" />
@@ -1265,6 +1291,11 @@ export default function MatchCenter({ route, navigation }) {
               padding: 50,
             }}
           >
+            <Text
+              style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}
+            >
+              Selext Next Bowler
+            </Text>
             <ScrollView>
               {inningsData.bowlingSquad.map((bowler) => (
                 <TouchableOpacity
