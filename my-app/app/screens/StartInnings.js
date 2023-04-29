@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Modal,
   ScrollView,
-  TouchableWithoutFeedback,
 } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import AppButton from "../components/AppButton";
@@ -216,18 +215,34 @@ export default function StartInnings({ route, navigation }) {
           width: "100%",
         }}
       >
-        <TouchableWithoutFeedback
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#e1cda7",
+            width: "45%",
+            height: 40,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 2,
+          }}
           onPress={() => {
             setbatsmenModal(true);
             settoBeSelected("striker");
             if (striker) setremainingBatsmen([...remainingBatsmen, striker]);
           }}
         >
-          <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+          <Text style={{ fontWeight: "bold", fontSize: 15 }}>
             {striker ? `Striker: ${striker.name}` : "Select Striker"}
           </Text>
-        </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#e1cda7",
+            width: "45%",
+            height: 40,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 2,
+          }}
           onPress={() => {
             setbatsmenModal(true);
             settoBeSelected("non-striker");
@@ -235,12 +250,12 @@ export default function StartInnings({ route, navigation }) {
               setremainingBatsmen([...remainingBatsmen, nonStriker]);
           }}
         >
-          <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+          <Text style={{ fontWeight: "bold", fontSize: 15 }}>
             {nonStriker
               ? `Non Striker: ${nonStriker.name}`
               : "Select Non Striker"}
           </Text>
-        </TouchableWithoutFeedback>
+        </TouchableOpacity>
       </View>
       <Modal visible={batsmenModal} animationType="slide" transparent>
         <View
@@ -312,11 +327,21 @@ export default function StartInnings({ route, navigation }) {
       >
         Bowling-{inningsNo === 1 ? bowlingTeam : battingTeam}
       </Text>
-      <TouchableWithoutFeedback onPress={() => setbowlersModal(true)}>
-        <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+      <TouchableOpacity
+        style={{
+          backgroundColor: "#e1cda7",
+          width: "45%",
+          height: 40,
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 2,
+        }}
+        onPress={() => setbowlersModal(true)}
+      >
+        <Text style={{ fontWeight: "bold", fontSize: 15 }}>
           {bowler ? `Bowler: ${bowler.name}` : "Select Bowler"}
         </Text>
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
       <Modal visible={bowlersModal} animationType="slide" transparent>
         <View
           style={{

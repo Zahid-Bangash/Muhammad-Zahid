@@ -61,6 +61,8 @@ export default function MatchCenter({ route, navigation }) {
     venue: "Venue",
     date: "Date",
     time: "Time",
+    ballType: "ball type",
+    matchFormat: "match format",
     tossResult: {
       winnerTeam: "winner team",
       decision: "decision",
@@ -71,7 +73,7 @@ export default function MatchCenter({ route, navigation }) {
     result: "",
   });
   const intitialInningsData = {
-    inningsNo: 0,
+    inningsNo: 1,
     battingTeam: "Batting Team",
     bowlingTeam: "Bowling Team",
     totalRuns: 0,
@@ -121,7 +123,7 @@ export default function MatchCenter({ route, navigation }) {
   };
 
   const [inningsData, setInningsData] = useState(intitialInningsData);
-
+  let availableBowlers = inningsData.bowlingSquad;
   const [previousState, setpreviousState] = useState([]);
 
   //functions
@@ -141,10 +143,6 @@ export default function MatchCenter({ route, navigation }) {
     const inningsDataCopy = { ...inningsData };
     if (inningsDataCopy.isCompleted === true) {
       alert("Innings is completed");
-      return;
-    }
-    if (inningsDataCopy.currentBowler.balls === 6) {
-      alert("Please select next bowler");
       return;
     }
 
@@ -176,6 +174,35 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.totalRuns += noBallRuns;
       inningsDataCopy.currentOver.push(`nb${noBallRuns}`);
       inningsDataCopy.currentBowler.runsGiven += noBallRuns;
+    }
+    //Handle out
+    if (isOut) {
+      inningsDataCopy.wicketsDown++;
+      inningsDataCopy.currentBowler.wicketsTaken++;
+      inningsDataCopy.currentBatsmen[0].dismissalType = dismissalType;
+      inningsDataCopy.outBatsmen.push(inningsDataCopy.currentBatsmen[0]);
+      inningsDataCopy.currentBatsmen.splice(0, 1);
+      inningsDataCopy.currentOver.push("W");
+      setdismissalType(null);
+      if (inningsDataCopy.remainingBatsmen.length !== 0) {
+        inningsDataCopy.currentBatsmen.push({
+          name: newBatsman,
+          runsScored: 0,
+          ballsFaced: 0,
+          fours: 0,
+          sixes: 0,
+          strikeRate: 0,
+          dismissalType: null,
+        });
+        //strike
+        const temp = inningsDataCopy.currentBatsmen[0];
+        inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
+        inningsDataCopy.currentBatsmen[1] = temp;
+        inningsDataCopy.remainingBatsmen =
+          inningsDataCopy.remainingBatsmen.filter((p) => p.name !== newBatsman);
+      } else {
+        inningsDataCopy.isCompleted = true;
+      }
     }
     //Handle runs
     inningsDataCopy.totalRuns += runs;
@@ -232,46 +259,38 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.currentBowler.overs += 1;
       if (inningsData.currentBowler.runsGiven === 0)
         inningsDataCopy.currentBowler.maidenOvers++;
-      if (inningsDataCopy.oversDelivered !== matchData.totalOvers)
+      if (inningsDataCopy.oversDelivered !== matchData.totalOvers) {
+        const index = availableBowlers.findIndex(
+          (bowler) => bowler.name === inningsDataCopy.currentBowler.name
+        );
+        if (index !== -1) {
+          availableBowlers.splice(index, 1);
+        }
         setoversModal(true);
-    }
-    //Handle out
-    if (isOut) {
-      inningsDataCopy.wicketsDown++;
-      inningsDataCopy.currentBowler.wicketsTaken++;
-      inningsDataCopy.currentBatsmen[0].dismissalType = dismissalType;
-      inningsDataCopy.outBatsmen.push(inningsDataCopy.currentBatsmen[0]);
-      inningsDataCopy.currentBatsmen.splice(0, 1);
-      inningsDataCopy.currentOver.push("W");
-      setdismissalType(null);
-      if (inningsDataCopy.remainingBatsmen.length !== 0) {
-        inningsDataCopy.currentBatsmen.push({
-          name: newBatsman,
-          runsScored: 0,
-          ballsFaced: 0,
-          fours: 0,
-          sixes: 0,
-          strikeRate: 0,
-          dismissalType: null,
-        });
-        //strike
-        const temp = inningsDataCopy.currentBatsmen[0];
-        inningsDataCopy.currentBatsmen[0] = inningsDataCopy.currentBatsmen[1];
-        inningsDataCopy.currentBatsmen[1] = temp;
-        inningsDataCopy.remainingBatsmen =
-          inningsDataCopy.remainingBatsmen.filter((p) => p.name !== newBatsman);
-      } else {
-        inningsDataCopy.isCompleted = true;
       }
     }
     if (inningsDataCopy.oversDelivered === matchData.totalOvers)
       inningsDataCopy.isCompleted = true;
+    if (
+      inningsDataCopy.inningsNo === 2 &&
+      inningsDataCopy.totalRuns >= matchData.target
+    )
+      inningsDataCopy.isCompleted = true;
     updateInningsData(inningsDataCopy);
+
     if (inningsDataCopy.isCompleted === true) {
       if (inningsData.inningsNo === 2) {
         if (inningsData.totalRuns >= matchData.target) {
           const matchDataCopy = { ...matchData };
-          matchDataCopy.result = `${inningsDataCopy.battingTeam} won`;
+          matchDataCopy.result = `${inningsDataCopy.battingTeam} won by ${
+            inningsDataCopy.battingSquad.length - inningsDataCopy.wicketsDown
+          } wickets`;
+          updateMatchData(matchDataCopy);
+        } else {
+          const matchDataCopy = { ...matchData };
+          matchDataCopy.result = `${inningsDataCopy.bowlingTeam} won by ${
+            matchData.target - inningsDataCopy.totalRuns - 1
+          } runs`;
           updateMatchData(matchDataCopy);
         }
         Alert.alert("Confirm", "End Match?", [
@@ -385,11 +404,8 @@ export default function MatchCenter({ route, navigation }) {
   };
 
   const overCompleted = (newbowler) => {
-    if (inningsData.currentBowler.name === newbowler) {
-      alert("Choose different bowler");
-      return;
-    }
     const inningsDataCopy = { ...inningsData };
+    availableBowlers.push(inningsDataCopy.currentBowler);
     const selectedBowler = inningsDataCopy.bowlers.find(
       (bowler) => bowler.name === newbowler
     );
@@ -550,7 +566,7 @@ export default function MatchCenter({ route, navigation }) {
       <View style={[styles.slide]}>
         <View
           style={{
-            flex: 2.8,
+            flex: 3,
             width: "100%",
             marginTop: 44,
             justifyContent: "center",
@@ -1296,49 +1312,51 @@ export default function MatchCenter({ route, navigation }) {
             </TouchableOpacity>
           </View>
         </Modal>
-        <Modal visible={oversModal} transparent animationType="fade">
-          <View
-            style={{
-              position: "absolute",
-              backgroundColor: "#07FFF0",
-              transform: [{ translateX: 28 }, { translateY: 80 }],
-              width: "85%",
-              height: "85%",
-              alignItems: "center",
-              borderRadius: 20,
-              padding: 50,
-            }}
-          >
-            <Text
-              style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}
-            >
-              Selext Next Bowler
-            </Text>
-            <ScrollView>
-              {inningsData.bowlingSquad.map((bowler) => (
-                <TouchableOpacity
-                  key={bowler.id}
-                  onPress={() => {
-                    setoversModal(false);
-                    overCompleted(bowler.name);
-                  }}
-                >
-                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
-                    {bowler.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <TouchableOpacity
-              style={{ position: "absolute", top: 5, right: 5 }}
-              onPress={() => {
-                setoversModal(false);
+        {oversModal ? (
+          <Modal transparent animationType="fade">
+            <View
+              style={{
+                position: "absolute",
+                backgroundColor: "#07FFF0",
+                transform: [{ translateX: 28 }, { translateY: 80 }],
+                width: "85%",
+                height: "85%",
+                alignItems: "center",
+                borderRadius: 20,
+                padding: 50,
               }}
             >
-              <Entypo name="circle-with-cross" size={45} color="red" />
-            </TouchableOpacity>
-          </View>
-        </Modal>
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}
+              >
+                Selext Next Bowler
+              </Text>
+              <ScrollView>
+                {availableBowlers.map((bowler) => (
+                  <TouchableOpacity
+                    key={bowler.id}
+                    onPress={() => {
+                      setoversModal(false);
+                      overCompleted(bowler.name);
+                    }}
+                  >
+                    <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                      {bowler.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <TouchableOpacity
+                style={{ position: "absolute", top: 5, right: 5 }}
+                onPress={() => {
+                  setoversModal(false);
+                }}
+              >
+                <Entypo name="circle-with-cross" size={45} color="red" />
+              </TouchableOpacity>
+            </View>
+          </Modal>
+        ) : null}
       </View>
       <View style={styles.slide}>
         <ScrollView contentContainerStyle={{ marginTop: 44, width: "100%" }}>
@@ -1624,8 +1642,9 @@ export default function MatchCenter({ route, navigation }) {
             flexDirection: "row",
             justifyContent: "space-around",
             width: "100%",
-            height: 150,
+            height: "25%",
             borderBottomWidth: 0.5,
+            borderColor: "grey",
             marginTop: 60,
           }}
         >
@@ -1658,8 +1677,16 @@ export default function MatchCenter({ route, navigation }) {
             </Text>
           </View>
         </View>
-        <View style={{ flexDirection: "row",marginTop:40,justifyContent:'space-around', }}>
-          <View>
+        <View
+          style={{
+            flexDirection: "row",
+            marginTop: 30,
+            justifyContent: "space-around",
+            width: "100%",
+            height: "55%",
+          }}
+        >
+          <View style={{ justifyContent: "space-around" }}>
             <Text style={{ fontWeight: "bold" }}>Match Title</Text>
             <Text style={{ fontWeight: "bold" }}>Format</Text>
             <Text style={{ fontWeight: "bold" }}>Ball Type</Text>
@@ -1670,14 +1697,16 @@ export default function MatchCenter({ route, navigation }) {
             <Text style={{ fontWeight: "bold" }}>Decided to</Text>
             <Text style={{ fontWeight: "bold" }}>Match ID</Text>
           </View>
-          <View>
+          <View style={{ justifyContent: "space-around" }}>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
               {matchData.title}
             </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
-              match format
+              {matchData.matchFormat}
             </Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>ball type</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {matchData.ballType}
+            </Text>
             <Text style={{ fontWeight: "bold", color: "grey" }}>
               {matchData.venue}
             </Text>

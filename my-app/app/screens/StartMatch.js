@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Entypo from "@expo/vector-icons/Entypo";
 
@@ -22,15 +23,14 @@ import MyTeamsNavigator from "../navigation/MyTeamsNavigator";
 import ScoringModal from "../components/ScoringModal";
 
 export default function StartMatch({ route, navigation }) {
-  const [noBall, setnoBall] = useState(0);
-
   const { teams } = useContext(Context);
-  const [bottom, setbottom] = useState(0);
   const [matchDetails, setmatchDetails] = useState({
     venue: "",
     date: new Date(),
     time: new Date(),
     overs: 0,
+    ballType: "",
+    matchFormat: "",
   });
   const [team1, setTeam1] = useState(null);
   const [team2, setTeam2] = useState(null);
@@ -128,6 +128,14 @@ export default function StartMatch({ route, navigation }) {
       alert("Enter no of overs");
       return;
     }
+    if (matchDetails.ballType === "") {
+      alert("Select Ball Type");
+      return;
+    }
+    if (matchDetails.matchFormat === "") {
+      alert("Select Match Format");
+      return;
+    }
     setTossModalVisible(true);
   };
 
@@ -152,6 +160,8 @@ export default function StartMatch({ route, navigation }) {
           venue: matchDetails.venue,
           date: matchDetails.date.toLocaleDateString(),
           time: matchDetails.time.toLocaleTimeString(),
+          ballType: matchDetails.ballType,
+          matchFormat:matchDetails.matchFormat,
           tossResult: {
             winnerTeam: tossWinner.name,
             decision: decision,
@@ -280,7 +290,7 @@ export default function StartMatch({ route, navigation }) {
                   width: "90%",
                   height: 50,
                   marginBottom: 5,
-                  alignItems: "center",
+                  paddingHorizontal: 10,
                   justifyContent: "center",
                 }}
               >
@@ -345,11 +355,11 @@ export default function StartMatch({ route, navigation }) {
                   </Text>
                   {squad.players.includes(player) ? (
                     <TouchableOpacity onPress={() => handleSquadUpdate(player)}>
-                      <Entypo name="minus" size={25} color="red" />
+                      <Entypo name="minus" size={35} color="red" />
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity onPress={() => handleSquadUpdate(player)}>
-                      <Entypo name="plus" size={25} color="green" />
+                      <Entypo name="plus" size={35} color="green" />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -371,12 +381,12 @@ export default function StartMatch({ route, navigation }) {
         onChangeText={(text) =>
           setmatchDetails({ ...matchDetails, venue: text })
         }
-        style={{ marginTop: 40 }}
+        style={{ marginTop: 20 }}
       />
       <View
         style={{
           flexDirection: "row",
-          marginTop: 20,
+          marginTop: 10,
           width: "80%",
         }}
       >
@@ -426,9 +436,154 @@ export default function StartMatch({ route, navigation }) {
         onChangeText={(text) =>
           setmatchDetails({ ...matchDetails, overs: parseInt(text) })
         }
-        style={{ marginTop: 20 }}
+        style={{ marginTop: 10 }}
       />
-
+      <Text style={{ fontWeight: "bold", marginTop: 10 }}>Ball Type</Text>
+      <RadioButtonGroup
+        selected={matchDetails.ballType}
+        onSelected={(val) =>
+          setmatchDetails({ ...matchDetails, ballType: val })
+        }
+        radioBackground="green"
+        containerStyle={{ flexDirection: "row" }}
+      >
+        <RadioButtonItem
+          label="LEATHER"
+          value="leather"
+          style={{ margin: 10 }}
+        />
+        <RadioButtonItem label="TENNIS" value="tennis" style={{ margin: 10 }} />
+        <RadioButtonItem label="OTHER" value="other" style={{ margin: 10 }} />
+      </RadioButtonGroup>
+      <Text style={{ fontWeight: "bold", marginTop: 10 }}>Match Format</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: 10,
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "space-around",
+        }}
+      >
+        <TouchableWithoutFeedback
+          onPress={() =>
+            setmatchDetails({ ...matchDetails, matchFormat: "T10" })
+          }
+        >
+          <View
+            style={{
+              backgroundColor:
+                matchDetails.matchFormat === "T10" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>T10</Text>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback
+          onPress={() =>
+            setmatchDetails({ ...matchDetails, matchFormat: "T20" })
+          }
+        >
+          <View
+            style={{
+              backgroundColor:
+                matchDetails.matchFormat === "T20" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>T20</Text>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback
+          onPress={() =>
+            setmatchDetails({ ...matchDetails, matchFormat: "ODI" })
+          }
+        >
+          <View
+            style={{
+              backgroundColor:
+                matchDetails.matchFormat === "ODI" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>ODI</Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: 10,
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "space-around",
+        }}
+      >
+        <TouchableWithoutFeedback
+          onPress={() =>
+            setmatchDetails({ ...matchDetails, matchFormat: "100" })
+          }
+        >
+          <View
+            style={{
+              backgroundColor:
+                matchDetails.matchFormat === "100" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>100</Text>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback
+          onPress={() =>
+            setmatchDetails({ ...matchDetails, matchFormat: "Test" })
+          }
+        >
+          <View
+            style={{
+              backgroundColor:
+                matchDetails.matchFormat === "Test" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>Test</Text>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback
+          onPress={() =>
+            setmatchDetails({ ...matchDetails, matchFormat: "Club" })
+          }
+        >
+          <View
+            style={{
+              backgroundColor:
+                matchDetails.matchFormat === "Club" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>Club</Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
       {/* Toss Modal */}
       <Modal visible={tossModalVisible} transparent animationType="fade">
         <View
@@ -610,7 +765,7 @@ export default function StartMatch({ route, navigation }) {
         </View>
       </Modal>
       <AppButton
-        style={{ marginTop: 50, width: "82%" }}
+        style={{ marginTop: 40, width: "82%" }}
         onPress={handleCreateMatch}
       >
         Create
