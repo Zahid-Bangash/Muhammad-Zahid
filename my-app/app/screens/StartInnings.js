@@ -252,13 +252,35 @@ export default function StartInnings({ route, navigation }) {
             height: "85%",
             alignItems: "center",
             borderRadius: 20,
-            padding: 50,
+            paddingVertical: 50,
           }}
         >
-          <ScrollView>
+          <Text
+            style={{
+              fontSize: 24,
+              marginBottom: 20,
+              color: "#88309a",
+              fontWeight: "bold",
+            }}
+          >
+            Select Batsman
+          </Text>
+          <ScrollView
+            style={{ width: "100%" }}
+            contentContainerStyle={{ alignItems: "center" }}
+          >
             {remainingBatsmen.map((player) => (
               <TouchableOpacity
                 key={player.id}
+                style={{
+                  backgroundColor: "#b8dde0",
+                  marginBottom: 5,
+                  alignItems: "center",
+                  paddingHorizontal: 10,
+                  flexDirection: "row",
+                  width: "90%",
+                  height: 50,
+                }}
                 onPress={() => {
                   toBeSelected === "striker"
                     ? setstriker(player)
@@ -305,13 +327,35 @@ export default function StartInnings({ route, navigation }) {
             height: "85%",
             alignItems: "center",
             borderRadius: 20,
-            padding: 50,
+            paddingVertical: 50,
           }}
         >
-          <ScrollView>
+          <Text
+            style={{
+              fontSize: 24,
+              marginBottom: 20,
+              color: "#88309a",
+              fontWeight: "bold",
+            }}
+          >
+            Select Bowler
+          </Text>
+          <ScrollView
+            style={{ width: "100%" }}
+            contentContainerStyle={{ alignItems: "center" }}
+          >
             {bowlers.map((player) => (
               <TouchableOpacity
                 key={player.id}
+                style={{
+                  backgroundColor: "#b8dde0",
+                  marginBottom: 5,
+                  alignItems: "center",
+                  paddingHorizontal: 10,
+                  flexDirection: "row",
+                  width: "90%",
+                  height: 50,
+                }}
                 onPress={() => {
                   setbowler(player);
                   setbowlersModal(false);

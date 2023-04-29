@@ -8,6 +8,7 @@ import {
   ScrollView,
   Alert,
   Modal,
+  Image,
 } from "react-native";
 import Swiper from "react-native-swiper";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -51,7 +52,24 @@ export default function MatchCenter({ route, navigation }) {
   const [dismissalType, setdismissalType] = useState(null);
   const [newBatsmanModal, setnewBatsmanModal] = useState(false);
   //Initial Data
-  const [matchData, setMatchData] = useState({});
+  const [matchData, setMatchData] = useState({
+    title: "match Title",
+    teams: {
+      team1: { name: "Team A", squad: [] },
+      team2: { name: "Team B", squad: [] },
+    },
+    venue: "Venue",
+    date: "Date",
+    time: "Time",
+    tossResult: {
+      winnerTeam: "winner team",
+      decision: "decision",
+    },
+    totalOvers: "overs",
+    target: 0,
+    status: "InProgress",
+    result: "",
+  });
   const intitialInningsData = {
     inningsNo: 0,
     battingTeam: "Batting Team",
@@ -1601,7 +1619,83 @@ export default function MatchCenter({ route, navigation }) {
         </ScrollView>
       </View>
       <View style={styles.slide}>
-        <Text style={styles.buttonText}>Info Screen</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-around",
+            width: "100%",
+            height: 150,
+            borderBottomWidth: 0.5,
+            marginTop: 60,
+          }}
+        >
+          <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <Image
+              source={require("../assets/team5.jpg")}
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 50,
+                marginBottom: 10,
+              }}
+            />
+            <Text style={{ fontWeight: "bold" }}>
+              {inningsData.battingTeam}
+            </Text>
+          </View>
+          <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <Image
+              source={require("../assets/team1.jpg")}
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 50,
+                marginBottom: 10,
+              }}
+            />
+            <Text style={{ fontWeight: "bold" }}>
+              {inningsData.bowlingTeam}
+            </Text>
+          </View>
+        </View>
+        <View style={{ flexDirection: "row",marginTop:40,justifyContent:'space-around', }}>
+          <View>
+            <Text style={{ fontWeight: "bold" }}>Match Title</Text>
+            <Text style={{ fontWeight: "bold" }}>Format</Text>
+            <Text style={{ fontWeight: "bold" }}>Ball Type</Text>
+            <Text style={{ fontWeight: "bold" }}>Venue</Text>
+            <Text style={{ fontWeight: "bold" }}>Overs</Text>
+            <Text style={{ fontWeight: "bold" }}>Date and Time</Text>
+            <Text style={{ fontWeight: "bold" }}>Toss Winner</Text>
+            <Text style={{ fontWeight: "bold" }}>Decided to</Text>
+            <Text style={{ fontWeight: "bold" }}>Match ID</Text>
+          </View>
+          <View>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {matchData.title}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              match format
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>ball type</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {matchData.venue}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {matchData.totalOvers}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {matchData.date} {matchData.time}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {matchData.tossResult.winnerTeam}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>
+              {matchData.tossResult.decision}
+            </Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>{matchId}</Text>
+          </View>
+        </View>
       </View>
     </Swiper>
   );
@@ -1610,7 +1704,6 @@ export default function MatchCenter({ route, navigation }) {
 const styles = StyleSheet.create({
   slide: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
   },
   pagination: {

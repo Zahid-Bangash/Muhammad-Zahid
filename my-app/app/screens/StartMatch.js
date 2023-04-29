@@ -278,6 +278,7 @@ export default function StartMatch({ route, navigation }) {
                 style={{
                   backgroundColor: "pink",
                   width: "90%",
+                  height: 50,
                   marginBottom: 5,
                   alignItems: "center",
                   justifyContent: "center",
@@ -336,6 +337,7 @@ export default function StartMatch({ route, navigation }) {
                     paddingHorizontal: 10,
                     flexDirection: "row",
                     width: "90%",
+                    height: 50,
                   }}
                 >
                   <Text style={{ fontSize: 18, marginBottom: 10, flex: 1 }}>
