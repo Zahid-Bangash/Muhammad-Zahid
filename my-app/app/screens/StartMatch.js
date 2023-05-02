@@ -161,7 +161,7 @@ export default function StartMatch({ route, navigation }) {
           date: matchDetails.date.toLocaleDateString(),
           time: matchDetails.time.toLocaleTimeString(),
           ballType: matchDetails.ballType,
-          matchFormat:matchDetails.matchFormat,
+          matchFormat: matchDetails.matchFormat,
           tossResult: {
             winnerTeam: tossWinner.name,
             decision: decision,
@@ -170,6 +170,8 @@ export default function StartMatch({ route, navigation }) {
           target: 0,
           status: "InProgress",
           result: "",
+          battingTeam:battingTeam,
+          bowlingTeam:bowlingTeam,
         }
       );
       console.log("Match created with ID: ", matchRef.id);

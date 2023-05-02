@@ -63,7 +63,7 @@ export default function StartInnings({ route, navigation }) {
       currentOver: [],
       battingSquad: battingSquad,
       bowlingSquad: bowlers,
-      currentBatsmen: [
+      allBatsmen: [
         {
           name: striker.name,
           runsScored: 0,
@@ -72,6 +72,8 @@ export default function StartInnings({ route, navigation }) {
           sixes: 0,
           strikeRate: 0,
           dismissalType: null,
+          status: "not out",
+          id: striker.id,
         },
         {
           name: nonStriker.name,
@@ -81,6 +83,32 @@ export default function StartInnings({ route, navigation }) {
           sixes: 0,
           strikeRate: 0,
           dismissalType: null,
+          status: "not out",
+          id: nonStriker.id,
+        },
+      ],
+      currentBatsmen: [
+        {
+          name: striker.name,
+          runsScored: 0,
+          ballsFaced: 0,
+          fours: 0,
+          sixes: 0,
+          strikeRate: 0,
+          dismissalType: null,
+          status: "not out",
+          id: striker.id,
+        },
+        {
+          name: nonStriker.name,
+          runsScored: 0,
+          ballsFaced: 0,
+          fours: 0,
+          sixes: 0,
+          strikeRate: 0,
+          dismissalType: null,
+          status: "not out",
+          id: nonStriker.id,
         },
       ],
       outBatsmen: [],
@@ -148,7 +176,7 @@ export default function StartInnings({ route, navigation }) {
       currentOver: [],
       battingSquad: bowlers,
       bowlingSquad: battingSquad,
-      currentBatsmen: [
+      allBatsmen: [
         {
           name: striker.name,
           runsScored: 0,
@@ -157,6 +185,8 @@ export default function StartInnings({ route, navigation }) {
           sixes: 0,
           strikeRate: 0,
           dismissalType: null,
+          status: "not out",
+          id: striker.id,
         },
         {
           name: nonStriker.name,
@@ -166,6 +196,32 @@ export default function StartInnings({ route, navigation }) {
           sixes: 0,
           strikeRate: 0,
           dismissalType: null,
+          status: "not out",
+          id: nonStriker.id,
+        },
+      ],
+      currentBatsmen: [
+        {
+          name: striker.name,
+          runsScored: 0,
+          ballsFaced: 0,
+          fours: 0,
+          sixes: 0,
+          strikeRate: 0,
+          dismissalType: null,
+          status: "not out",
+          id: striker.id,
+        },
+        {
+          name: nonStriker.name,
+          runsScored: 0,
+          ballsFaced: 0,
+          fours: 0,
+          sixes: 0,
+          strikeRate: 0,
+          dismissalType: null,
+          status: "not out",
+          id: nonStriker.id,
         },
       ],
       outBatsmen: [],
