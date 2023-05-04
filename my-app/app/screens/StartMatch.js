@@ -170,8 +170,8 @@ export default function StartMatch({ route, navigation }) {
           target: 0,
           status: "InProgress",
           result: "",
-          battingTeam:battingTeam,
-          bowlingTeam:bowlingTeam,
+          battingTeam: battingTeam,
+          bowlingTeam: bowlingTeam,
         }
       );
       console.log("Match created with ID: ", matchRef.id);

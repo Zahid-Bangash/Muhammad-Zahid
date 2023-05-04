@@ -71,7 +71,6 @@ export default function AddPlayer({ route }) {
         autoCapitalize="none"
         autoComplete="off"
         autoCorrect={false}
-        rightIcon="search"
         value={name}
         onChangeText={(text) => setname(text)}
         style={{ marginBottom: 50 }}

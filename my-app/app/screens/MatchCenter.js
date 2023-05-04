@@ -147,8 +147,20 @@ export default function MatchCenter({ route, navigation }) {
       wicketsTaken: 0,
       maidenOvers: 0,
       eco: 0,
+      id: 1,
     },
-    bowlers: [],
+    bowlers: [
+      {
+        name: "Bowler",
+        balls: 0,
+        overs: 0,
+        runsGiven: 0,
+        wicketsTaken: 0,
+        maidenOvers: 0,
+        eco: 0,
+        id: 1,
+      },
+    ],
     isCompleted: false,
   };
 
@@ -159,7 +171,7 @@ export default function MatchCenter({ route, navigation }) {
 
   //functions
   const handleScore = (
-    runs,
+    runs = 0,
     isWide = false,
     wdRuns = 0,
     isNoBall = false,
@@ -190,6 +202,15 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.totalRuns += wdRuns;
       inningsDataCopy.currentOver.push(`Wd${wdRuns}`);
       inningsDataCopy.currentBowler.runsGiven += wdRuns;
+      inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
+        if (bowler.id === inningsDataCopy.currentBowler.id) {
+          return {
+            ...bowler,
+            runsGiven: bowler.runsGiven + runs,
+          };
+        }
+        return bowler;
+      });
     }
     if (isBye) {
       inningsDataCopy.extras += byeRuns;
@@ -206,6 +227,15 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.totalRuns += noBallRuns;
       inningsDataCopy.currentOver.push(`nb${noBallRuns}`);
       inningsDataCopy.currentBowler.runsGiven += noBallRuns;
+      inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
+        if (bowler.id === inningsDataCopy.currentBowler.id) {
+          return {
+            ...bowler,
+            runsGiven: bowler.runsGiven + runs,
+          };
+        }
+        return bowler;
+      });
     }
     //Handle runs
     inningsDataCopy.totalRuns += runs;
@@ -221,6 +251,15 @@ export default function MatchCenter({ route, navigation }) {
       return batter;
     });
     inningsDataCopy.currentBowler.runsGiven += runs;
+    inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
+      if (bowler.id === inningsDataCopy.currentBowler.id) {
+        return {
+          ...bowler,
+          runsGiven: bowler.runsGiven + runs,
+        };
+      }
+      return bowler;
+    });
     if (!isWide && !isNoBall) inningsDataCopy.partnership.balls++;
     if (!isWide && !isNoBall) {
       inningsDataCopy.currentBatsmen[0].ballsFaced++;
@@ -237,11 +276,29 @@ export default function MatchCenter({ route, navigation }) {
     if (!isWide && !isNoBall) {
       inningsDataCopy.ballsDelivered++;
       inningsDataCopy.currentBowler.balls++;
+      inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
+        if (bowler.id === inningsDataCopy.currentBowler.id) {
+          return {
+            ...bowler,
+            balls: bowler.balls + 1,
+          };
+        }
+        return bowler;
+      });
     }
     const economy =
       inningsDataCopy.currentBowler.runsGiven /
-      (inningsDataCopy.ballsDelivered / 6);
+      (inningsDataCopy.currentBowler.balls / 6);
     inningsDataCopy.currentBowler.eco = economy.toFixed(2);
+    inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
+      if (bowler.id === inningsDataCopy.currentBowler.id) {
+        return {
+          ...bowler,
+          eco: economy.toFixed(2),
+        };
+      }
+      return bowler;
+    });
     const strikeRate =
       inningsDataCopy.currentBatsmen[0].runsScored === 0
         ? 0
@@ -292,7 +349,17 @@ export default function MatchCenter({ route, navigation }) {
     if (isOut) {
       inningsDataCopy.wicketsDown++;
       inningsDataCopy.currentBowler.wicketsTaken++;
+      inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
+        if (bowler.id === inningsDataCopy.currentBowler.id) {
+          return {
+            ...bowler,
+            wicketsTaken: bowler.wicketsTaken + 1,
+          };
+        }
+        return bowler;
+      });
       inningsDataCopy.currentBatsmen[0].dismissalType = dismissalType;
+      inningsDataCopy.currentBatsmen[0].status = `b ${inningsDataCopy.currentBowler.name}`;
       inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
         if (batter.id === inningsDataCopy.currentBatsmen[0].id) {
           return {
@@ -359,11 +426,31 @@ export default function MatchCenter({ route, navigation }) {
     ) {
       inningsDataCopy.oversDelivered += 1;
       inningsDataCopy.currentBowler.overs += 1;
-      if (inningsData.currentBowler.runsGiven === 0)
-        inningsDataCopy.currentBowler.maidenOvers++;
+      inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
+        if (bowler.id === inningsDataCopy.currentBowler.id) {
+          return {
+            ...bowler,
+            overs: bowler.overs + 1,
+          };
+        }
+        return bowler;
+      });
+      //handling maiden over
+      // if (inningsData.currentBowler.runsGiven === 0) {
+      //   inningsDataCopy.currentBowler.maidenOvers++;
+      //   inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
+      //     if (bowler.id === inningsDataCopy.currentBowler.id) {
+      //       return {
+      //         ...bowler,
+      //         maidenOvers: bowler.maidenOvers + 1,
+      //       };
+      //     }
+      //     return bowler;
+      //   });
+      // }
       if (inningsDataCopy.oversDelivered !== matchData.totalOvers) {
         const index = availableBowlers.findIndex(
-          (bowler) => bowler.name === inningsDataCopy.currentBowler.name
+          (bowler) => bowler.id === inningsDataCopy.currentBowler.id
         );
         if (index !== -1) {
           availableBowlers.splice(index, 1);
@@ -512,18 +599,12 @@ export default function MatchCenter({ route, navigation }) {
     else return "#5e6959";
   };
 
-  const overCompleted = (newbowler) => {
+  const overCompleted = (newbowler, id) => {
     const inningsDataCopy = { ...inningsData };
     availableBowlers.push(inningsDataCopy.currentBowler);
     const selectedBowler = inningsDataCopy.bowlers.find(
-      (bowler) => bowler.name === newbowler
+      (bowler) => bowler.id === id
     );
-    const currentBowler = inningsDataCopy.bowlers.find(
-      (bowler) => bowler.name === inningsDataCopy.currentBowler.name
-    );
-
-    if (currentBowler === undefined)
-      inningsDataCopy.bowlers.push(inningsDataCopy.currentBowler);
     if (!selectedBowler) {
       inningsDataCopy.currentBowler = {
         name: newbowler,
@@ -533,13 +614,17 @@ export default function MatchCenter({ route, navigation }) {
         wicketsTaken: 0,
         maidenOvers: 0,
         eco: 0,
+        id: id,
       };
     } else {
       inningsDataCopy.currentBowler = { ...selectedBowler };
-      inningsDataCopy.bowlers = inningsDataCopy.bowlers.filter(
-        (bowler) => bowler.name !== selectedBowler.name
-      );
     }
+    const currentBowler = inningsDataCopy.bowlers.find(
+      (bowler) => bowler.id === inningsDataCopy.currentBowler.id
+    );
+
+    if (currentBowler === undefined)
+      inningsDataCopy.bowlers.push(inningsDataCopy.currentBowler);
     inningsDataCopy.currentOver = [];
     //changing strike
     const temp = inningsDataCopy.currentBatsmen[0];
@@ -672,12 +757,11 @@ export default function MatchCenter({ route, navigation }) {
       renderPagination={renderPagination}
       nestedScrollEnabled
     >
-      <View style={[styles.slide]}>
+      <View style={styles.slide}>
         <View
           style={{
             flex: 3,
             width: "100%",
-            marginTop: 44,
             justifyContent: "center",
             alignItems: "center",
             borderBottomWidth: 0.5,
@@ -1460,7 +1544,7 @@ export default function MatchCenter({ route, navigation }) {
                     key={bowler.id}
                     onPress={() => {
                       setoversModal(false);
-                      overCompleted(bowler.name);
+                      overCompleted(bowler.name, bowler.id);
                     }}
                   >
                     <Text style={{ fontSize: 18, marginBottom: 10 }}>
@@ -1474,8 +1558,13 @@ export default function MatchCenter({ route, navigation }) {
         ) : null}
       </View>
       <View style={styles.slide}>
-        <ScrollView contentContainerStyle={{ marginTop: 44, width: "100%" }}>
-          <View style={{ padding: 10 }}>
+        <ScrollView style={{ width: "100%" }}>
+          <View
+            style={{
+              padding: 10,
+              alignItems: "center",
+            }}
+          >
             <Text style={{ color: "red", fontWeight: "bold" }}>
               {inningsData.isCompleted === true && inningsData.inningsNo === 2
                 ? matchData.result
@@ -1495,7 +1584,7 @@ export default function MatchCenter({ route, navigation }) {
               justifyContent: "space-between",
               width: "100%",
               padding: 10,
-              borderWidth: 1,
+              borderBottomWidth: 1,
             }}
           >
             <Text style={{ fontSize: 18, fontWeight: "500" }}>
@@ -1651,22 +1740,17 @@ export default function MatchCenter({ route, navigation }) {
                   Eco
                 </Text>
               </View>
-              <Bowler
-                overs={5}
-                middens={0}
-                runs={45}
-                wickets={2}
-                eco={19.0}
-                name="Dharkan"
-              />
-              <Bowler
-                overs={5}
-                middens={0}
-                runs={45}
-                wickets={2}
-                eco={19.0}
-                name="Janu"
-              />
+              {inningsData.bowlers.map((bowler) => (
+                <Bowler
+                  key={bowler.id}
+                  overs={Math.floor(bowler.balls / 6) + (bowler.balls % 6) / 10}
+                  middens={bowler.maidenOvers}
+                  runs={bowler.runsGiven}
+                  wickets={bowler.wicketsTaken}
+                  eco={bowler.eco}
+                  name={bowler.name}
+                />
+              ))}
             </>
           )}
           {inningsData.outBatsmen.length > 0 ? (
@@ -1704,6 +1788,7 @@ export default function MatchCenter({ route, navigation }) {
                   }) Ov`}</Text>
                 </View>
               ))}
+              {/* <Text style={{height:500}}>hhhhh</Text> */}
             </>
           ) : null}
           {/* <View
@@ -1847,7 +1932,7 @@ export default function MatchCenter({ route, navigation }) {
           /> */}
         </ScrollView>
       </View>
-      <View style={styles.slide}>
+      <View style={[styles.slide, { paddingTop: 60 }]}>
         <View
           style={{
             flexDirection: "row",
@@ -1856,7 +1941,6 @@ export default function MatchCenter({ route, navigation }) {
             height: "25%",
             borderBottomWidth: 0.5,
             borderColor: "grey",
-            marginTop: 60,
           }}
         >
           <View style={{ justifyContent: "center", alignItems: "center" }}>
@@ -1945,6 +2029,7 @@ const styles = StyleSheet.create({
   slide: {
     flex: 1,
     alignItems: "center",
+    paddingTop: 40,
   },
   pagination: {
     flexDirection: "row",

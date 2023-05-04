@@ -121,8 +121,20 @@ export default function StartInnings({ route, navigation }) {
         wicketsTaken: 0,
         maidenOvers: 0,
         eco: 0,
+        id: bowler.id,
       },
-      bowlers: [],
+      bowlers: [
+        {
+          name: bowler.name,
+          balls: 0,
+          overs: 0,
+          runsGiven: 0,
+          wicketsTaken: 0,
+          maidenOvers: 0,
+          eco: 0,
+          id: bowler.id,
+        },
+      ],
       isCompleted: false,
     })
       .then((docRef) => {
@@ -235,7 +247,18 @@ export default function StartInnings({ route, navigation }) {
         maidenOvers: 0,
         eco: 0,
       },
-      bowlers: [],
+      bowlers: [
+        {
+          name: bowler.name,
+          balls: 0,
+          overs: 0,
+          runsGiven: 0,
+          wicketsTaken: 0,
+          maidenOvers: 0,
+          eco: 0,
+          id: bowler.id,
+        },
+      ],
       isCompleted: false,
     })
       .then((docRef) => {
