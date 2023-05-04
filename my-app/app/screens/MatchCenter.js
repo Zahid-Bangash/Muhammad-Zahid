@@ -207,13 +207,94 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.currentOver.push(`nb${noBallRuns}`);
       inningsDataCopy.currentBowler.runsGiven += noBallRuns;
     }
+    //Handle runs
+    inningsDataCopy.totalRuns += runs;
+    inningsDataCopy.partnership.runs += runs;
+    inningsDataCopy.currentBatsmen[0].runsScored += runs;
+    inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
+      if (batter.id === inningsDataCopy.currentBatsmen[0].id) {
+        return {
+          ...batter,
+          runsScored: batter.runsScored + runs,
+        };
+      }
+      return batter;
+    });
+    inningsDataCopy.currentBowler.runsGiven += runs;
+    if (!isWide && !isNoBall) inningsDataCopy.partnership.balls++;
+    if (!isWide && !isNoBall) {
+      inningsDataCopy.currentBatsmen[0].ballsFaced++;
+      inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
+        if (batter.id === inningsDataCopy.currentBatsmen[0].id) {
+          return {
+            ...batter,
+            ballsFaced: batter.ballsFaced + 1,
+          };
+        }
+        return batter;
+      });
+    }
+    if (!isWide && !isNoBall) {
+      inningsDataCopy.ballsDelivered++;
+      inningsDataCopy.currentBowler.balls++;
+    }
+    const economy =
+      inningsDataCopy.currentBowler.runsGiven /
+      (inningsDataCopy.ballsDelivered / 6);
+    inningsDataCopy.currentBowler.eco = economy.toFixed(2);
+    const strikeRate =
+      inningsDataCopy.currentBatsmen[0].runsScored === 0
+        ? 0
+        : (inningsDataCopy.currentBatsmen[0].runsScored /
+            inningsDataCopy.currentBatsmen[0].ballsFaced) *
+          100;
+    inningsDataCopy.currentBatsmen[0].strikeRate = strikeRate.toFixed(2);
+    inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
+      if (batter.id === inningsDataCopy.currentBatsmen[0].id) {
+        return {
+          ...batter,
+          strikeRate: strikeRate.toFixed(2),
+        };
+      }
+      return batter;
+    });
+    const runrate =
+      inningsDataCopy.totalRuns / (inningsDataCopy.ballsDelivered / 6);
+    inningsDataCopy.runRate = runrate.toFixed(2);
+    if (!isNoBall && !isWide && !isBye && !isLegBye && !isOut)
+      inningsDataCopy.currentOver.push(runs);
+    //Handle boundaries
+    if (runs === 4) {
+      inningsDataCopy.currentBatsmen[0].fours += 1;
+      inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
+        if (batter.id === inningsDataCopy.currentBatsmen[0].id) {
+          return {
+            ...batter,
+            fours: batter.fours + 1,
+          };
+        }
+        return batter;
+      });
+    }
+    if (runs === 6) {
+      inningsDataCopy.currentBatsmen[0].sixes += 1;
+      inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
+        if (batter.id === inningsDataCopy.currentBatsmen[0].id) {
+          return {
+            ...batter,
+            sixes: batter.sixes + 1,
+          };
+        }
+        return batter;
+      });
+    }
     //Handle out
     if (isOut) {
       inningsDataCopy.wicketsDown++;
       inningsDataCopy.currentBowler.wicketsTaken++;
       inningsDataCopy.currentBatsmen[0].dismissalType = dismissalType;
       inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
-        if (batter.name === inningsDataCopy.currentBatsmen[0].name) {
+        if (batter.id === inningsDataCopy.currentBatsmen[0].id) {
           return {
             ...batter,
             dismissalType: dismissalType,
@@ -247,6 +328,7 @@ export default function MatchCenter({ route, navigation }) {
           strikeRate: 0,
           dismissalType: null,
           id: newbatsmanId,
+          status: "not out",
         });
         //strike
         const temp = inningsDataCopy.currentBatsmen[0];
@@ -257,87 +339,6 @@ export default function MatchCenter({ route, navigation }) {
       } else {
         inningsDataCopy.isCompleted = true;
       }
-    }
-    //Handle runs
-    inningsDataCopy.totalRuns += runs;
-    inningsDataCopy.partnership.runs += runs;
-    inningsDataCopy.currentBatsmen[0].runsScored += runs;
-    inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
-      if (batter.name === inningsDataCopy.currentBatsmen[0].name) {
-        return {
-          ...batter,
-          runsScored: batter.runsScored + runs,
-        };
-      }
-      return batter;
-    });
-    inningsDataCopy.currentBowler.runsGiven += runs;
-    if (!isWide && !isNoBall) inningsDataCopy.partnership.balls++;
-    if (!isWide && !isNoBall) {
-      inningsDataCopy.currentBatsmen[0].ballsFaced++;
-      inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
-        if (batter.name === inningsDataCopy.currentBatsmen[0].name) {
-          return {
-            ...batter,
-            ballsFaced: batter.ballsFaced + 1,
-          };
-        }
-        return batter;
-      });
-    }
-    if (!isWide && !isNoBall) {
-      inningsDataCopy.ballsDelivered++;
-      inningsDataCopy.currentBowler.balls++;
-    }
-    const economy =
-      inningsDataCopy.currentBowler.runsGiven /
-      (inningsDataCopy.ballsDelivered / 6);
-    inningsDataCopy.currentBowler.eco = economy.toFixed(2);
-    const strikeRate =
-      inningsDataCopy.currentBatsmen[0].runsScored === 0
-        ? 0
-        : (inningsDataCopy.currentBatsmen[0].runsScored /
-            inningsDataCopy.currentBatsmen[0].ballsFaced) *
-          100;
-    inningsDataCopy.currentBatsmen[0].strikeRate = strikeRate.toFixed(2);
-    inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
-      if (batter.name === inningsDataCopy.currentBatsmen[0].name) {
-        return {
-          ...batter,
-          strikeRate: strikeRate.toFixed(2),
-        };
-      }
-      return batter;
-    });
-    const runrate =
-      inningsDataCopy.totalRuns / (inningsDataCopy.ballsDelivered / 6);
-    inningsDataCopy.runRate = runrate.toFixed(2);
-    if (!isNoBall && !isWide && !isBye && !isLegBye && !isOut)
-      inningsDataCopy.currentOver.push(runs);
-    //Handle boundaries
-    if (runs === 4) {
-      inningsDataCopy.currentBatsmen[0].fours += 1;
-      inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
-        if (batter.name === inningsDataCopy.currentBatsmen[0].name) {
-          return {
-            ...batter,
-            fours: batter.fours + 1,
-          };
-        }
-        return batter;
-      });
-    }
-    if (runs === 6) {
-      inningsDataCopy.currentBatsmen[0].sixes += 1;
-      inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
-        if (batter.name === inningsDataCopy.currentBatsmen[0].name) {
-          return {
-            ...batter,
-            sixes: batter.sixes + 1,
-          };
-        }
-        return batter;
-      });
     }
     //changing strike
     if (
@@ -1087,7 +1088,10 @@ export default function MatchCenter({ route, navigation }) {
               (isBye = false),
               (byeRuns = 0),
               (isLegBye = false),
-              (legByeRuns = 0)
+              (legByeRuns = 0),
+              (isOut = false),
+              (newBatsman = null),
+              (newbatsmanId = null)
             );
             setnoBall(1);
             setnoBallVisible(false);
@@ -1109,7 +1113,10 @@ export default function MatchCenter({ route, navigation }) {
               (isBye = false),
               (byeRuns = 0),
               (isLegBye = false),
-              (legByeRuns = 0)
+              (legByeRuns = 0),
+              (isOut = false),
+              (newBatsman = null),
+              (newbatsmanId = null)
             );
             setwideRuns(1);
             setwideBallVisible(false);
@@ -1131,7 +1138,10 @@ export default function MatchCenter({ route, navigation }) {
               (isBye = true),
               (byeRuns = bye),
               (isLegBye = false),
-              (legByeRuns = 0)
+              (legByeRuns = 0),
+              (isOut = false),
+              (newBatsman = null),
+              (newbatsmanId = null)
             );
             setbye(1);
             setbyeVisible(false);
@@ -1153,7 +1163,10 @@ export default function MatchCenter({ route, navigation }) {
               (isBye = false),
               (byeRuns = 0),
               (isLegBye = true),
-              (legByeRuns = legBye)
+              (legByeRuns = legBye),
+              (isOut = false),
+              (newBatsman = null),
+              (newbatsmanId = null)
             );
             setlegBye(1);
             setlegByeVisible(false);
@@ -1350,7 +1363,8 @@ export default function MatchCenter({ route, navigation }) {
                       (isLegBye = false),
                       (legByeRuns = 0),
                       (isOut = true),
-                      (newBatsman = null)
+                      (newBatsman = null),
+                      (newbatsmanId = null)
                     );
                     setDismissalTypesModal(false);
                     return;
@@ -1399,7 +1413,7 @@ export default function MatchCenter({ route, navigation }) {
                       (legByeRuns = 0),
                       (isOut = true),
                       (newBatsman = player.name),
-                      (id = player.id)
+                      (newbatsmanId = player.id)
                     );
                     setnewBatsmanModal(false);
                   }}
@@ -1549,6 +1563,11 @@ export default function MatchCenter({ route, navigation }) {
                   sixes={batter.sixes}
                   srate={batter.strikeRate}
                   status={batter.status}
+                  strike={
+                    batter.id === inningsData.currentBatsmen[0].id
+                      ? true
+                      : false
+                  }
                 />
               ))}
               <View
@@ -1650,6 +1669,43 @@ export default function MatchCenter({ route, navigation }) {
               />
             </>
           )}
+          {inningsData.outBatsmen.length > 0 ? (
+            <>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  padding: 10,
+                  backgroundColor: "#d8dede",
+                }}
+              >
+                <Text style={{ fontWeight: "bold" }}>Fall of Wickets</Text>
+                <Text style={{ fontWeight: "bold" }}>Score(Over)</Text>
+              </View>
+              {inningsData.outBatsmen.map((batter, index) => (
+                <View
+                  key={batter.id}
+                  style={{
+                    flexDirection: "row",
+                    padding: 10,
+                    width: "100%",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    borderBottomWidth: 0.5,
+                    borderColor: "grey",
+                  }}
+                >
+                  <Text>{`${index + 1}  ${batter.name}`}</Text>
+                  <Text>{`${batter.runsScored} (${
+                    Math.floor(batter.ballsFaced / 6) +
+                    (batter.ballsFaced % 6) / 10
+                  }) Ov`}</Text>
+                </View>
+              ))}
+            </>
+          ) : null}
           {/* <View
             style={{
               flexDirection: "row",

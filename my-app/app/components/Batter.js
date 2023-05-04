@@ -9,11 +9,15 @@ export default function Batter({
   sixes,
   srate,
   status,
+  strike,
 }) {
   return (
     <View style={styles.container}>
       <View style={{ flex: 3 }}>
-        <Text style={{ fontWeight: "500" }}>{name}</Text>
+        <Text style={{ fontWeight: "500" }}>
+          {name}
+          {strike ? "*" : ""}
+        </Text>
         <Text>{status}</Text>
       </View>
 
