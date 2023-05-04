@@ -17,7 +17,6 @@ import { auth, db } from "../config/firebase-config";
 import {
   doc,
   onSnapshot,
-  setDoc,
   updateDoc,
   collection,
 } from "firebase/firestore";
@@ -1589,6 +1588,220 @@ export default function MatchCenter({ route, navigation }) {
           >
             <Text style={{ fontSize: 18, fontWeight: "500" }}>
               {matchData.battingTeam}
+            </Text>
+            {inningsData.ballsDelivered === 0 ? (
+              <Text style={{ fontWeight: "bold" }}>Yet to bat</Text>
+            ) : (
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+                  {inningsData.totalRuns} / {inningsData.wicketsDown}
+                </Text>
+                <Text>{`(${
+                  Math.floor(inningsData.ballsDelivered / 6) +
+                  (inningsData.ballsDelivered % 6) / 10
+                } Ov)`}</Text>
+              </View>
+            )}
+          </View>
+          {inningsData.ballsDelivered === 0 ? null : (
+            <>
+              <View
+                style={{
+                  flexDirection: "row",
+                  backgroundColor: "#d8dede",
+                  width: "100%",
+                  justifyContent: "space-between",
+                  padding: 10,
+                }}
+              >
+                <Text style={{ fontWeight: "500", flex: 3 }}>Batters</Text>
+                <Text
+                  style={{ fontWeight: "500", flex: 1, textAlign: "center" }}
+                >
+                  R
+                </Text>
+                <Text
+                  style={{ fontWeight: "500", flex: 1, textAlign: "center" }}
+                >
+                  B
+                </Text>
+                <Text
+                  style={{ fontWeight: "500", flex: 1, textAlign: "center" }}
+                >
+                  4s
+                </Text>
+                <Text
+                  style={{ fontWeight: "500", flex: 1, textAlign: "center" }}
+                >
+                  6s
+                </Text>
+                <Text
+                  style={{ fontWeight: "500", flex: 1, textAlign: "center" }}
+                >
+                  SR
+                </Text>
+              </View>
+              {inningsData.allBatsmen.map((batter) => (
+                <Batter
+                  key={batter.id}
+                  name={batter.name}
+                  runs={batter.runsScored}
+                  balls={batter.ballsFaced}
+                  fours={batter.fours}
+                  sixes={batter.sixes}
+                  srate={batter.strikeRate}
+                  status={batter.status}
+                  strike={
+                    batter.id === inningsData.currentBatsmen[0].id
+                      ? true
+                      : false
+                  }
+                />
+              ))}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  padding: 10,
+                  borderBottomWidth: 0.5,
+                  borderColor: "grey",
+                }}
+              >
+                <Text>Extras</Text>
+                <Text>{inningsData.extras}</Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  padding: 10,
+                  borderBottomWidth: 0.5,
+                  borderColor: "grey",
+                }}
+              >
+                <Text>Total</Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    width: "58%",
+                  }}
+                >
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+                      {inningsData.totalRuns}/{inningsData.wicketsDown}
+                    </Text>
+                    <Text>
+                      {`(${
+                        Math.floor(inningsData.ballsDelivered / 6) +
+                        (inningsData.ballsDelivered % 6) / 10
+                      } Ov)`}
+                    </Text>
+                  </View>
+                  <Text>CRR {inningsData.runRate}</Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  backgroundColor: "#d8dede",
+                  width: "100%",
+                  justifyContent: "space-between",
+                  padding: 10,
+                }}
+              >
+                <Text style={{ fontWeight: "500", flex: 3 }}>Bowlers</Text>
+                <Text
+                  style={{ fontWeight: "500", flex: 1, textAlign: "center" }}
+                >
+                  O
+                </Text>
+                <Text
+                  style={{ fontWeight: "500", flex: 1, textAlign: "center" }}
+                >
+                  R
+                </Text>
+                <Text
+                  style={{ fontWeight: "500", flex: 1, textAlign: "center" }}
+                >
+                  M
+                </Text>
+                <Text
+                  style={{ fontWeight: "500", flex: 1, textAlign: "center" }}
+                >
+                  W
+                </Text>
+                <Text
+                  style={{ fontWeight: "500", flex: 1, textAlign: "center" }}
+                >
+                  Eco
+                </Text>
+              </View>
+              {inningsData.bowlers.map((bowler) => (
+                <Bowler
+                  key={bowler.id}
+                  overs={Math.floor(bowler.balls / 6) + (bowler.balls % 6) / 10}
+                  middens={bowler.maidenOvers}
+                  runs={bowler.runsGiven}
+                  wickets={bowler.wicketsTaken}
+                  eco={bowler.eco}
+                  name={bowler.name}
+                />
+              ))}
+            </>
+          )}
+          {inningsData.outBatsmen.length > 0 ? (
+            <>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  padding: 10,
+                  backgroundColor: "#d8dede",
+                }}
+              >
+                <Text style={{ fontWeight: "bold" }}>Fall of Wickets</Text>
+                <Text style={{ fontWeight: "bold" }}>Score(Over)</Text>
+              </View>
+              {inningsData.outBatsmen.map((batter, index) => (
+                <View
+                  key={batter.id}
+                  style={{
+                    flexDirection: "row",
+                    padding: 10,
+                    width: "100%",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    borderBottomWidth: 0.5,
+                    borderColor: "grey",
+                  }}
+                >
+                  <Text>{`${index + 1}  ${batter.name}`}</Text>
+                  <Text>{`${batter.runsScored} (${
+                    Math.floor(batter.ballsFaced / 6) +
+                    (batter.ballsFaced % 6) / 10
+                  }) Ov`}</Text>
+                </View>
+              ))}
+              {/* <Text style={{height:500}}>hhhhh</Text> */}
+            </>
+          ) : null}
+          <View
+            style={{
+              flexDirection: "row",
+              backgroundColor: "#5ca5a9",
+              justifyContent: "space-between",
+              width: "100%",
+              padding: 10,
+              borderBottomWidth: 1,
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: "500" }}>
+              {matchData.bowlingTeam}
             </Text>
             {inningsData.ballsDelivered === 0 ? (
               <Text style={{ fontWeight: "bold" }}>Yet to bat</Text>

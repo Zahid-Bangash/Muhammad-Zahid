@@ -11,7 +11,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import AppButton from "../components/AppButton";
 
 import { auth, db } from "../config/firebase-config";
-import { collection, addDoc, doc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 
 export default function StartInnings({ route, navigation }) {
   const { battingTeam, bowlingTeam, squad1, squad2, matchId } = route.params;

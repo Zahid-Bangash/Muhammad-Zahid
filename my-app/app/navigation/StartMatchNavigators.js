@@ -3,7 +3,12 @@ import { TouchableOpacity } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import { StartMatch, StartInnings, MatchCenter } from "../screens";
+import {
+  StartMatch,
+  StartInnings,
+  MatchCenter,
+  MatchDetails,
+} from "../screens";
 
 const Stack = createNativeStackNavigator();
 
@@ -11,7 +16,6 @@ const StartMatchNavigator = () => (
   <Stack.Navigator
     initialRouteName="Create Match"
     screenOptions={{
-      
       headerStyle: {
         backgroundColor: "#a10517",
       },
@@ -42,6 +46,7 @@ const StartMatchNavigator = () => (
     />
     <Stack.Screen name="Start Innings" component={StartInnings} />
     <Stack.Screen name="Match Center" component={MatchCenter} />
+    <Stack.Screen name="Match Details" component={MatchDetails} />
   </Stack.Navigator>
 );
 

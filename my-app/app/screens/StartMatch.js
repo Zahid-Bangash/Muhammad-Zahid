@@ -256,7 +256,12 @@ export default function StartMatch({ route, navigation }) {
         </View>
       </View>
       {/* Team Modal */}
-      <Modal visible={modalVisible} animationType="slide" transparent>
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setModalVisible(false)}
+      >
         <View
           style={{
             position: "absolute",
@@ -311,7 +316,12 @@ export default function StartMatch({ route, navigation }) {
         </View>
       </Modal>
       {/* Squad Modal */}
-      <Modal visible={squadModal} animationType="fade" transparent>
+      <Modal
+        visible={squadModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setsquadModal(false)}
+      >
         <View
           style={{
             position: "absolute",
