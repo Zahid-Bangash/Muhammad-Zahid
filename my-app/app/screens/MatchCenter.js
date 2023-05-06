@@ -14,12 +14,7 @@ import Swiper from "react-native-swiper";
 import Entypo from "@expo/vector-icons/Entypo";
 
 import { auth, db } from "../config/firebase-config";
-import {
-  doc,
-  onSnapshot,
-  updateDoc,
-  collection,
-} from "firebase/firestore";
+import { doc, onSnapshot, updateDoc, collection } from "firebase/firestore";
 
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
@@ -167,7 +162,6 @@ export default function MatchCenter({ route, navigation }) {
   let availableBowlers = inningsData.bowlingSquad;
   let batsmen = inningsData.currentBatsmen;
   const [previousState, setpreviousState] = useState([]);
-
   //functions
   const handleScore = (
     runs = 0,
@@ -188,13 +182,11 @@ export default function MatchCenter({ route, navigation }) {
       alert("Innings is completed");
       return;
     }
-
     //Undo
     setpreviousState([
       ...previousState,
       JSON.parse(JSON.stringify(inningsData)),
     ]);
-
     //Handle extras
     if (isWide) {
       inningsDataCopy.extras += wdRuns;
@@ -205,7 +197,7 @@ export default function MatchCenter({ route, navigation }) {
         if (bowler.id === inningsDataCopy.currentBowler.id) {
           return {
             ...bowler,
-            runsGiven: bowler.runsGiven + runs,
+            runsGiven: bowler.runsGiven + wdRuns,
           };
         }
         return bowler;
@@ -230,7 +222,7 @@ export default function MatchCenter({ route, navigation }) {
         if (bowler.id === inningsDataCopy.currentBowler.id) {
           return {
             ...bowler,
-            runsGiven: bowler.runsGiven + runs,
+            runsGiven: bowler.runsGiven + noBallRuns,
           };
         }
         return bowler;
@@ -259,8 +251,11 @@ export default function MatchCenter({ route, navigation }) {
       }
       return bowler;
     });
-    if (!isWide && !isNoBall) inningsDataCopy.partnership.balls++;
+    //increment balls
     if (!isWide && !isNoBall) {
+      inningsDataCopy.ballsDelivered++;
+      inningsDataCopy.currentBowler.balls++;
+      inningsDataCopy.partnership.balls++;
       inningsDataCopy.currentBatsmen[0].ballsFaced++;
       inningsDataCopy.allBatsmen = inningsDataCopy.allBatsmen.map((batter) => {
         if (batter.id === inningsDataCopy.currentBatsmen[0].id) {
@@ -271,10 +266,6 @@ export default function MatchCenter({ route, navigation }) {
         }
         return batter;
       });
-    }
-    if (!isWide && !isNoBall) {
-      inningsDataCopy.ballsDelivered++;
-      inningsDataCopy.currentBowler.balls++;
       inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
         if (bowler.id === inningsDataCopy.currentBowler.id) {
           return {
@@ -473,11 +464,13 @@ export default function MatchCenter({ route, navigation }) {
           matchDataCopy.result = `${inningsDataCopy.battingTeam} won by ${
             inningsDataCopy.battingSquad.length - inningsDataCopy.wicketsDown
           } wickets`;
+          matchDataCopy.status = "Completed";
           updateMatchData(matchDataCopy);
         } else {
           matchDataCopy.result = `${inningsDataCopy.bowlingTeam} won by ${
             matchData.target - inningsDataCopy.totalRuns - 1
           } runs`;
+          matchDataCopy.status = "Completed";
           updateMatchData(matchDataCopy);
         }
         Alert.alert("Confirm", "End Match?", [
@@ -573,11 +566,13 @@ export default function MatchCenter({ route, navigation }) {
         matchDataCopy.result = `${inningsDataCopy.battingTeam} won by ${
           inningsDataCopy.battingSquad.length - inningsDataCopy.wicketsDown
         } wickets`;
+        matchDataCopy.status = "Completed";
         updateMatchData(matchDataCopy);
       } else {
         matchDataCopy.result = `${inningsDataCopy.bowlingTeam} won by ${
           matchDataCopy.target - inningsDataCopy.totalRuns - 1
         } runs`;
+        matchDataCopy.status = "Completed";
         updateMatchData(matchDataCopy);
       }
       Alert.alert("Confirm", "End Match?", [
@@ -1565,7 +1560,7 @@ export default function MatchCenter({ route, navigation }) {
             }}
           >
             <Text style={{ color: "red", fontWeight: "bold" }}>
-              {inningsData.isCompleted === true && inningsData.inningsNo === 2
+              {matchData.status === "Completed"
                 ? matchData.result
                 : inningsData.inningsNo === 1
                 ? `${matchData.tossResult.winnerTeam} selected to ${matchData.tossResult.decision} first`
@@ -1787,7 +1782,6 @@ export default function MatchCenter({ route, navigation }) {
                   }) Ov`}</Text>
                 </View>
               ))}
-              {/* <Text style={{height:500}}>hhhhh</Text> */}
             </>
           ) : null}
           <View
@@ -2001,148 +1995,8 @@ export default function MatchCenter({ route, navigation }) {
                   }) Ov`}</Text>
                 </View>
               ))}
-              {/* <Text style={{height:500}}>hhhhh</Text> */}
             </>
           ) : null}
-          {/* <View
-            style={{
-              flexDirection: "row",
-              backgroundColor: "#5ca5a9",
-              justifyContent: "space-between",
-              width: "100%",
-              padding: 10,
-            }}
-          >
-            <Text style={{ fontSize: 18, fontWeight: "500" }}>
-              {matchData.bowlingTeam}
-            </Text>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={{ fontWeight: "bold", fontSize: 15 }}>41/0</Text>
-              <Text>(2.0 Ov)</Text>
-            </View>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              backgroundColor: "#d8dede",
-              width: "100%",
-              justifyContent: "space-between",
-              padding: 10,
-            }}
-          >
-            <Text style={{ fontWeight: "500", flex: 3 }}>Batters</Text>
-            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
-              R
-            </Text>
-            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
-              B
-            </Text>
-            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
-              4s
-            </Text>
-            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
-              6s
-            </Text>
-            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
-              SR
-            </Text>
-          </View>
-          <Batter
-            name="Zahid"
-            runs={46}
-            balls={73}
-            fours={5}
-            sixes={6}
-            srate={234.6}
-          />
-          <Batter
-            name="Bangash"
-            runs={46}
-            balls={73}
-            fours={5}
-            sixes={6}
-            srate={234.6}
-          />
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              width: "100%",
-              padding: 10,
-              borderBottomWidth: 0.5,
-              borderColor: "grey",
-            }}
-          >
-            <Text>Extras</Text>
-            <Text>0</Text>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              width: "100%",
-              padding: 10,
-              borderBottomWidth: 0.5,
-              borderColor: "grey",
-            }}
-          >
-            <Text>Total</Text>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                width: "58%",
-              }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <Text style={{ fontWeight: "bold", fontSize: 15 }}>41/0</Text>
-                <Text>(2.0 Ov)</Text>
-              </View>
-              <Text>RR 20.60</Text>
-            </View>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              backgroundColor: "#d8dede",
-              width: "100%",
-              justifyContent: "space-between",
-              padding: 10,
-            }}
-          >
-            <Text style={{ fontWeight: "500", flex: 3 }}>Bowlers</Text>
-            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
-              O
-            </Text>
-            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
-              R
-            </Text>
-            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
-              M
-            </Text>
-            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
-              W
-            </Text>
-            <Text style={{ fontWeight: "500", flex: 1, textAlign: "center" }}>
-              Eco
-            </Text>
-          </View>
-          <Bowler
-            overs={5}
-            middens={0}
-            runs={45}
-            wickets={2}
-            eco={19.0}
-            name="Dharkan"
-          />
-          <Bowler
-            overs={5}
-            middens={0}
-            runs={45}
-            wickets={2}
-            eco={19.0}
-            name="Janu"
-          /> */}
         </ScrollView>
       </View>
       <View style={[styles.slide, { paddingTop: 60 }]}>
@@ -2166,9 +2020,7 @@ export default function MatchCenter({ route, navigation }) {
                 marginBottom: 10,
               }}
             />
-            <Text style={{ fontWeight: "bold" }}>
-              {inningsData.battingTeam}
-            </Text>
+            <Text style={{ fontWeight: "bold" }}>{matchData.battingTeam}</Text>
           </View>
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Image
@@ -2180,9 +2032,7 @@ export default function MatchCenter({ route, navigation }) {
                 marginBottom: 10,
               }}
             />
-            <Text style={{ fontWeight: "bold" }}>
-              {inningsData.bowlingTeam}
-            </Text>
+            <Text style={{ fontWeight: "bold" }}>{matchData.bowlingTeam}</Text>
           </View>
         </View>
         <View

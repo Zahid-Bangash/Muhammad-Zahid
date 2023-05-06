@@ -5,17 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from "react-native";
 import Swiper from "react-native-swiper";
 
 import { auth, db } from "../config/firebase-config";
-import {
-  doc,
-  onSnapshot,
-  setDoc,
-  updateDoc,
-  collection,
-} from "firebase/firestore";
+import { doc, onSnapshot, collection, query, where } from "firebase/firestore";
 
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
@@ -44,8 +39,52 @@ export default function MatchDetails() {
     battingTeam: " Batting Team",
     bowlingTeam: "bowling Team",
   });
-  const [firstInnings, setfirstInnings] = useState({});
-  const [secondInnings, setsecondInnings] = useState({});
+  const [firstInnings, setfirstInnings] = useState({
+    inningsNo: 1,
+    battingTeam: "Batting Team",
+    bowlingTeam: "Bowling Team",
+    totalRuns: 0,
+    wicketsDown: 0,
+    oversDelivered: 0,
+    ballsDelivered: 0,
+    runRate: 0,
+    extras: 0,
+    partnership: { runs: 0, balls: 0 },
+    projectedScore: 0,
+    currentOver: [],
+    battingSquad: [],
+    bowlingSquad: [],
+    allBatsmen: [],
+    currentBatsmen: [],
+    outBatsmen: [],
+    remainingBatsmen: [],
+    currentBowler: {},
+    bowlers: [],
+    isCompleted: false,
+  });
+  const [secondInnings, setsecondInnings] = useState({
+    inningsNo: 2,
+    battingTeam: "Batting Team",
+    bowlingTeam: "Bowling Team",
+    totalRuns: 0,
+    wicketsDown: 0,
+    oversDelivered: 0,
+    ballsDelivered: 0,
+    runRate: 0,
+    extras: 0,
+    partnership: { runs: 0, balls: 0 },
+    projectedScore: 0,
+    currentOver: [],
+    battingSquad: [],
+    bowlingSquad: [],
+    allBatsmen: [],
+    currentBatsmen: [],
+    outBatsmen: [],
+    remainingBatsmen: [],
+    currentBowler: {},
+    bowlers: [],
+    isCompleted: false,
+  });
 
   useEffect(() => {
     const matchDocRef = doc(
@@ -53,16 +92,47 @@ export default function MatchDetails() {
       "users",
       auth.currentUser.uid,
       "Matches",
-      mWFTV4NOY0fMSY8N03xk
+      "TAuM6mN6ESX1QNIwrc5A"
+    );
+    const firstInningsQuery = query(
+      collection(matchDocRef, "innings"),
+      where("inningsNo", "==", 1)
+    );
+    const secondInningsQuery = query(
+      collection(matchDocRef, "innings"),
+      where("inningsNo", "==", 2)
     );
 
     const matchUnsubscribe = onSnapshot(matchDocRef, (doc) => {
       const data = doc.data();
-      setMatchData(data);
+      setmatchData(data);
     });
+
+    const firstInningsUnsubscribe = onSnapshot(
+      firstInningsQuery,
+      (querySnapshot) => {
+        if (querySnapshot.docs.length > 0) {
+          const innings1Data = querySnapshot.docs[0].data();
+          setfirstInnings(innings1Data);
+          console.log(innings1Data.ballsDelivered);
+        }
+      }
+    );
+
+    const secondInningsUnsubscribe = onSnapshot(
+      secondInningsQuery,
+      (querySnapshot) => {
+        if (querySnapshot.docs.length > 0) {
+          const innings2Data = querySnapshot.docs[0].data();
+          setsecondInnings(innings2Data);
+        }
+      }
+    );
 
     return () => {
       matchUnsubscribe();
+      firstInningsUnsubscribe();
+      secondInningsUnsubscribe();
     };
   }, []);
 
@@ -70,7 +140,7 @@ export default function MatchDetails() {
     <View style={styles.pagination}>
       <TouchableOpacity
         onPress={() => setSwiperIndex(0)}
-        style={[styles.button, swiperIndex === 1 && styles.activeButton]}
+        style={[styles.button, swiperIndex === 0 && styles.activeButton]}
       >
         <Text
           style={[
@@ -113,14 +183,14 @@ export default function MatchDetails() {
             }}
           >
             <Text style={{ color: "red", fontWeight: "bold" }}>
-              {inningsData.isCompleted === true && inningsData.inningsNo === 2
+              {matchData.status === "Completed"
                 ? matchData.result
-                : inningsData.inningsNo === 1
+                : firstInnings.isCompleted === false
                 ? `${matchData.tossResult.winnerTeam} selected to ${matchData.tossResult.decision} first`
-                : `${inningsData.battingTeam} requires ${
-                    matchData.target - inningsData.totalRuns
+                : `${secondInnings.battingTeam} requires ${
+                    matchData.target - secondInnings.totalRuns
                   } in ${
-                    matchData.totalOvers * 6 - inningsData.ballsDelivered
+                    matchData.totalOvers * 6 - secondInnings.ballsDelivered
                   } balls`}
             </Text>
           </View>
@@ -137,21 +207,21 @@ export default function MatchDetails() {
             <Text style={{ fontSize: 18, fontWeight: "500" }}>
               {matchData.battingTeam}
             </Text>
-            {inningsData.ballsDelivered === 0 ? (
+            {firstInnings.ballsDelivered === 0 ? (
               <Text style={{ fontWeight: "bold" }}>Yet to bat</Text>
             ) : (
               <View style={{ flexDirection: "row" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-                  {inningsData.totalRuns} / {inningsData.wicketsDown}
+                  {firstInnings.totalRuns} / {firstInnings.wicketsDown}
                 </Text>
                 <Text>{`(${
-                  Math.floor(inningsData.ballsDelivered / 6) +
-                  (inningsData.ballsDelivered % 6) / 10
+                  Math.floor(firstInnings.ballsDelivered / 6) +
+                  (firstInnings.ballsDelivered % 6) / 10
                 } Ov)`}</Text>
               </View>
             )}
           </View>
-          {inningsData.ballsDelivered === 0 ? null : (
+          {firstInnings.ballsDelivered === 0 ? null : (
             <>
               <View
                 style={{
@@ -189,7 +259,7 @@ export default function MatchDetails() {
                   SR
                 </Text>
               </View>
-              {inningsData.allBatsmen.map((batter) => (
+              {firstInnings.allBatsmen.map((batter) => (
                 <Batter
                   key={batter.id}
                   name={batter.name}
@@ -200,7 +270,7 @@ export default function MatchDetails() {
                   srate={batter.strikeRate}
                   status={batter.status}
                   strike={
-                    batter.id === inningsData.currentBatsmen[0].id
+                    batter.id === firstInnings.currentBatsmen[0].id
                       ? true
                       : false
                   }
@@ -217,7 +287,7 @@ export default function MatchDetails() {
                 }}
               >
                 <Text>Extras</Text>
-                <Text>{inningsData.extras}</Text>
+                <Text>{firstInnings.extras}</Text>
               </View>
               <View
                 style={{
@@ -239,16 +309,16 @@ export default function MatchDetails() {
                 >
                   <View style={{ flexDirection: "row" }}>
                     <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-                      {inningsData.totalRuns}/{inningsData.wicketsDown}
+                      {firstInnings.totalRuns}/{firstInnings.wicketsDown}
                     </Text>
                     <Text>
                       {`(${
-                        Math.floor(inningsData.ballsDelivered / 6) +
-                        (inningsData.ballsDelivered % 6) / 10
+                        Math.floor(firstInnings.ballsDelivered / 6) +
+                        (firstInnings.ballsDelivered % 6) / 10
                       } Ov)`}
                     </Text>
                   </View>
-                  <Text>CRR {inningsData.runRate}</Text>
+                  <Text>CRR {firstInnings.runRate}</Text>
                 </View>
               </View>
               <View
@@ -287,7 +357,7 @@ export default function MatchDetails() {
                   Eco
                 </Text>
               </View>
-              {inningsData.bowlers.map((bowler) => (
+              {firstInnings.bowlers.map((bowler) => (
                 <Bowler
                   key={bowler.id}
                   overs={Math.floor(bowler.balls / 6) + (bowler.balls % 6) / 10}
@@ -300,7 +370,7 @@ export default function MatchDetails() {
               ))}
             </>
           )}
-          {inningsData.outBatsmen.length > 0 ? (
+          {firstInnings.outBatsmen.length > 0 ? (
             <>
               <View
                 style={{
@@ -315,7 +385,7 @@ export default function MatchDetails() {
                 <Text style={{ fontWeight: "bold" }}>Fall of Wickets</Text>
                 <Text style={{ fontWeight: "bold" }}>Score(Over)</Text>
               </View>
-              {inningsData.outBatsmen.map((batter, index) => (
+              {firstInnings.outBatsmen.map((batter, index) => (
                 <View
                   key={batter.id}
                   style={{
@@ -335,7 +405,6 @@ export default function MatchDetails() {
                   }) Ov`}</Text>
                 </View>
               ))}
-              {/* <Text style={{height:500}}>hhhhh</Text> */}
             </>
           ) : null}
           <View
@@ -351,21 +420,21 @@ export default function MatchDetails() {
             <Text style={{ fontSize: 18, fontWeight: "500" }}>
               {matchData.bowlingTeam}
             </Text>
-            {inningsData.ballsDelivered === 0 ? (
+            {secondInnings.ballsDelivered === 0 ? (
               <Text style={{ fontWeight: "bold" }}>Yet to bat</Text>
             ) : (
               <View style={{ flexDirection: "row" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-                  {inningsData.totalRuns} / {inningsData.wicketsDown}
+                  {secondInnings.totalRuns} / {secondInnings.wicketsDown}
                 </Text>
                 <Text>{`(${
-                  Math.floor(inningsData.ballsDelivered / 6) +
-                  (inningsData.ballsDelivered % 6) / 10
+                  Math.floor(secondInnings.ballsDelivered / 6) +
+                  (secondInnings.ballsDelivered % 6) / 10
                 } Ov)`}</Text>
               </View>
             )}
           </View>
-          {inningsData.ballsDelivered === 0 ? null : (
+          {secondInnings.ballsDelivered === 0 ? null : (
             <>
               <View
                 style={{
@@ -403,7 +472,7 @@ export default function MatchDetails() {
                   SR
                 </Text>
               </View>
-              {inningsData.allBatsmen.map((batter) => (
+              {secondInnings.allBatsmen.map((batter) => (
                 <Batter
                   key={batter.id}
                   name={batter.name}
@@ -414,7 +483,7 @@ export default function MatchDetails() {
                   srate={batter.strikeRate}
                   status={batter.status}
                   strike={
-                    batter.id === inningsData.currentBatsmen[0].id
+                    batter.id === secondInnings.currentBatsmen[0].id
                       ? true
                       : false
                   }
@@ -431,7 +500,7 @@ export default function MatchDetails() {
                 }}
               >
                 <Text>Extras</Text>
-                <Text>{inningsData.extras}</Text>
+                <Text>{secondInnings.extras}</Text>
               </View>
               <View
                 style={{
@@ -453,16 +522,16 @@ export default function MatchDetails() {
                 >
                   <View style={{ flexDirection: "row" }}>
                     <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-                      {inningsData.totalRuns}/{inningsData.wicketsDown}
+                      {secondInnings.totalRuns}/{secondInnings.wicketsDown}
                     </Text>
                     <Text>
                       {`(${
-                        Math.floor(inningsData.ballsDelivered / 6) +
-                        (inningsData.ballsDelivered % 6) / 10
+                        Math.floor(secondInnings.ballsDelivered / 6) +
+                        (secondInnings.ballsDelivered % 6) / 10
                       } Ov)`}
                     </Text>
                   </View>
-                  <Text>CRR {inningsData.runRate}</Text>
+                  <Text>CRR {secondInnings.runRate}</Text>
                 </View>
               </View>
               <View
@@ -501,7 +570,7 @@ export default function MatchDetails() {
                   Eco
                 </Text>
               </View>
-              {inningsData.bowlers.map((bowler) => (
+              {secondInnings.bowlers.map((bowler) => (
                 <Bowler
                   key={bowler.id}
                   overs={Math.floor(bowler.balls / 6) + (bowler.balls % 6) / 10}
@@ -514,7 +583,7 @@ export default function MatchDetails() {
               ))}
             </>
           )}
-          {inningsData.outBatsmen.length > 0 ? (
+          {secondInnings.outBatsmen.length > 0 ? (
             <>
               <View
                 style={{
@@ -529,7 +598,7 @@ export default function MatchDetails() {
                 <Text style={{ fontWeight: "bold" }}>Fall of Wickets</Text>
                 <Text style={{ fontWeight: "bold" }}>Score(Over)</Text>
               </View>
-              {inningsData.outBatsmen.map((batter, index) => (
+              {secondInnings.outBatsmen.map((batter, index) => (
                 <View
                   key={batter.id}
                   style={{
@@ -574,9 +643,7 @@ export default function MatchDetails() {
                 marginBottom: 10,
               }}
             />
-            <Text style={{ fontWeight: "bold" }}>
-              {inningsData.battingTeam}
-            </Text>
+            <Text style={{ fontWeight: "bold" }}>{matchData.battingTeam}</Text>
           </View>
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Image
@@ -588,9 +655,7 @@ export default function MatchDetails() {
                 marginBottom: 10,
               }}
             />
-            <Text style={{ fontWeight: "bold" }}>
-              {inningsData.bowlingTeam}
-            </Text>
+            <Text style={{ fontWeight: "bold" }}>{matchData.bowlingTeam}</Text>
           </View>
         </View>
         <View
@@ -638,7 +703,7 @@ export default function MatchDetails() {
             <Text style={{ fontWeight: "bold", color: "grey" }}>
               {matchData.tossResult.decision}
             </Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>{matchId}</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>matchId</Text>
           </View>
         </View>
       </View>

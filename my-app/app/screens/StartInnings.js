@@ -246,6 +246,7 @@ export default function StartInnings({ route, navigation }) {
         wicketsTaken: 0,
         maidenOvers: 0,
         eco: 0,
+        id: bowler.id,
       },
       bowlers: [
         {
