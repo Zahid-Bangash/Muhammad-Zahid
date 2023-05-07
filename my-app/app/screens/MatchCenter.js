@@ -732,6 +732,7 @@ export default function MatchCenter({ route, navigation }) {
     ]);
   };
 
+  //handle infinity
   const updatePlayerStats = () => {
     firstInnings.allBatsmen.forEach(async (batter) => {
       const playerDocRef = doc(db, "users", batter.id);
