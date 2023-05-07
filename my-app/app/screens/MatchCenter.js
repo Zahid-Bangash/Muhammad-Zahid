@@ -21,6 +21,7 @@ import {
   collection,
   query,
   where,
+  getDoc,
 } from "firebase/firestore";
 
 import Batter from "../components/Batter";
@@ -478,19 +479,23 @@ export default function MatchCenter({ route, navigation }) {
         }
         return bowler;
       });
-      //handling maiden over
-      // if (inningsData.currentBowler.runsGiven === 0) {
-      //   inningsDataCopy.currentBowler.maidenOvers++;
-      //   inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
-      //     if (bowler.id === inningsDataCopy.currentBowler.id) {
-      //       return {
-      //         ...bowler,
-      //         maidenOvers: bowler.maidenOvers + 1,
-      //       };
-      //     }
-      //     return bowler;
-      //   });
-      // }
+      // handling maiden over
+      let isMaiden = true;
+      inningsDataCopy.currentOver.forEach((ball) => {
+        if (ball !== 0) isMaiden = false;
+      });
+      if (isMaiden) {
+        inningsDataCopy.currentBowler.maidenOvers++;
+        inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
+          if (bowler.id === inningsDataCopy.currentBowler.id) {
+            return {
+              ...bowler,
+              maidenOvers: bowler.maidenOvers + 1,
+            };
+          }
+          return bowler;
+        });
+      }
       if (inningsDataCopy.oversDelivered !== matchData.totalOvers) {
         const index = availableBowlers.findIndex(
           (bowler) => bowler.id === inningsDataCopy.currentBowler.id
@@ -533,8 +538,10 @@ export default function MatchCenter({ route, navigation }) {
           },
           {
             text: "Yes",
-            onPress: () =>
-              navigation.navigate("Match Details", { matchId: matchId }),
+            onPress: () => {
+              updatePlayerStats();
+              navigation.navigate("Match Details", { matchId: matchId });
+            },
           },
         ]);
       } else {
@@ -725,21 +732,56 @@ export default function MatchCenter({ route, navigation }) {
     ]);
   };
 
-  const updatePlayerStats=()=>{
-     firstInnings.allBatsmen.forEach(async (player) => {
-      const playerDocRef = doc(db, "players", player.id);
+  const updatePlayerStats = () => {
+    firstInnings.allBatsmen.forEach(async (batter) => {
+      const playerDocRef = doc(db, "users", batter.id);
+      const docSnap = await getDoc(playerDocRef);
+      const playerStats = docSnap.data().Stats;
       try {
-        await updateDoc(playerDocRef, {
-          name: player.name,
-          age: player.age,
-          // add more fields as needed
-        });
-        console.log(`Player ${player.id} updated successfully`);
+        await updateDoc(
+          playerDocRef,
+          {
+            "Stats.batting.overall": {
+              matches: playerStats.batting.overall.matches + 1,
+              innings: playerStats.batting.overall.innings + 1,
+              runs: playerStats.batting.overall.runs + batter.runsScored,
+              balls: playerStats.batting.overall.balls + batter.ballsFaced,
+              highest:
+                playerStats.batting.overall.highest < batter.runsScored
+                  ? batter.runsScored
+                  : playerStats.batting.overall.highest,
+              notOut:
+                batter.status === "not out"
+                  ? playerStats.batting.overall.notOut + 1
+                  : playerStats.batting.overall.notOut,
+              ducks:
+                batter.runsScored === 0
+                  ? playerStats.batting.overall.ducks + 1
+                  : playerStats.batting.overall.ducks,
+              "100s":
+                batter.runsScored >= 100
+                  ? playerStats.batting.overall["100s"] + 1
+                  : playerStats.batting.overall["100s"],
+              "50s":
+                batter.runsScored >= 50
+                  ? playerStats.batting.overall["50s"] + 1
+                  : playerStats.batting.overall["50s"],
+              "30s":
+                batter.runsScored >= 30
+                  ? playerStats.batting.overall["30s"] + 1
+                  : playerStats.batting.overall["30s"],
+              "6s": playerStats.batting.overall["6s"] + batter.sixes,
+              "4s": playerStats.batting.overall["4s"] + batter.fours,
+            },
+          },
+          { merge: true }
+        );
+        console.log(`Player ${batter.name} updated successfully`);
       } catch (error) {
-        console.error(`Error updating player ${player.id}: ${error}`);
+        console.error(`Error updating player ${batter.name}: ${error}`);
       }
     });
-  }
+  };
 
   useEffect(() => {
     const matchDocRef = doc(

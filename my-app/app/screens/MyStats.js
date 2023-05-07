@@ -312,80 +312,132 @@ export default function MyStats() {
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Dots</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.overall.dots}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.leather.dots}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.tennis.dots}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.other.dots}</Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Wides</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.overall.wides}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.leather.wides}
+          </Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.tennis.wides}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.other.wides}</Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>No Balls</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.overall.noBalls}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.leather.noBalls}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.tennis.noBalls}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.other.noBalls}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Maidens</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.overall.maidens}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.leather.maidens}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.tennis.maidens}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.other.maidens}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Wickets</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.overall.wickets}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.leather.wickets}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.tennis.wickets}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.other.wickets}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Average</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.overall.average}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.leather.average}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.tennis.average}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.other.average}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Economy</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.overall.economy}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.leather.economy}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.tennis.economy}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.other.economy}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Best</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.overall.best}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.leather.best}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.tennis.best}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.other.best}</Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>SR</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.overall.sr}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.leather.sr}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.tennis.sr}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.other.sr}</Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>3W</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.overall["3W"]}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.leather["3W"]}
+          </Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.tennis["3W"]}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.other["3W"]}</Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>5W</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.overall["5W"]}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.leather["5W"]}
+          </Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.tennis["5W"]}</Text>
+          <Text style={styles.cell}>{userData.Stats.bowling.other["5W"]}</Text>
         </View>
       </ScrollView>
       <View style={styles.slide}>
@@ -398,24 +450,48 @@ export default function MyStats() {
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Catches</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.overall.catches}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.leather.catches}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.tennis.catches}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.other.catches}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Stumps</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.overall.stumps}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.leather.stumps}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.tennis.stumps}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.other.stumps}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Run Outs</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
-          <Text style={styles.cell}>0</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.overall.runOuts}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.leather.runOuts}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.tennis.runOuts}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.fielding.other.runOuts}
+          </Text>
         </View>
       </View>
     </Swiper>

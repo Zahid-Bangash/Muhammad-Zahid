@@ -29,30 +29,6 @@ import { Context } from "../components/ContextProvider";
 export default function CustomDrawer(props) {
   const { profileImageUri, userData } = useContext(Context);
   const navigation = useNavigation();
-  // const [userData, setuserData] = useState({});
-  // const [img, setimg] = useState(null);
-
-  // const downLoadImage = () => {
-  //   const forestRef = ref(storage, auth.currentUser.uid);
-  //   getMetadata(forestRef)
-  //     .then((metadata) => {
-  //       console.log(metadata);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // };
-
-  // useEffect(() => {
-  //   const userId = auth.currentUser && auth.currentUser.uid;
-  //   const docRef = doc(db, "users", userId);
-  //   const Unsubscribe = onSnapshot(docRef, (doc) => {
-  //     const data = doc.data();
-  //     setuserData(data);
-  //   });
-  //   return () => Unsubscribe();
-  // }, []);
-
   return (
     <Screen>
       <DrawerContentScrollView
