@@ -750,12 +750,23 @@ export default function MatchCenter({ route, navigation }) {
                 playerStats.batting.overall.highest < batter.runsScored
                   ? batter.runsScored
                   : playerStats.batting.overall.highest,
+              average: (
+                (playerStats.batting.overall.runs + batter.runsScored) /
+                (playerStats.batting.overall.innings +
+                  (batter.status === "not out" ? 0 : 1) -
+                  playerStats.batting.overall.notOut)
+              ).toFixed(2),
+              sr: (
+                ((playerStats.batting.overall.runs + batter.runsScored) /
+                  (playerStats.batting.overall.balls + batter.ballsFaced)) *
+                100
+              ).toFixed(2),
               notOut:
                 batter.status === "not out"
                   ? playerStats.batting.overall.notOut + 1
                   : playerStats.batting.overall.notOut,
               ducks:
-                batter.runsScored === 0
+                batter.runsScored === 0 && batter.status !== "not out"
                   ? playerStats.batting.overall.ducks + 1
                   : playerStats.batting.overall.ducks,
               "100s":
@@ -779,6 +790,112 @@ export default function MatchCenter({ route, navigation }) {
         console.log(`Player ${batter.name} updated successfully`);
       } catch (error) {
         console.error(`Error updating player ${batter.name}: ${error}`);
+      }
+    });
+    secondInnings.allBatsmen.forEach(async (batter) => {
+      const playerDocRef = doc(db, "users", batter.id);
+      const docSnap = await getDoc(playerDocRef);
+      const playerStats = docSnap.data().Stats;
+      try {
+        await updateDoc(
+          playerDocRef,
+          {
+            "Stats.batting.overall": {
+              matches: playerStats.batting.overall.matches + 1,
+              innings: playerStats.batting.overall.innings + 1,
+              runs: playerStats.batting.overall.runs + batter.runsScored,
+              balls: playerStats.batting.overall.balls + batter.ballsFaced,
+              highest:
+                playerStats.batting.overall.highest < batter.runsScored
+                  ? batter.runsScored
+                  : playerStats.batting.overall.highest,
+              average: (
+                (playerStats.batting.overall.runs + batter.runsScored) /
+                (playerStats.batting.overall.innings +
+                  (batter.status === "not out" ? 0 : 1) -
+                  playerStats.batting.overall.notOut)
+              ).toFixed(2),
+              sr: (
+                ((playerStats.batting.overall.runs + batter.runsScored) /
+                  (playerStats.batting.overall.balls + batter.ballsFaced)) *
+                100
+              ).toFixed(2),
+              notOut:
+                batter.status === "not out"
+                  ? playerStats.batting.overall.notOut + 1
+                  : playerStats.batting.overall.notOut,
+              ducks:
+                batter.runsScored === 0 && batter.status !== "not out"
+                  ? playerStats.batting.overall.ducks + 1
+                  : playerStats.batting.overall.ducks,
+              "100s":
+                batter.runsScored >= 100
+                  ? playerStats.batting.overall["100s"] + 1
+                  : playerStats.batting.overall["100s"],
+              "50s":
+                batter.runsScored >= 50
+                  ? playerStats.batting.overall["50s"] + 1
+                  : playerStats.batting.overall["50s"],
+              "30s":
+                batter.runsScored >= 30
+                  ? playerStats.batting.overall["30s"] + 1
+                  : playerStats.batting.overall["30s"],
+              "6s": playerStats.batting.overall["6s"] + batter.sixes,
+              "4s": playerStats.batting.overall["4s"] + batter.fours,
+            },
+          },
+          { merge: true }
+        );
+        console.log(`Player ${batter.name} updated successfully`);
+      } catch (error) {
+        console.error(`Error updating player ${batter.name}: ${error}`);
+      }
+    });
+    firstInnings.bowlers.forEach(async (bowler) => {
+      const playerDocRef = doc(db, "users", bowler.id);
+      const docSnap = await getDoc(playerDocRef);
+      const playerStats = docSnap.data().Stats;
+      try {
+        await updateDoc(
+          playerDocRef,
+          {
+            "Stats.bowling.overall": {
+              matches: playerStats.bowling.overall.matches + 1,
+              innings: playerStats.bowling.overall.innings + 1,
+              overs: playerStats.bowling.overall.overs + bowler.overs,
+              balls: playerStats.bowling.overall.balls + bowler.ball,
+              runs: playerStats.bowling.overall.runs + bowler.runsGiven,
+              dots: 0,
+              wides: 0,
+              noBalls: 0,
+              maidens: playerStats.bowling.overall.maidens + bowler.maidenOvers,
+              wickets:
+                playerStats.bowling.overall.wickets + bowler.wicketsTaken,
+              average: (
+                (playerStats.bowling.overall.runs + bowler.runsGiven) /
+                (playerStats.bowling.wickets + bowler.wicketsTaken)
+              ).toFixed(2),
+              economy: 0,
+              best: 0,
+              sr: (
+                (playerStats.bowling.overall.balls + bowler.balls) /
+                (playerStats.bowling.wickets + bowler.wicketsTaken)
+              ).toFixed(2),
+              "3W":
+                bowler.wicketsTaken >= 3
+                  ? playerStats.bowling.overall["3W"] + 1
+                  : playerStats.bowling.overall["3W"],
+              "5W":
+                bowler.wicketsTaken >= 5
+                  ? playerStats.bowling.overall["5W"] + 1
+                  : playerStats.bowling.overall["5W"],
+            },
+          },
+          { merge: true }
+        );
+        console.log(`Player ${bowler.name} updated successfully`);
+      } catch (error) {
+        console.error(`Error updating player ${bowler.name}: ${error}`);
       }
     });
   };

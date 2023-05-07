@@ -28,17 +28,17 @@ export default function TeamDetails({ route, navigation }) {
 
   const deletePlayer = async (index) => {
     const teamDocRef = doc(db, "users", auth.currentUser.uid, "Teams", teamId);
-    const publicTeamRef = collection(db, "Teams", teamId);
-    const updatedTeam = team.players.splice(index, 1);
+    const publicTeamRef = doc(db, "Teams", teamId);
+    const updatedPlayers = team.players.splice(index, 1);
     await updateDoc(publicTeamRef, {
-      players: updatedTeam,
+      players: updatedPlayers,
     });
     updateDoc(teamDocRef, {
-      players: updatedTeam,
+      players: updatedPlayers,
     })
       .then(() => {
         const updatedTeams = [...teams];
-        team = updatedTeam;
+        team = updatedPlayers;
         setTeams(updatedTeams);
         console.log("Removed");
       })
