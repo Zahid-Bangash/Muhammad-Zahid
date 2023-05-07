@@ -725,6 +725,22 @@ export default function MatchCenter({ route, navigation }) {
     ]);
   };
 
+  const updatePlayerStats=()=>{
+     firstInnings.allBatsmen.forEach(async (player) => {
+      const playerDocRef = doc(db, "players", player.id);
+      try {
+        await updateDoc(playerDocRef, {
+          name: player.name,
+          age: player.age,
+          // add more fields as needed
+        });
+        console.log(`Player ${player.id} updated successfully`);
+      } catch (error) {
+        console.error(`Error updating player ${player.id}: ${error}`);
+      }
+    });
+  }
+
   useEffect(() => {
     const matchDocRef = doc(
       db,
