@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import { Context } from "../components/ContextProvider";
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
 
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs, setDoc,doc } from "firebase/firestore";
 import { auth, db } from "../config/firebase-config";
 
 import MyTeamsNavigator from "../navigation/MyTeamsNavigator";
@@ -41,6 +41,7 @@ export default function StartMatch({ route, navigation }) {
   const [showTimePicker, setShowTimePicker] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchModal, setsearchModal] = useState(false);
   const [tossModalVisible, setTossModalVisible] = useState(false);
   const [squadModal, setsquadModal] = useState(false);
 
@@ -51,6 +52,9 @@ export default function StartMatch({ route, navigation }) {
   const [decision, setDecision] = useState(null);
   const [battingTeam, setbattingTeam] = useState(null);
   const [bowlingTeam, setbowlingTeam] = useState(null);
+
+  const [name, setname] = useState("");
+  const [search, setsearch] = useState([]);
 
   const handleSelectTeam = (team) => {
     if (teamBoBeSelected === "A" && team2 && team2.id === team.id) {
@@ -109,6 +113,16 @@ export default function StartMatch({ route, navigation }) {
     setShowTimePicker(false);
     const currentTime = selectedTime || date;
     setmatchDetails({ ...matchDetails, time: currentTime });
+  };
+
+  const searchByName = async () => {
+    const searchRef = collection(db, "Teams");
+    const snapshot = await getDocs(searchRef);
+    const searchResults = snapshot.docs.filter((doc) =>
+      doc.data()["name"].toLowerCase().includes(name.toLowerCase())
+    );
+    const result = searchResults.map((doc) => ({ id: doc.id, ...doc.data() }));
+    setsearch(result);
   };
 
   const handleCreateMatch = () => {
@@ -174,6 +188,29 @@ export default function StartMatch({ route, navigation }) {
           bowlingTeam: bowlingTeam,
         }
       );
+      const publicMatchRef = doc(db, "Matches", matchRef.id);
+      await setDoc(publicMatchRef, {
+        title: `${team1.name} Vs ${team2.name}`,
+        teams: {
+          team1: { name: team1.name, squad: team1Squad },
+          team2: { name: team2.name, squad: team2Squad },
+        },
+        venue: matchDetails.venue,
+        date: matchDetails.date.toLocaleDateString(),
+        time: matchDetails.time.toLocaleTimeString(),
+        ballType: matchDetails.ballType,
+        matchFormat: matchDetails.matchFormat,
+        tossResult: {
+          winnerTeam: tossWinner.name,
+          decision: decision,
+        },
+        totalOvers: matchDetails.overs,
+        target: 0,
+        status: "InProgress",
+        result: "",
+        battingTeam: battingTeam,
+        bowlingTeam: bowlingTeam,
+      });
       console.log("Match created with ID: ", matchRef.id);
       navigation.navigate("Start Innings", {
         battingTeam: battingTeam,
@@ -191,6 +228,12 @@ export default function StartMatch({ route, navigation }) {
       console.error("Error starting match: ", err);
     }
   };
+
+  useEffect(() => {
+    if (name.length > 0) {
+      searchByName();
+    } else setsearch([]);
+  }, [name]);
 
   return (
     <View style={styles.container}>
@@ -274,15 +317,34 @@ export default function StartMatch({ route, navigation }) {
             paddingVertical: 50,
           }}
         >
+          <TouchableOpacity onPress={() => setsearchModal(true)}>
+            <Text
+              style={{
+                fontSize: 24,
+                color: "#3e5430",
+                fontWeight: "bold",
+              }}
+            >
+              Search Team
+            </Text>
+          </TouchableOpacity>
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: "bold",
+            }}
+          >
+            OR
+          </Text>
           <Text
             style={{
               fontSize: 24,
               marginBottom: 20,
-              color: "#b44e05",
+              color: "#ba6d13",
               fontWeight: "bold",
             }}
           >
-            Choose a Team
+            Select from your teams
           </Text>
           <ScrollView
             style={{ width: "100%" }}
@@ -315,6 +377,73 @@ export default function StartMatch({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </Modal>
+      {/* Search Modal */}
+      <Modal
+        visible={searchModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setsearchModal(false)}
+      >
+        <View
+          style={{
+            position: "absolute",
+            backgroundColor: "#07FFF0",
+            transform: [{ translateX: 28 }, { translateY: 80 }],
+            width: "85%",
+            height: "85%",
+            alignItems: "center",
+            borderRadius: 20,
+            paddingVertical: 50,
+          }}
+        >
+          <AppTextInput
+            placeholder="Seach Team by Name"
+            style={{ marginBottom: 20 }}
+            value={name}
+            onChangeText={(val) => setname(val)}
+          />
+          <Text
+            style={{
+              fontSize: 20,
+              marginBottom: 20,
+              color: "#ba6d13",
+              fontWeight: "bold",
+            }}
+          >
+            Select Team from your search
+          </Text>
+          <ScrollView
+            style={{ width: "100%" }}
+            contentContainerStyle={{ alignItems: "center" }}
+          >
+            {search.length > 0 &&
+              search.map((team) => (
+                <TouchableOpacity
+                  key={team.id}
+                  onPress={() => handleSelectTeam(team)}
+                  style={{
+                    backgroundColor: "pink",
+                    width: "90%",
+                    height: 50,
+                    marginBottom: 5,
+                    paddingHorizontal: 10,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                    {team.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={{ position: "absolute", top: 5, right: 5 }}
+            onPress={() => setsearchModal(false)}
+          >
+            <Entypo name="circle-with-cross" size={45} color="red" />
+          </TouchableOpacity>
+        </View>
+      </Modal>
       {/* Squad Modal */}
       <Modal
         visible={squadModal}
@@ -326,7 +455,7 @@ export default function StartMatch({ route, navigation }) {
           style={{
             position: "absolute",
             backgroundColor: "#c0c589",
-            transform: [{ translateX: 27 }, { translateY: 80 }],
+            transform: [{ translateX: 28 }, { translateY: 80 }],
             width: "85%",
             height: "85%",
             alignItems: "center",

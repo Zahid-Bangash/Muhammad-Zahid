@@ -11,7 +11,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import AppButton from "../components/AppButton";
 
 import { auth, db } from "../config/firebase-config";
-import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc, setDoc } from "firebase/firestore";
 
 export default function StartInnings({ route, navigation }) {
   const { battingTeam, bowlingTeam, squad1, squad2, matchId } = route.params;
@@ -31,7 +31,7 @@ export default function StartInnings({ route, navigation }) {
 
   const [inningsNo, setinningsNo] = useState(1);
 
-  const startFirstInnings = () => {
+  const startFirstInnings = async () => {
     if (!striker) {
       alert("Select Striker");
       return;
@@ -46,8 +46,8 @@ export default function StartInnings({ route, navigation }) {
     }
 
     const matchRef = doc(db, "users", auth.currentUser.uid, "Matches", matchId);
+    const publicMatchRef = doc(db, "Matches", matchId);
     const inningsRef = collection(matchRef, "innings");
-
     addDoc(inningsRef, {
       inningsNo: 1,
       battingTeam: battingTeam,
@@ -138,6 +138,96 @@ export default function StartInnings({ route, navigation }) {
       isCompleted: false,
     })
       .then((docRef) => {
+        const publicInningsRef = doc(publicMatchRef, "innings", docRef.id);
+        setDoc(publicInningsRef, {
+          inningsNo: 1,
+          battingTeam: battingTeam,
+          bowlingTeam: bowlingTeam,
+          totalRuns: 0,
+          wicketsDown: 0,
+          oversDelivered: 0,
+          ballsDelivered: 0,
+          runRate: 0,
+          extras: 0,
+          projectedScore: 0,
+          partnership: { runs: 0, balls: 0 },
+          currentOver: [],
+          battingSquad: battingSquad,
+          bowlingSquad: bowlers,
+          allBatsmen: [
+            {
+              name: striker.name,
+              runsScored: 0,
+              ballsFaced: 0,
+              fours: 0,
+              sixes: 0,
+              strikeRate: 0,
+              dismissalType: null,
+              status: "not out",
+              id: striker.id,
+            },
+            {
+              name: nonStriker.name,
+              runsScored: 0,
+              ballsFaced: 0,
+              fours: 0,
+              sixes: 0,
+              strikeRate: 0,
+              dismissalType: null,
+              status: "not out",
+              id: nonStriker.id,
+            },
+          ],
+          currentBatsmen: [
+            {
+              name: striker.name,
+              runsScored: 0,
+              ballsFaced: 0,
+              fours: 0,
+              sixes: 0,
+              strikeRate: 0,
+              dismissalType: null,
+              status: "not out",
+              id: striker.id,
+            },
+            {
+              name: nonStriker.name,
+              runsScored: 0,
+              ballsFaced: 0,
+              fours: 0,
+              sixes: 0,
+              strikeRate: 0,
+              dismissalType: null,
+              status: "not out",
+              id: nonStriker.id,
+            },
+          ],
+          outBatsmen: [],
+          remainingBatsmen: remainingBatsmen,
+          currentBowler: {
+            name: bowler.name,
+            balls: 0,
+            overs: 0,
+            runsGiven: 0,
+            wicketsTaken: 0,
+            maidenOvers: 0,
+            eco: 0,
+            id: bowler.id,
+          },
+          bowlers: [
+            {
+              name: bowler.name,
+              balls: 0,
+              overs: 0,
+              runsGiven: 0,
+              wicketsTaken: 0,
+              maidenOvers: 0,
+              eco: 0,
+              id: bowler.id,
+            },
+          ],
+          isCompleted: false,
+        });
         console.log("First Innings started with ID: ", docRef.id);
         setinningsNo(2);
         setstriker(null);
@@ -156,7 +246,7 @@ export default function StartInnings({ route, navigation }) {
         console.error("Error adding innings document: ", error);
       });
   };
-  const startSecondInnings = () => {
+  const startSecondInnings = async () => {
     if (!striker) {
       alert("Select Striker");
       return;
@@ -171,8 +261,8 @@ export default function StartInnings({ route, navigation }) {
     }
 
     const matchRef = doc(db, "users", auth.currentUser.uid, "Matches", matchId);
+    const publicMatchRef = doc(db, "Matches", matchId);
     const inningsRef = collection(matchRef, "innings");
-
     addDoc(inningsRef, {
       inningsNo: 2,
       battingTeam: bowlingTeam,
@@ -263,6 +353,96 @@ export default function StartInnings({ route, navigation }) {
       isCompleted: false,
     })
       .then((docRef) => {
+        const publicInningsRef = doc(publicMatchRef, "innings", docRef.id);
+        setDoc(publicInningsRef, {
+          inningsNo: 2,
+          battingTeam: bowlingTeam,
+          bowlingTeam: battingTeam,
+          totalRuns: 0,
+          wicketsDown: 0,
+          oversDelivered: 0,
+          ballsDelivered: 0,
+          runRate: 0,
+          extras: 0,
+          projectedScore: 0,
+          partnership: { runs: 0, balls: 0 },
+          currentOver: [],
+          battingSquad: bowlers,
+          bowlingSquad: battingSquad,
+          allBatsmen: [
+            {
+              name: striker.name,
+              runsScored: 0,
+              ballsFaced: 0,
+              fours: 0,
+              sixes: 0,
+              strikeRate: 0,
+              dismissalType: null,
+              status: "not out",
+              id: striker.id,
+            },
+            {
+              name: nonStriker.name,
+              runsScored: 0,
+              ballsFaced: 0,
+              fours: 0,
+              sixes: 0,
+              strikeRate: 0,
+              dismissalType: null,
+              status: "not out",
+              id: nonStriker.id,
+            },
+          ],
+          currentBatsmen: [
+            {
+              name: striker.name,
+              runsScored: 0,
+              ballsFaced: 0,
+              fours: 0,
+              sixes: 0,
+              strikeRate: 0,
+              dismissalType: null,
+              status: "not out",
+              id: striker.id,
+            },
+            {
+              name: nonStriker.name,
+              runsScored: 0,
+              ballsFaced: 0,
+              fours: 0,
+              sixes: 0,
+              strikeRate: 0,
+              dismissalType: null,
+              status: "not out",
+              id: nonStriker.id,
+            },
+          ],
+          outBatsmen: [],
+          remainingBatsmen: remainingBatsmen,
+          currentBowler: {
+            name: bowler.name,
+            balls: 0,
+            overs: 0,
+            runsGiven: 0,
+            wicketsTaken: 0,
+            maidenOvers: 0,
+            eco: 0,
+            id: bowler.id,
+          },
+          bowlers: [
+            {
+              name: bowler.name,
+              balls: 0,
+              overs: 0,
+              runsGiven: 0,
+              wicketsTaken: 0,
+              maidenOvers: 0,
+              eco: 0,
+              id: bowler.id,
+            },
+          ],
+          isCompleted: false,
+        });
         console.log("Second Innings started with ID: ", docRef.id);
         setinningsNo(2);
         navigation.navigate("Match Center", {

@@ -14,7 +14,14 @@ import Swiper from "react-native-swiper";
 import Entypo from "@expo/vector-icons/Entypo";
 
 import { auth, db } from "../config/firebase-config";
-import { doc, onSnapshot, updateDoc, collection } from "firebase/firestore";
+import {
+  doc,
+  onSnapshot,
+  updateDoc,
+  collection,
+  query,
+  where,
+} from "firebase/firestore";
 
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
@@ -46,28 +53,6 @@ export default function MatchCenter({ route, navigation }) {
   const [dismissalType, setdismissalType] = useState(null);
   const [newBatsmanModal, setnewBatsmanModal] = useState(false);
   //Initial Data
-  const [matchData, setMatchData] = useState({
-    title: "match Title",
-    teams: {
-      team1: { name: "Team A", squad: [] },
-      team2: { name: "Team B", squad: [] },
-    },
-    venue: "Venue",
-    date: "Date",
-    time: "Time",
-    ballType: "ball type",
-    matchFormat: "match format",
-    tossResult: {
-      winnerTeam: "winner team",
-      decision: "decision",
-    },
-    totalOvers: "overs",
-    target: 0,
-    status: "InProgress",
-    result: "",
-    battingTeam: " Batting Team",
-    bowlingTeam: "bowling Team",
-  });
   const intitialInningsData = {
     inningsNo: 1,
     battingTeam: "Batting Team",
@@ -157,6 +142,74 @@ export default function MatchCenter({ route, navigation }) {
     ],
     isCompleted: false,
   };
+  const [matchData, setMatchData] = useState({
+    title: "match Title",
+    teams: {
+      team1: { name: "Team A", squad: [] },
+      team2: { name: "Team B", squad: [] },
+    },
+    venue: "Venue",
+    date: "Date",
+    time: "Time",
+    ballType: "ball type",
+    matchFormat: "match format",
+    tossResult: {
+      winnerTeam: "winner team",
+      decision: "decision",
+    },
+    totalOvers: "overs",
+    target: 0,
+    status: "InProgress",
+    result: "",
+    battingTeam: " Batting Team",
+    bowlingTeam: "bowling Team",
+  });
+  const [firstInnings, setfirstInnings] = useState({
+    inningsNo: 1,
+    battingTeam: "Batting Team",
+    bowlingTeam: "Bowling Team",
+    totalRuns: 0,
+    wicketsDown: 0,
+    oversDelivered: 0,
+    ballsDelivered: 0,
+    runRate: 0,
+    extras: 0,
+    partnership: { runs: 0, balls: 0 },
+    projectedScore: 0,
+    currentOver: [],
+    battingSquad: [],
+    bowlingSquad: [],
+    allBatsmen: [],
+    currentBatsmen: [],
+    outBatsmen: [],
+    remainingBatsmen: [],
+    currentBowler: {},
+    bowlers: [],
+    isCompleted: false,
+  });
+  const [secondInnings, setsecondInnings] = useState({
+    inningsNo: 2,
+    battingTeam: "Batting Team",
+    bowlingTeam: "Bowling Team",
+    totalRuns: 0,
+    wicketsDown: 0,
+    oversDelivered: 0,
+    ballsDelivered: 0,
+    runRate: 0,
+    extras: 0,
+    partnership: { runs: 0, balls: 0 },
+    projectedScore: 0,
+    currentOver: [],
+    battingSquad: [],
+    bowlingSquad: [],
+    allBatsmen: [],
+    currentBatsmen: [],
+    outBatsmen: [],
+    remainingBatsmen: [],
+    currentBowler: {},
+    bowlers: [],
+    isCompleted: false,
+  });
 
   const [inningsData, setInningsData] = useState(intitialInningsData);
   let availableBowlers = inningsData.bowlingSquad;
@@ -473,14 +526,15 @@ export default function MatchCenter({ route, navigation }) {
           matchDataCopy.status = "Completed";
           updateMatchData(matchDataCopy);
         }
-        Alert.alert("Confirm", "End Match?", [
+        Alert.alert(matchData.result, "End Match?", [
           {
             text: "No",
             onPress: () => {},
           },
           {
             text: "Yes",
-            onPress: () => setSwiperIndex(2),
+            onPress: () =>
+              navigation.navigate("Match Details", { matchId: matchId }),
           },
         ]);
       } else {
@@ -513,10 +567,13 @@ export default function MatchCenter({ route, navigation }) {
         "Matches",
         matchId
       );
+      const publicMatchRef = doc(db, "Matches", matchId);
       const inningsRef = collection(matchRef, "innings");
+      const publicInningsRef = collection(publicMatchRef, "innings");
       const inningsDocRef = doc(inningsRef, inningsId);
-
+      const publicInningsDocRef = doc(publicInningsRef, inningsId);
       await updateDoc(inningsDocRef, updatedData, { merge: true });
+      await updateDoc(publicInningsDocRef, updatedData, { merge: true });
       console.log("Innings data updated successfully!");
     } catch (error) {
       console.error("Error updating innings data:", error);
@@ -532,7 +589,9 @@ export default function MatchCenter({ route, navigation }) {
         "Matches",
         matchId
       );
+      const publicMatchRef = doc(db, "Matches", matchId);
       await updateDoc(matchRef, updatedData, { merge: true });
+      await updateDoc(publicMatchRef, updatedData, { merge: true });
       console.log("Match data updated successfully!");
     } catch (error) {
       console.error("Error updating Match data:", error);
@@ -575,14 +634,15 @@ export default function MatchCenter({ route, navigation }) {
         matchDataCopy.status = "Completed";
         updateMatchData(matchDataCopy);
       }
-      Alert.alert("Confirm", "End Match?", [
+      Alert.alert(matchData.result, "End Match?", [
         {
           text: "No",
           onPress: () => {},
         },
         {
           text: "Yes",
-          onPress: () => setSwiperIndex(2),
+          onPress: () =>
+            navigation.navigate("Match Details", { matchId: matchId }),
         },
       ]);
     }
@@ -682,7 +742,14 @@ export default function MatchCenter({ route, navigation }) {
       "innings",
       inningsId
     );
-
+    const firstInningsQuery = query(
+      collection(matchDocRef, "innings"),
+      where("inningsNo", "==", 1)
+    );
+    const secondInningsQuery = query(
+      collection(matchDocRef, "innings"),
+      where("inningsNo", "==", 2)
+    );
     const matchUnsubscribe = onSnapshot(matchDocRef, (doc) => {
       const data = doc.data();
       setMatchData(data);
@@ -693,9 +760,30 @@ export default function MatchCenter({ route, navigation }) {
       setInningsData(data);
     });
 
+    const firstInningsUnsubscribe = onSnapshot(
+      firstInningsQuery,
+      (querySnapshot) => {
+        if (querySnapshot.docs.length > 0) {
+          const innings1Data = querySnapshot.docs[0].data();
+          setfirstInnings(innings1Data);
+        }
+      }
+    );
+
+    const secondInningsUnsubscribe = onSnapshot(
+      secondInningsQuery,
+      (querySnapshot) => {
+        if (querySnapshot.docs.length > 0) {
+          const innings2Data = querySnapshot.docs[0].data();
+          setsecondInnings(innings2Data);
+        }
+      }
+    );
     return () => {
       matchUnsubscribe();
       inningsUnsubscribe();
+      firstInningsUnsubscribe();
+      secondInningsUnsubscribe();
     };
   }, []);
 
@@ -1466,15 +1554,28 @@ export default function MatchCenter({ route, navigation }) {
               height: "85%",
               alignItems: "center",
               borderRadius: 20,
-              padding: 50,
+              paddingVertical: 20,
             }}
           >
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                marginBottom: 20,
+                color: "brown",
+              }}
+            >
+              Wicket Down
+            </Text>
             <Text
               style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}
             >
               Select New Batsman
             </Text>
-            <ScrollView>
+            <ScrollView
+              style={{ width: "100%" }}
+              contentContainerStyle={{ alignItems: "center" }}
+            >
               {inningsData.remainingBatsmen.map((player) => (
                 <TouchableOpacity
                   key={player.id}
@@ -1494,6 +1595,15 @@ export default function MatchCenter({ route, navigation }) {
                       (newbatsmanId = player.id)
                     );
                     setnewBatsmanModal(false);
+                  }}
+                  style={{
+                    backgroundColor: "#b8dde0",
+                    marginBottom: 5,
+                    alignItems: "center",
+                    paddingHorizontal: 10,
+                    flexDirection: "row",
+                    width: "90%",
+                    height: 50,
                   }}
                 >
                   <Text style={{ fontSize: 18, marginBottom: 10 }}>
@@ -1524,21 +1634,43 @@ export default function MatchCenter({ route, navigation }) {
                 height: "85%",
                 alignItems: "center",
                 borderRadius: 20,
-                padding: 50,
+                paddingVertical: 20,
               }}
             >
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "bold",
+                  marginBottom: 20,
+                  color: "blue",
+                }}
+              >
+                Over Completed
+              </Text>
               <Text
                 style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}
               >
                 Selext Next Bowler
               </Text>
-              <ScrollView>
+              <ScrollView
+                style={{ width: "100%" }}
+                contentContainerStyle={{ alignItems: "center" }}
+              >
                 {availableBowlers.map((bowler) => (
                   <TouchableOpacity
                     key={bowler.id}
                     onPress={() => {
                       setoversModal(false);
                       overCompleted(bowler.name, bowler.id);
+                    }}
+                    style={{
+                      backgroundColor: "#b8dde0",
+                      marginBottom: 5,
+                      alignItems: "center",
+                      paddingHorizontal: 10,
+                      flexDirection: "row",
+                      width: "90%",
+                      height: 50,
                     }}
                   >
                     <Text style={{ fontSize: 18, marginBottom: 10 }}>
@@ -1562,19 +1694,19 @@ export default function MatchCenter({ route, navigation }) {
             <Text style={{ color: "red", fontWeight: "bold" }}>
               {matchData.status === "Completed"
                 ? matchData.result
-                : inningsData.inningsNo === 1
+                : firstInnings.isCompleted === false
                 ? `${matchData.tossResult.winnerTeam} selected to ${matchData.tossResult.decision} first`
-                : `${inningsData.battingTeam} requires ${
-                    matchData.target - inningsData.totalRuns
+                : `${secondInnings.battingTeam} requires ${
+                    matchData.target - secondInnings.totalRuns
                   } in ${
-                    matchData.totalOvers * 6 - inningsData.ballsDelivered
+                    matchData.totalOvers * 6 - secondInnings.ballsDelivered
                   } balls`}
             </Text>
           </View>
           <View
             style={{
               flexDirection: "row",
-              backgroundColor: "#5ca5a9",
+              backgroundColor: "#3ed6c4",
               justifyContent: "space-between",
               width: "100%",
               padding: 10,
@@ -1584,26 +1716,26 @@ export default function MatchCenter({ route, navigation }) {
             <Text style={{ fontSize: 18, fontWeight: "500" }}>
               {matchData.battingTeam}
             </Text>
-            {inningsData.ballsDelivered === 0 ? (
+            {firstInnings.ballsDelivered === 0 ? (
               <Text style={{ fontWeight: "bold" }}>Yet to bat</Text>
             ) : (
               <View style={{ flexDirection: "row" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-                  {inningsData.totalRuns} / {inningsData.wicketsDown}
+                  {firstInnings.totalRuns} / {firstInnings.wicketsDown}
                 </Text>
                 <Text>{`(${
-                  Math.floor(inningsData.ballsDelivered / 6) +
-                  (inningsData.ballsDelivered % 6) / 10
+                  Math.floor(firstInnings.ballsDelivered / 6) +
+                  (firstInnings.ballsDelivered % 6) / 10
                 } Ov)`}</Text>
               </View>
             )}
           </View>
-          {inningsData.ballsDelivered === 0 ? null : (
+          {firstInnings.ballsDelivered === 0 ? null : (
             <>
               <View
                 style={{
                   flexDirection: "row",
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                   width: "100%",
                   justifyContent: "space-between",
                   padding: 10,
@@ -1636,7 +1768,7 @@ export default function MatchCenter({ route, navigation }) {
                   SR
                 </Text>
               </View>
-              {inningsData.allBatsmen.map((batter) => (
+              {firstInnings.allBatsmen.map((batter) => (
                 <Batter
                   key={batter.id}
                   name={batter.name}
@@ -1647,7 +1779,7 @@ export default function MatchCenter({ route, navigation }) {
                   srate={batter.strikeRate}
                   status={batter.status}
                   strike={
-                    batter.id === inningsData.currentBatsmen[0].id
+                    batter.id === firstInnings.currentBatsmen[0].id
                       ? true
                       : false
                   }
@@ -1664,7 +1796,7 @@ export default function MatchCenter({ route, navigation }) {
                 }}
               >
                 <Text>Extras</Text>
-                <Text>{inningsData.extras}</Text>
+                <Text>{firstInnings.extras}</Text>
               </View>
               <View
                 style={{
@@ -1686,22 +1818,22 @@ export default function MatchCenter({ route, navigation }) {
                 >
                   <View style={{ flexDirection: "row" }}>
                     <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-                      {inningsData.totalRuns}/{inningsData.wicketsDown}
+                      {firstInnings.totalRuns}/{firstInnings.wicketsDown}
                     </Text>
                     <Text>
                       {`(${
-                        Math.floor(inningsData.ballsDelivered / 6) +
-                        (inningsData.ballsDelivered % 6) / 10
+                        Math.floor(firstInnings.ballsDelivered / 6) +
+                        (firstInnings.ballsDelivered % 6) / 10
                       } Ov)`}
                     </Text>
                   </View>
-                  <Text>CRR {inningsData.runRate}</Text>
+                  <Text>CRR {firstInnings.runRate}</Text>
                 </View>
               </View>
               <View
                 style={{
                   flexDirection: "row",
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                   width: "100%",
                   justifyContent: "space-between",
                   padding: 10,
@@ -1734,7 +1866,7 @@ export default function MatchCenter({ route, navigation }) {
                   Eco
                 </Text>
               </View>
-              {inningsData.bowlers.map((bowler) => (
+              {firstInnings.bowlers.map((bowler) => (
                 <Bowler
                   key={bowler.id}
                   overs={Math.floor(bowler.balls / 6) + (bowler.balls % 6) / 10}
@@ -1747,7 +1879,7 @@ export default function MatchCenter({ route, navigation }) {
               ))}
             </>
           )}
-          {inningsData.outBatsmen.length > 0 ? (
+          {firstInnings.outBatsmen.length > 0 ? (
             <>
               <View
                 style={{
@@ -1756,13 +1888,13 @@ export default function MatchCenter({ route, navigation }) {
                   justifyContent: "space-between",
                   width: "100%",
                   padding: 10,
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                 }}
               >
                 <Text style={{ fontWeight: "bold" }}>Fall of Wickets</Text>
                 <Text style={{ fontWeight: "bold" }}>Score(Over)</Text>
               </View>
-              {inningsData.outBatsmen.map((batter, index) => (
+              {firstInnings.outBatsmen.map((batter, index) => (
                 <View
                   key={batter.id}
                   style={{
@@ -1787,7 +1919,7 @@ export default function MatchCenter({ route, navigation }) {
           <View
             style={{
               flexDirection: "row",
-              backgroundColor: "#5ca5a9",
+              backgroundColor: "#3ed6c4",
               justifyContent: "space-between",
               width: "100%",
               padding: 10,
@@ -1797,26 +1929,26 @@ export default function MatchCenter({ route, navigation }) {
             <Text style={{ fontSize: 18, fontWeight: "500" }}>
               {matchData.bowlingTeam}
             </Text>
-            {inningsData.ballsDelivered === 0 ? (
+            {secondInnings.ballsDelivered === 0 ? (
               <Text style={{ fontWeight: "bold" }}>Yet to bat</Text>
             ) : (
               <View style={{ flexDirection: "row" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-                  {inningsData.totalRuns} / {inningsData.wicketsDown}
+                  {secondInnings.totalRuns} / {secondInnings.wicketsDown}
                 </Text>
                 <Text>{`(${
-                  Math.floor(inningsData.ballsDelivered / 6) +
-                  (inningsData.ballsDelivered % 6) / 10
+                  Math.floor(secondInnings.ballsDelivered / 6) +
+                  (secondInnings.ballsDelivered % 6) / 10
                 } Ov)`}</Text>
               </View>
             )}
           </View>
-          {inningsData.ballsDelivered === 0 ? null : (
+          {secondInnings.ballsDelivered === 0 ? null : (
             <>
               <View
                 style={{
                   flexDirection: "row",
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                   width: "100%",
                   justifyContent: "space-between",
                   padding: 10,
@@ -1849,7 +1981,7 @@ export default function MatchCenter({ route, navigation }) {
                   SR
                 </Text>
               </View>
-              {inningsData.allBatsmen.map((batter) => (
+              {secondInnings.allBatsmen.map((batter) => (
                 <Batter
                   key={batter.id}
                   name={batter.name}
@@ -1860,7 +1992,7 @@ export default function MatchCenter({ route, navigation }) {
                   srate={batter.strikeRate}
                   status={batter.status}
                   strike={
-                    batter.id === inningsData.currentBatsmen[0].id
+                    batter.id === secondInnings.currentBatsmen[0].id
                       ? true
                       : false
                   }
@@ -1877,7 +2009,7 @@ export default function MatchCenter({ route, navigation }) {
                 }}
               >
                 <Text>Extras</Text>
-                <Text>{inningsData.extras}</Text>
+                <Text>{secondInnings.extras}</Text>
               </View>
               <View
                 style={{
@@ -1899,22 +2031,22 @@ export default function MatchCenter({ route, navigation }) {
                 >
                   <View style={{ flexDirection: "row" }}>
                     <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-                      {inningsData.totalRuns}/{inningsData.wicketsDown}
+                      {secondInnings.totalRuns}/{secondInnings.wicketsDown}
                     </Text>
                     <Text>
                       {`(${
-                        Math.floor(inningsData.ballsDelivered / 6) +
-                        (inningsData.ballsDelivered % 6) / 10
+                        Math.floor(secondInnings.ballsDelivered / 6) +
+                        (secondInnings.ballsDelivered % 6) / 10
                       } Ov)`}
                     </Text>
                   </View>
-                  <Text>CRR {inningsData.runRate}</Text>
+                  <Text>CRR {secondInnings.runRate}</Text>
                 </View>
               </View>
               <View
                 style={{
                   flexDirection: "row",
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                   width: "100%",
                   justifyContent: "space-between",
                   padding: 10,
@@ -1947,7 +2079,7 @@ export default function MatchCenter({ route, navigation }) {
                   Eco
                 </Text>
               </View>
-              {inningsData.bowlers.map((bowler) => (
+              {secondInnings.bowlers.map((bowler) => (
                 <Bowler
                   key={bowler.id}
                   overs={Math.floor(bowler.balls / 6) + (bowler.balls % 6) / 10}
@@ -1960,7 +2092,7 @@ export default function MatchCenter({ route, navigation }) {
               ))}
             </>
           )}
-          {inningsData.outBatsmen.length > 0 ? (
+          {secondInnings.outBatsmen.length > 0 ? (
             <>
               <View
                 style={{
@@ -1969,13 +2101,13 @@ export default function MatchCenter({ route, navigation }) {
                   justifyContent: "space-between",
                   width: "100%",
                   padding: 10,
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                 }}
               >
                 <Text style={{ fontWeight: "bold" }}>Fall of Wickets</Text>
                 <Text style={{ fontWeight: "bold" }}>Score(Over)</Text>
               </View>
-              {inningsData.outBatsmen.map((batter, index) => (
+              {secondInnings.outBatsmen.map((batter, index) => (
                 <View
                   key={batter.id}
                   style={{

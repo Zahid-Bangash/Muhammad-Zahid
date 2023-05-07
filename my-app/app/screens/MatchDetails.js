@@ -15,7 +15,8 @@ import { doc, onSnapshot, collection, query, where } from "firebase/firestore";
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
 
-export default function MatchDetails() {
+export default function MatchDetails({ route }) {
+  const { matchId } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
   const [matchData, setmatchData] = useState({
     title: "match Title",
@@ -87,13 +88,7 @@ export default function MatchDetails() {
   });
 
   useEffect(() => {
-    const matchDocRef = doc(
-      db,
-      "users",
-      auth.currentUser.uid,
-      "Matches",
-      "TAuM6mN6ESX1QNIwrc5A"
-    );
+    const matchDocRef = doc(db, "Matches", matchId);
     const firstInningsQuery = query(
       collection(matchDocRef, "innings"),
       where("inningsNo", "==", 1)
@@ -197,7 +192,7 @@ export default function MatchDetails() {
           <View
             style={{
               flexDirection: "row",
-              backgroundColor: "#5ca5a9",
+              backgroundColor: "#3ed6c4",
               justifyContent: "space-between",
               width: "100%",
               padding: 10,
@@ -226,7 +221,7 @@ export default function MatchDetails() {
               <View
                 style={{
                   flexDirection: "row",
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                   width: "100%",
                   justifyContent: "space-between",
                   padding: 10,
@@ -324,7 +319,7 @@ export default function MatchDetails() {
               <View
                 style={{
                   flexDirection: "row",
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                   width: "100%",
                   justifyContent: "space-between",
                   padding: 10,
@@ -379,7 +374,7 @@ export default function MatchDetails() {
                   justifyContent: "space-between",
                   width: "100%",
                   padding: 10,
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                 }}
               >
                 <Text style={{ fontWeight: "bold" }}>Fall of Wickets</Text>
@@ -410,7 +405,7 @@ export default function MatchDetails() {
           <View
             style={{
               flexDirection: "row",
-              backgroundColor: "#5ca5a9",
+              backgroundColor: "#3ed6c4",
               justifyContent: "space-between",
               width: "100%",
               padding: 10,
@@ -439,7 +434,7 @@ export default function MatchDetails() {
               <View
                 style={{
                   flexDirection: "row",
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                   width: "100%",
                   justifyContent: "space-between",
                   padding: 10,
@@ -537,7 +532,7 @@ export default function MatchDetails() {
               <View
                 style={{
                   flexDirection: "row",
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                   width: "100%",
                   justifyContent: "space-between",
                   padding: 10,
@@ -592,7 +587,7 @@ export default function MatchDetails() {
                   justifyContent: "space-between",
                   width: "100%",
                   padding: 10,
-                  backgroundColor: "#d8dede",
+                  backgroundColor: "#97b3b4",
                 }}
               >
                 <Text style={{ fontWeight: "bold" }}>Fall of Wickets</Text>
@@ -703,7 +698,7 @@ export default function MatchDetails() {
             <Text style={{ fontWeight: "bold", color: "grey" }}>
               {matchData.tossResult.decision}
             </Text>
-            <Text style={{ fontWeight: "bold", color: "grey" }}>matchId</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>{matchId}</Text>
           </View>
         </View>
       </View>

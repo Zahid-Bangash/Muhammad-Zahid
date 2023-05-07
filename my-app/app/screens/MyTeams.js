@@ -22,6 +22,7 @@ export default function MyTeams({ navigation }) {
     const updatedTeams = teams.filter((team) => team.id !== teamId);
     setTeams(updatedTeams);
     await deleteDoc(doc(db, "users", auth.currentUser.uid, "Teams", teamId));
+    await deleteDoc(doc(db, "Teams", teamId));
   };
 
   return (

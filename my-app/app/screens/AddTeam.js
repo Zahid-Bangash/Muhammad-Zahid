@@ -1,9 +1,9 @@
-import React, { useState ,useContext} from "react";
+import React, { useState, useContext } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import {Context} from "../components/ContextProvider";
+import { Context } from "../components/ContextProvider";
 
 import { auth, db } from "../config/firebase-config";
-import { addDoc, collection,doc } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 
 import AppTextInput from "../components/AppTextInput";
 import AppButton from "../components/AppButton";
@@ -24,15 +24,17 @@ export default function Addteam({ navigation }) {
       return;
     }
     try {
-      const userRef=doc(db,"users",auth.currentUser.uid);
-      const teamsRef=collection(userRef,"Teams");
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      const teamsRef = collection(userRef, "Teams");
       const docRef = await addDoc(teamsRef, teamDetails);
+      const publicTeamRef = doc(db, "Teams", docRef.id);
+      await setDoc(publicTeamRef, teamDetails);
       const updatedTeams = [...teams, { id: docRef.id, ...teamDetails }];
       setTeams(updatedTeams);
-      console.log("Team added");
+      console.log("Team created");
       navigation.goBack();
     } catch (error) {
-      console.error("Error adding team: ", error);
+      console.error("Error creating team: ", error);
     }
   };
 

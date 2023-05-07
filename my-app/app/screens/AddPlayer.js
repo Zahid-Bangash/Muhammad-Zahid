@@ -34,8 +34,16 @@ export default function AddPlayer({ route }) {
 
   const addPlayerToTeam = async (user) => {
     const teamRef = doc(db, "users", auth.currentUser.uid, "Teams", teamId);
+    const publicTeamRef = doc(db, "Teams", teamId);
     try {
       await updateDoc(teamRef, {
+        players: arrayUnion({
+          id: user.id,
+          name: user.Name,
+          contact: user.PhoneNumber,
+        }),
+      });
+      await updateDoc(publicTeamRef, {
         players: arrayUnion({
           id: user.id,
           name: user.Name,
