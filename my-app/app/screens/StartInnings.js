@@ -30,7 +30,6 @@ export default function StartInnings({ route, navigation }) {
   const [toBeSelected, settoBeSelected] = useState("striker");
 
   const [inningsNo, setinningsNo] = useState(1);
-
   const startFirstInnings = async () => {
     if (!striker) {
       alert("Select Striker");
@@ -122,6 +121,9 @@ export default function StartInnings({ route, navigation }) {
         maidenOvers: 0,
         eco: 0,
         id: bowler.id,
+        dots: 0,
+        wides: 0,
+        noBalls: 0,
       },
       bowlers: [
         {
@@ -133,6 +135,9 @@ export default function StartInnings({ route, navigation }) {
           maidenOvers: 0,
           eco: 0,
           id: bowler.id,
+          dots: 0,
+          wides: 0,
+          noBalls: 0,
         },
       ],
       isCompleted: false,
@@ -213,6 +218,9 @@ export default function StartInnings({ route, navigation }) {
             maidenOvers: 0,
             eco: 0,
             id: bowler.id,
+            dots: 0,
+            wides: 0,
+            noBalls: 0,
           },
           bowlers: [
             {
@@ -224,6 +232,9 @@ export default function StartInnings({ route, navigation }) {
               maidenOvers: 0,
               eco: 0,
               id: bowler.id,
+              dots: 0,
+              wides: 0,
+              noBalls: 0,
             },
           ],
           isCompleted: false,
@@ -276,8 +287,8 @@ export default function StartInnings({ route, navigation }) {
       projectedScore: 0,
       partnership: { runs: 0, balls: 0 },
       currentOver: [],
-      battingSquad: bowlers,
-      bowlingSquad: battingSquad,
+      battingSquad: battingSquad,
+      bowlingSquad: bowlers,
       allBatsmen: [
         {
           name: striker.name,
@@ -337,6 +348,9 @@ export default function StartInnings({ route, navigation }) {
         maidenOvers: 0,
         eco: 0,
         id: bowler.id,
+        dots: 0,
+        wides: 0,
+        noBalls: 0,
       },
       bowlers: [
         {
@@ -348,6 +362,9 @@ export default function StartInnings({ route, navigation }) {
           maidenOvers: 0,
           eco: 0,
           id: bowler.id,
+          dots: 0,
+          wides: 0,
+          noBalls: 0,
         },
       ],
       isCompleted: false,
@@ -367,8 +384,8 @@ export default function StartInnings({ route, navigation }) {
           projectedScore: 0,
           partnership: { runs: 0, balls: 0 },
           currentOver: [],
-          battingSquad: bowlers,
-          bowlingSquad: battingSquad,
+          battingSquad: battingSquad,
+          bowlingSquad: bowlers,
           allBatsmen: [
             {
               name: striker.name,
@@ -428,6 +445,9 @@ export default function StartInnings({ route, navigation }) {
             maidenOvers: 0,
             eco: 0,
             id: bowler.id,
+            dots: 0,
+            wides: 0,
+            noBalls: 0,
           },
           bowlers: [
             {
@@ -439,12 +459,14 @@ export default function StartInnings({ route, navigation }) {
               maidenOvers: 0,
               eco: 0,
               id: bowler.id,
+              dots: 0,
+              wides: 0,
+              noBalls: 0,
             },
           ],
           isCompleted: false,
         });
         console.log("Second Innings started with ID: ", docRef.id);
-        setinningsNo(2);
         navigation.navigate("Match Center", {
           matchId: matchId,
           inningsId: docRef.id,

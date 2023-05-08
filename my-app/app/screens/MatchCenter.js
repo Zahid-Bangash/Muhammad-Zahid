@@ -128,6 +128,9 @@ export default function MatchCenter({ route, navigation }) {
       maidenOvers: 0,
       eco: 0,
       id: 1,
+      dots: 0,
+      wides: 0,
+      noBalls: 0,
     },
     bowlers: [
       {
@@ -139,6 +142,9 @@ export default function MatchCenter({ route, navigation }) {
         maidenOvers: 0,
         eco: 0,
         id: 1,
+        dots: 0,
+        wides: 0,
+        noBalls: 0,
       },
     ],
     isCompleted: false,
@@ -252,6 +258,7 @@ export default function MatchCenter({ route, navigation }) {
           return {
             ...bowler,
             runsGiven: bowler.runsGiven + wdRuns,
+            wides: bowler.wides + 1,
           };
         }
         return bowler;
@@ -268,6 +275,7 @@ export default function MatchCenter({ route, navigation }) {
       inningsDataCopy.currentOver.push(`lb${legByeRuns}`);
     }
     if (isNoBall) {
+      //extra runs instead of noball(1) from bat,bye,legbye
       inningsDataCopy.extras += noBallRuns;
       inningsDataCopy.totalRuns += noBallRuns;
       inningsDataCopy.currentOver.push(`nb${noBallRuns}`);
@@ -277,6 +285,7 @@ export default function MatchCenter({ route, navigation }) {
           return {
             ...bowler,
             runsGiven: bowler.runsGiven + noBallRuns,
+            noBalls: bowler.noBalls + 1,
           };
         }
         return bowler;
@@ -331,8 +340,10 @@ export default function MatchCenter({ route, navigation }) {
       });
     }
     const economy =
-      inningsDataCopy.currentBowler.runsGiven /
-      (inningsDataCopy.currentBowler.balls / 6);
+      inningsDataCopy.currentBowler.balls === 0
+        ? 0
+        : inningsDataCopy.currentBowler.runsGiven /
+          (inningsDataCopy.currentBowler.balls / 6);
     inningsDataCopy.currentBowler.eco = economy.toFixed(2);
     inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
       if (bowler.id === inningsDataCopy.currentBowler.id) {
@@ -360,10 +371,25 @@ export default function MatchCenter({ route, navigation }) {
       return batter;
     });
     const runrate =
-      inningsDataCopy.totalRuns / (inningsDataCopy.ballsDelivered / 6);
+      inningsDataCopy.ballsDelivered === 0
+        ? 0
+        : inningsDataCopy.totalRuns / (inningsDataCopy.ballsDelivered / 6);
     inningsDataCopy.runRate = runrate.toFixed(2);
-    if (!isNoBall && !isWide && !isBye && !isLegBye && !isOut)
+    if (!isNoBall && !isWide && !isBye && !isLegBye && !isOut) {
       inningsDataCopy.currentOver.push(runs);
+      //incement dot balls
+      if (runs === 0) {
+        inningsDataCopy.bowlers = inningsDataCopy.bowlers.map((bowler) => {
+          if (bowler.id === inningsDataCopy.currentBowler.id) {
+            return {
+              ...bowler,
+              dots: bowler.dots + 1,
+            };
+          }
+          return bowler;
+        });
+      }
+    }
     //Handle boundaries
     if (runs === 4) {
       inningsDataCopy.currentBatsmen[0].fours += 1;
@@ -531,7 +557,7 @@ export default function MatchCenter({ route, navigation }) {
           matchDataCopy.status = "Completed";
           updateMatchData(matchDataCopy);
         }
-        Alert.alert(matchData.result, "End Match?", [
+        Alert.alert(matchDataCopy.result, "End Match?", [
           {
             text: "No",
             onPress: () => {},
@@ -641,7 +667,7 @@ export default function MatchCenter({ route, navigation }) {
         matchDataCopy.status = "Completed";
         updateMatchData(matchDataCopy);
       }
-      Alert.alert(matchData.result, "End Match?", [
+      Alert.alert(matchDataCopy.result, "End Match?", [
         {
           text: "No",
           onPress: () => {},
@@ -676,6 +702,9 @@ export default function MatchCenter({ route, navigation }) {
         maidenOvers: 0,
         eco: 0,
         id: id,
+        dots: 0,
+        wides: 0,
+        noBalls: 0,
       };
     } else {
       inningsDataCopy.currentBowler = { ...selectedBowler };
@@ -732,7 +761,6 @@ export default function MatchCenter({ route, navigation }) {
     ]);
   };
 
-  //handle infinity
   const updatePlayerStats = () => {
     firstInnings.allBatsmen.forEach(async (batter) => {
       const playerDocRef = doc(db, "users", batter.id);
@@ -751,17 +779,27 @@ export default function MatchCenter({ route, navigation }) {
                 playerStats.batting.overall.highest < batter.runsScored
                   ? batter.runsScored
                   : playerStats.batting.overall.highest,
-              average: (
-                (playerStats.batting.overall.runs + batter.runsScored) /
-                (playerStats.batting.overall.innings +
+              average:
+                playerStats.batting.overall.innings +
                   (batter.status === "not out" ? 0 : 1) -
-                  playerStats.batting.overall.notOut)
-              ).toFixed(2),
-              sr: (
-                ((playerStats.batting.overall.runs + batter.runsScored) /
-                  (playerStats.batting.overall.balls + batter.ballsFaced)) *
-                100
-              ).toFixed(2),
+                  playerStats.batting.overall.notOut <=
+                0
+                  ? playerStats.batting.overall.runs + batter.runsScored
+                  : (
+                      (playerStats.batting.overall.runs + batter.runsScored) /
+                      (playerStats.batting.overall.innings +
+                        (batter.status === "not out" ? 0 : 1) -
+                        playerStats.batting.overall.notOut)
+                    ).toFixed(2),
+              sr:
+                playerStats.batting.overall.runs + batter.runsScored === 0
+                  ? 0
+                  : (
+                      ((playerStats.batting.overall.runs + batter.runsScored) /
+                        (playerStats.batting.overall.balls +
+                          batter.ballsFaced)) *
+                      100
+                    ).toFixed(2),
               notOut:
                 batter.status === "not out"
                   ? playerStats.batting.overall.notOut + 1
@@ -785,6 +823,181 @@ export default function MatchCenter({ route, navigation }) {
               "6s": playerStats.batting.overall["6s"] + batter.sixes,
               "4s": playerStats.batting.overall["4s"] + batter.fours,
             },
+            "Stats.batting.leather":
+              matchData.ballType === "leather"
+                ? {
+                    matches: playerStats.batting.leather.matches + 1,
+                    innings: playerStats.batting.leather.innings + 1,
+                    runs: playerStats.batting.leather.runs + batter.runsScored,
+                    balls:
+                      playerStats.batting.leather.balls + batter.ballsFaced,
+                    highest:
+                      playerStats.batting.leather.highest < batter.runsScored
+                        ? batter.runsScored
+                        : playerStats.batting.leather.highest,
+                    average:
+                      playerStats.batting.leather.innings +
+                        (batter.status === "not out" ? 0 : 1) -
+                        playerStats.batting.leather.notOut <=
+                      0
+                        ? playerStats.batting.leather.runs + batter.runsScored
+                        : (
+                            (playerStats.batting.leather.runs +
+                              batter.runsScored) /
+                            (playerStats.batting.leather.innings +
+                              (batter.status === "not out" ? 0 : 1) -
+                              playerStats.batting.leather.notOut)
+                          ).toFixed(2),
+                    sr:
+                      playerStats.batting.leather.runs + batter.runsScored === 0
+                        ? 0
+                        : (
+                            ((playerStats.batting.leather.runs +
+                              batter.runsScored) /
+                              (playerStats.batting.leather.balls +
+                                batter.ballsFaced)) *
+                            100
+                          ).toFixed(2),
+                    notOut:
+                      batter.status === "not out"
+                        ? playerStats.batting.leather.notOut + 1
+                        : playerStats.batting.leather.notOut,
+                    ducks:
+                      batter.runsScored === 0 && batter.status !== "not out"
+                        ? playerStats.batting.leather.ducks + 1
+                        : playerStats.batting.leather.ducks,
+                    "100s":
+                      batter.runsScored >= 100
+                        ? playerStats.batting.leather["100s"] + 1
+                        : playerStats.batting.leather["100s"],
+                    "50s":
+                      batter.runsScored >= 50
+                        ? playerStats.batting.leather["50s"] + 1
+                        : playerStats.batting.leather["50s"],
+                    "30s":
+                      batter.runsScored >= 30
+                        ? playerStats.batting.leather["30s"] + 1
+                        : playerStats.batting.leather["30s"],
+                    "6s": playerStats.batting.leather["6s"] + batter.sixes,
+                    "4s": playerStats.batting.leather["4s"] + batter.fours,
+                  }
+                : playerStats.batting.leather,
+            "Stats.batting.tennis":
+              matchData.ballType === "tennis"
+                ? {
+                    matches: playerStats.batting.tennis.matches + 1,
+                    innings: playerStats.batting.tennis.innings + 1,
+                    runs: playerStats.batting.tennis.runs + batter.runsScored,
+                    balls: playerStats.batting.tennis.balls + batter.ballsFaced,
+                    highest:
+                      playerStats.batting.tennis.highest < batter.runsScored
+                        ? batter.runsScored
+                        : playerStats.batting.tennis.highest,
+                    average:
+                      playerStats.batting.tennis.innings +
+                        (batter.status === "not out" ? 0 : 1) -
+                        playerStats.batting.tennis.notOut <=
+                      0
+                        ? playerStats.batting.tennis.runs + batter.runsScored
+                        : (
+                            (playerStats.batting.tennis.runs +
+                              batter.runsScored) /
+                            (playerStats.batting.tennis.innings +
+                              (batter.status === "not out" ? 0 : 1) -
+                              playerStats.batting.tennis.notOut)
+                          ).toFixed(2),
+                    sr:
+                      playerStats.batting.tennis.runs + batter.runsScored === 0
+                        ? 0
+                        : (
+                            ((playerStats.batting.tennis.runs +
+                              batter.runsScored) /
+                              (playerStats.batting.tennis.balls +
+                                batter.ballsFaced)) *
+                            100
+                          ).toFixed(2),
+                    notOut:
+                      batter.status === "not out"
+                        ? playerStats.batting.tennis.notOut + 1
+                        : playerStats.batting.tennis.notOut,
+                    ducks:
+                      batter.runsScored === 0 && batter.status !== "not out"
+                        ? playerStats.batting.tennis.ducks + 1
+                        : playerStats.batting.tennis.ducks,
+                    "100s":
+                      batter.runsScored >= 100
+                        ? playerStats.batting.tennis["100s"] + 1
+                        : playerStats.batting.tennis["100s"],
+                    "50s":
+                      batter.runsScored >= 50
+                        ? playerStats.batting.tennis["50s"] + 1
+                        : playerStats.batting.tennis["50s"],
+                    "30s":
+                      batter.runsScored >= 30
+                        ? playerStats.batting.tennis["30s"] + 1
+                        : playerStats.batting.tennis["30s"],
+                    "6s": playerStats.batting.tennis["6s"] + batter.sixes,
+                    "4s": playerStats.batting.tennis["4s"] + batter.fours,
+                  }
+                : playerStats.batting.tennis,
+            "Stats.batting.other":
+              matchData.ballType === "other"
+                ? {
+                    matches: playerStats.batting.other.matches + 1,
+                    innings: playerStats.batting.other.innings + 1,
+                    runs: playerStats.batting.other.runs + batter.runsScored,
+                    balls: playerStats.batting.other.balls + batter.ballsFaced,
+                    highest:
+                      playerStats.batting.other.highest < batter.runsScored
+                        ? batter.runsScored
+                        : playerStats.batting.other.highest,
+                    average:
+                      playerStats.batting.other.innings +
+                        (batter.status === "not out" ? 0 : 1) -
+                        playerStats.batting.other.notOut <=
+                      0
+                        ? playerStats.batting.other.runs + batter.runsScored
+                        : (
+                            (playerStats.batting.other.runs +
+                              batter.runsScored) /
+                            (playerStats.batting.other.innings +
+                              (batter.status === "not out" ? 0 : 1) -
+                              playerStats.batting.other.notOut)
+                          ).toFixed(2),
+                    sr:
+                      playerStats.batting.other.runs + batter.runsScored === 0
+                        ? 0
+                        : (
+                            ((playerStats.batting.other.runs +
+                              batter.runsScored) /
+                              (playerStats.batting.other.balls +
+                                batter.ballsFaced)) *
+                            100
+                          ).toFixed(2),
+                    notOut:
+                      batter.status === "not out"
+                        ? playerStats.batting.other.notOut + 1
+                        : playerStats.batting.other.notOut,
+                    ducks:
+                      batter.runsScored === 0 && batter.status !== "not out"
+                        ? playerStats.batting.other.ducks + 1
+                        : playerStats.batting.other.ducks,
+                    "100s":
+                      batter.runsScored >= 100
+                        ? playerStats.batting.other["100s"] + 1
+                        : playerStats.batting.other["100s"],
+                    "50s":
+                      batter.runsScored >= 50
+                        ? playerStats.batting.other["50s"] + 1
+                        : playerStats.batting.other["50s"],
+                    "30s":
+                      batter.runsScored >= 30
+                        ? playerStats.batting.other["30s"] + 1
+                        : playerStats.batting.other["30s"],
+                    "6s": playerStats.batting.other["6s"] + batter.sixes,
+                    "4s": playerStats.batting.other["4s"] + batter.fours,
+                  }
+                : playerStats.batting.other,
           },
           { merge: true }
         );
@@ -810,17 +1023,27 @@ export default function MatchCenter({ route, navigation }) {
                 playerStats.batting.overall.highest < batter.runsScored
                   ? batter.runsScored
                   : playerStats.batting.overall.highest,
-              average: (
-                (playerStats.batting.overall.runs + batter.runsScored) /
-                (playerStats.batting.overall.innings +
+              average:
+                playerStats.batting.overall.innings +
                   (batter.status === "not out" ? 0 : 1) -
-                  playerStats.batting.overall.notOut)
-              ).toFixed(2),
-              sr: (
-                ((playerStats.batting.overall.runs + batter.runsScored) /
-                  (playerStats.batting.overall.balls + batter.ballsFaced)) *
-                100
-              ).toFixed(2),
+                  playerStats.batting.overall.notOut <=
+                0
+                  ? playerStats.batting.overall.runs + batter.runsScored
+                  : (
+                      (playerStats.batting.overall.runs + batter.runsScored) /
+                      (playerStats.batting.overall.innings +
+                        (batter.status === "not out" ? 0 : 1) -
+                        playerStats.batting.overall.notOut)
+                    ).toFixed(2),
+              sr:
+                playerStats.batting.overall.runs + batter.runsScored === 0
+                  ? 0
+                  : (
+                      ((playerStats.batting.overall.runs + batter.runsScored) /
+                        (playerStats.batting.overall.balls +
+                          batter.ballsFaced)) *
+                      100
+                    ).toFixed(2),
               notOut:
                 batter.status === "not out"
                   ? playerStats.batting.overall.notOut + 1
@@ -844,6 +1067,181 @@ export default function MatchCenter({ route, navigation }) {
               "6s": playerStats.batting.overall["6s"] + batter.sixes,
               "4s": playerStats.batting.overall["4s"] + batter.fours,
             },
+            "Stats.batting.leather":
+              matchData.ballType === "leather"
+                ? {
+                    matches: playerStats.batting.leather.matches + 1,
+                    innings: playerStats.batting.leather.innings + 1,
+                    runs: playerStats.batting.leather.runs + batter.runsScored,
+                    balls:
+                      playerStats.batting.leather.balls + batter.ballsFaced,
+                    highest:
+                      playerStats.batting.leather.highest < batter.runsScored
+                        ? batter.runsScored
+                        : playerStats.batting.leather.highest,
+                    average:
+                      playerStats.batting.leather.innings +
+                        (batter.status === "not out" ? 0 : 1) -
+                        playerStats.batting.leather.notOut <=
+                      0
+                        ? playerStats.batting.leather.runs + batter.runsScored
+                        : (
+                            (playerStats.batting.leather.runs +
+                              batter.runsScored) /
+                            (playerStats.batting.leather.innings +
+                              (batter.status === "not out" ? 0 : 1) -
+                              playerStats.batting.leather.notOut)
+                          ).toFixed(2),
+                    sr:
+                      playerStats.batting.leather.runs + batter.runsScored === 0
+                        ? 0
+                        : (
+                            ((playerStats.batting.leather.runs +
+                              batter.runsScored) /
+                              (playerStats.batting.leather.balls +
+                                batter.ballsFaced)) *
+                            100
+                          ).toFixed(2),
+                    notOut:
+                      batter.status === "not out"
+                        ? playerStats.batting.leather.notOut + 1
+                        : playerStats.batting.leather.notOut,
+                    ducks:
+                      batter.runsScored === 0 && batter.status !== "not out"
+                        ? playerStats.batting.leather.ducks + 1
+                        : playerStats.batting.leather.ducks,
+                    "100s":
+                      batter.runsScored >= 100
+                        ? playerStats.batting.leather["100s"] + 1
+                        : playerStats.batting.leather["100s"],
+                    "50s":
+                      batter.runsScored >= 50
+                        ? playerStats.batting.leather["50s"] + 1
+                        : playerStats.batting.leather["50s"],
+                    "30s":
+                      batter.runsScored >= 30
+                        ? playerStats.batting.leather["30s"] + 1
+                        : playerStats.batting.leather["30s"],
+                    "6s": playerStats.batting.leather["6s"] + batter.sixes,
+                    "4s": playerStats.batting.leather["4s"] + batter.fours,
+                  }
+                : playerStats.batting.leather,
+            "Stats.batting.tennis":
+              matchData.ballType === "tennis"
+                ? {
+                    matches: playerStats.batting.tennis.matches + 1,
+                    innings: playerStats.batting.tennis.innings + 1,
+                    runs: playerStats.batting.tennis.runs + batter.runsScored,
+                    balls: playerStats.batting.tennis.balls + batter.ballsFaced,
+                    highest:
+                      playerStats.batting.tennis.highest < batter.runsScored
+                        ? batter.runsScored
+                        : playerStats.batting.tennis.highest,
+                    average:
+                      playerStats.batting.tennis.innings +
+                        (batter.status === "not out" ? 0 : 1) -
+                        playerStats.batting.tennis.notOut <=
+                      0
+                        ? playerStats.batting.tennis.runs + batter.runsScored
+                        : (
+                            (playerStats.batting.tennis.runs +
+                              batter.runsScored) /
+                            (playerStats.batting.tennis.innings +
+                              (batter.status === "not out" ? 0 : 1) -
+                              playerStats.batting.tennis.notOut)
+                          ).toFixed(2),
+                    sr:
+                      playerStats.batting.tennis.runs + batter.runsScored === 0
+                        ? 0
+                        : (
+                            ((playerStats.batting.tennis.runs +
+                              batter.runsScored) /
+                              (playerStats.batting.tennis.balls +
+                                batter.ballsFaced)) *
+                            100
+                          ).toFixed(2),
+                    notOut:
+                      batter.status === "not out"
+                        ? playerStats.batting.tennis.notOut + 1
+                        : playerStats.batting.tennis.notOut,
+                    ducks:
+                      batter.runsScored === 0 && batter.status !== "not out"
+                        ? playerStats.batting.tennis.ducks + 1
+                        : playerStats.batting.tennis.ducks,
+                    "100s":
+                      batter.runsScored >= 100
+                        ? playerStats.batting.tennis["100s"] + 1
+                        : playerStats.batting.tennis["100s"],
+                    "50s":
+                      batter.runsScored >= 50
+                        ? playerStats.batting.tennis["50s"] + 1
+                        : playerStats.batting.tennis["50s"],
+                    "30s":
+                      batter.runsScored >= 30
+                        ? playerStats.batting.tennis["30s"] + 1
+                        : playerStats.batting.tennis["30s"],
+                    "6s": playerStats.batting.tennis["6s"] + batter.sixes,
+                    "4s": playerStats.batting.tennis["4s"] + batter.fours,
+                  }
+                : playerStats.batting.tennis,
+            "Stats.batting.other":
+              matchData.ballType === "other"
+                ? {
+                    matches: playerStats.batting.other.matches + 1,
+                    innings: playerStats.batting.other.innings + 1,
+                    runs: playerStats.batting.other.runs + batter.runsScored,
+                    balls: playerStats.batting.other.balls + batter.ballsFaced,
+                    highest:
+                      playerStats.batting.other.highest < batter.runsScored
+                        ? batter.runsScored
+                        : playerStats.batting.other.highest,
+                    average:
+                      playerStats.batting.other.innings +
+                        (batter.status === "not out" ? 0 : 1) -
+                        playerStats.batting.other.notOut <=
+                      0
+                        ? playerStats.batting.other.runs + batter.runsScored
+                        : (
+                            (playerStats.batting.other.runs +
+                              batter.runsScored) /
+                            (playerStats.batting.other.innings +
+                              (batter.status === "not out" ? 0 : 1) -
+                              playerStats.batting.other.notOut)
+                          ).toFixed(2),
+                    sr:
+                      playerStats.batting.other.runs + batter.runsScored === 0
+                        ? 0
+                        : (
+                            ((playerStats.batting.other.runs +
+                              batter.runsScored) /
+                              (playerStats.batting.other.balls +
+                                batter.ballsFaced)) *
+                            100
+                          ).toFixed(2),
+                    notOut:
+                      batter.status === "not out"
+                        ? playerStats.batting.other.notOut + 1
+                        : playerStats.batting.other.notOut,
+                    ducks:
+                      batter.runsScored === 0 && batter.status !== "not out"
+                        ? playerStats.batting.other.ducks + 1
+                        : playerStats.batting.other.ducks,
+                    "100s":
+                      batter.runsScored >= 100
+                        ? playerStats.batting.other["100s"] + 1
+                        : playerStats.batting.other["100s"],
+                    "50s":
+                      batter.runsScored >= 50
+                        ? playerStats.batting.other["50s"] + 1
+                        : playerStats.batting.other["50s"],
+                    "30s":
+                      batter.runsScored >= 30
+                        ? playerStats.batting.other["30s"] + 1
+                        : playerStats.batting.other["30s"],
+                    "6s": playerStats.batting.other["6s"] + batter.sixes,
+                    "4s": playerStats.batting.other["4s"] + batter.fours,
+                  }
+                : playerStats.batting.other,
           },
           { merge: true }
         );
@@ -864,23 +1262,46 @@ export default function MatchCenter({ route, navigation }) {
               matches: playerStats.bowling.overall.matches + 1,
               innings: playerStats.bowling.overall.innings + 1,
               overs: playerStats.bowling.overall.overs + bowler.overs,
-              balls: playerStats.bowling.overall.balls + bowler.ball,
+              balls: playerStats.bowling.overall.balls + bowler.balls,
               runs: playerStats.bowling.overall.runs + bowler.runsGiven,
-              dots: 0,
-              wides: 0,
-              noBalls: 0,
+              dots: playerStats.bowling.overall.dots + bowler.dots,
+              wides: playerStats.bowling.overall.wides + bowler.wides,
+              noBalls: playerStats.bowling.overall.noBalls + bowler.noBalls,
               maidens: playerStats.bowling.overall.maidens + bowler.maidenOvers,
               wickets:
                 playerStats.bowling.overall.wickets + bowler.wicketsTaken,
-              average: (
-                (playerStats.bowling.overall.runs + bowler.runsGiven) /
-                (playerStats.bowling.wickets + bowler.wicketsTaken)
-              ).toFixed(2),
-              economy: 0,
-              best: 0,
-              sr: (
-                (playerStats.bowling.overall.balls + bowler.balls) /
-                (playerStats.bowling.wickets + bowler.wicketsTaken)
+              average:
+                playerStats.bowling.overall.runs + bowler.runsGiven === 0
+                  ? 0
+                  : (
+                      (playerStats.bowling.overall.runs + bowler.runsGiven) /
+                      (playerStats.bowling.overall.wickets +
+                        bowler.wicketsTaken)
+                    ).toFixed(2),
+              economy:
+                playerStats.bowling.overall.balls + bowler.balls === 0
+                  ? 0
+                  : (
+                      (playerStats.bowling.overall.runs + bowler.runsGiven) /
+                      (playerStats.bowling.overall.balls + bowler.balls) /
+                      6
+                    ).toFixed(2),
+              best:
+                playerStats.bowling.overall.best.wickets ===
+                  bowler.wicketsTaken &&
+                playerStats.bowling.overall.best.runs >= bowler.runsGiven
+                  ? { wickets: bowler.wicketsTaken, runs: bowler.runsGiven }
+                  : playerStats.bowling.overall.best.wickets <
+                    bowler.wicketsTaken
+                  ? { wickets: bowler.wicketsTaken, runs: bowler.runsGiven }
+                  : {
+                      wickets: playerStats.bowling.overall.best.wickets,
+                      runs: playerStats.bowling.overall.best.runs,
+                    },
+              sr: (playerStats.bowling.overall.balls + bowler.balls === 0
+                ? 0
+                : (playerStats.bowling.overall.balls + bowler.balls) /
+                  (playerStats.bowling.overall.wickets + bowler.wicketsTaken)
               ).toFixed(2),
               "3W":
                 bowler.wicketsTaken >= 3
@@ -891,6 +1312,482 @@ export default function MatchCenter({ route, navigation }) {
                   ? playerStats.bowling.overall["5W"] + 1
                   : playerStats.bowling.overall["5W"],
             },
+            "Stats.bowling.leather":
+              matchData.ballType === "leather"
+                ? {
+                    matches: playerStats.bowling.leather.matches + 1,
+                    innings: playerStats.bowling.leather.innings + 1,
+                    overs: playerStats.bowling.leather.overs + bowler.overs,
+                    balls: playerStats.bowling.leather.balls + bowler.balls,
+                    runs: playerStats.bowling.leather.runs + bowler.runsGiven,
+                    dots: playerStats.bowling.leather.dots + bowler.dots,
+                    wides: playerStats.bowling.leather.wides + bowler.wides,
+                    noBalls:
+                      playerStats.bowling.leather.noBalls + bowler.noBalls,
+                    maidens:
+                      playerStats.bowling.leather.maidens + bowler.maidenOvers,
+                    wickets:
+                      playerStats.bowling.leather.wickets + bowler.wicketsTaken,
+                    average:
+                      playerStats.bowling.leather.runs + bowler.runsGiven === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.leather.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.leather.wickets +
+                              bowler.wicketsTaken)
+                          ).toFixed(2),
+                    economy:
+                      playerStats.bowling.leather.balls + bowler.balls === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.leather.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.leather.balls + bowler.balls) /
+                            6
+                          ).toFixed(2),
+                    best:
+                      playerStats.bowling.leather.best.wickets ===
+                        bowler.wicketsTaken &&
+                      playerStats.bowling.leather.best.runs >= bowler.runsGiven
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : playerStats.bowling.leather.best.wickets <
+                          bowler.wicketsTaken
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : {
+                            wickets: playerStats.bowling.leather.best.wickets,
+                            runs: playerStats.bowling.leather.best.runs,
+                          },
+                    sr: (playerStats.bowling.leather.balls + bowler.balls === 0
+                      ? 0
+                      : (playerStats.bowling.leather.balls + bowler.balls) /
+                        (playerStats.bowling.leather.wickets +
+                          bowler.wicketsTaken)
+                    ).toFixed(2),
+                    "3W":
+                      bowler.wicketsTaken >= 3
+                        ? playerStats.bowling.leather["3W"] + 1
+                        : playerStats.bowling.leather["3W"],
+                    "5W":
+                      bowler.wicketsTaken >= 5
+                        ? playerStats.bowling.leather["5W"] + 1
+                        : playerStats.bowling.leather["5W"],
+                  }
+                : playerStats.bowling.leather,
+            "Stats.bowling.tennis":
+              matchData.ballType === "tennis"
+                ? {
+                    matches: playerStats.bowling.tennis.matches + 1,
+                    innings: playerStats.bowling.tennis.innings + 1,
+                    overs: playerStats.bowling.tennis.overs + bowler.overs,
+                    balls: playerStats.bowling.tennis.balls + bowler.balls,
+                    runs: playerStats.bowling.tennis.runs + bowler.runsGiven,
+                    dots: playerStats.bowling.tennis.dots + bowler.dots,
+                    wides: playerStats.bowling.tennis.wides + bowler.wides,
+                    noBalls:
+                      playerStats.bowling.tennis.noBalls + bowler.noBalls,
+                    maidens:
+                      playerStats.bowling.tennis.maidens + bowler.maidenOvers,
+                    wickets:
+                      playerStats.bowling.tennis.wickets + bowler.wicketsTaken,
+                    average:
+                      playerStats.bowling.tennis.runs + bowler.runsGiven === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.tennis.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.tennis.wickets +
+                              bowler.wicketsTaken)
+                          ).toFixed(2),
+                    economy:
+                      playerStats.bowling.tennis.balls + bowler.balls === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.tennis.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.tennis.balls + bowler.balls) /
+                            6
+                          ).toFixed(2),
+                    best:
+                      playerStats.bowling.tennis.best.wickets ===
+                        bowler.wicketsTaken &&
+                      playerStats.bowling.tennis.best.runs >= bowler.runsGiven
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : playerStats.bowling.tennis.best.wickets <
+                          bowler.wicketsTaken
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : {
+                            wickets: playerStats.bowling.tennis.best.wickets,
+                            runs: playerStats.bowling.tennis.best.runs,
+                          },
+                    sr: (playerStats.bowling.tennis.balls + bowler.balls === 0
+                      ? 0
+                      : (playerStats.bowling.tennis.balls + bowler.balls) /
+                        (playerStats.bowling.tennis.wickets +
+                          bowler.wicketsTaken)
+                    ).toFixed(2),
+                    "3W":
+                      bowler.wicketsTaken >= 3
+                        ? playerStats.bowling.tennis["3W"] + 1
+                        : playerStats.bowling.tennis["3W"],
+                    "5W":
+                      bowler.wicketsTaken >= 5
+                        ? playerStats.bowling.tennis["5W"] + 1
+                        : playerStats.bowling.tennis["5W"],
+                  }
+                : playerStats.bowling.tennis,
+            "Stats.bowling.other":
+              matchData.ballType === "other"
+                ? {
+                    matches: playerStats.bowling.other.matches + 1,
+                    innings: playerStats.bowling.other.innings + 1,
+                    overs: playerStats.bowling.other.overs + bowler.overs,
+                    balls: playerStats.bowling.other.balls + bowler.balls,
+                    runs: playerStats.bowling.other.runs + bowler.runsGiven,
+                    dots: playerStats.bowling.other.dots + bowler.dots,
+                    wides: playerStats.bowling.other.wides + bowler.wides,
+                    noBalls: playerStats.bowling.other.noBalls + bowler.noBalls,
+                    maidens:
+                      playerStats.bowling.other.maidens + bowler.maidenOvers,
+                    wickets:
+                      playerStats.bowling.other.wickets + bowler.wicketsTaken,
+                    average:
+                      playerStats.bowling.other.runs + bowler.runsGiven === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.other.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.other.wickets +
+                              bowler.wicketsTaken)
+                          ).toFixed(2),
+                    economy:
+                      playerStats.bowling.other.balls + bowler.balls === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.other.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.other.balls + bowler.balls) /
+                            6
+                          ).toFixed(2),
+                    best:
+                      playerStats.bowling.other.best.wickets ===
+                        bowler.wicketsTaken &&
+                      playerStats.bowling.other.best.runs >= bowler.runsGiven
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : playerStats.bowling.other.best.wickets <
+                          bowler.wicketsTaken
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : {
+                            wickets: playerStats.bowling.other.best.wickets,
+                            runs: playerStats.bowling.other.best.runs,
+                          },
+                    sr: (playerStats.bowling.other.balls + bowler.balls === 0
+                      ? 0
+                      : (playerStats.bowling.other.balls + bowler.balls) /
+                        (playerStats.bowling.other.wickets +
+                          bowler.wicketsTaken)
+                    ).toFixed(2),
+                    "3W":
+                      bowler.wicketsTaken >= 3
+                        ? playerStats.bowling.other["3W"] + 1
+                        : playerStats.bowling.other["3W"],
+                    "5W":
+                      bowler.wicketsTaken >= 5
+                        ? playerStats.bowling.other["5W"] + 1
+                        : playerStats.bowling.other["5W"],
+                  }
+                : playerStats.bowling.other,
+          },
+          { merge: true }
+        );
+        console.log(`Player ${bowler.name} updated successfully`);
+      } catch (error) {
+        console.error(`Error updating player ${bowler.name}: ${error}`);
+      }
+    });
+    secondInnings.bowlers.forEach(async (bowler) => {
+      const playerDocRef = doc(db, "users", bowler.id);
+      const docSnap = await getDoc(playerDocRef);
+      const playerStats = docSnap.data().Stats;
+      try {
+        await updateDoc(
+          playerDocRef,
+          {
+            "Stats.bowling.overall": {
+              matches: playerStats.bowling.overall.matches + 1,
+              innings: playerStats.bowling.overall.innings + 1,
+              overs: playerStats.bowling.overall.overs + bowler.overs,
+              balls: playerStats.bowling.overall.balls + bowler.balls,
+              runs: playerStats.bowling.overall.runs + bowler.runsGiven,
+              dots: playerStats.bowling.overall.dots + bowler.dots,
+              wides: playerStats.bowling.overall.wides + bowler.wides,
+              noBalls: playerStats.bowling.overall.noBalls + bowler.noBalls,
+              maidens: playerStats.bowling.overall.maidens + bowler.maidenOvers,
+              wickets:
+                playerStats.bowling.overall.wickets + bowler.wicketsTaken,
+              average:
+                playerStats.bowling.overall.runs + bowler.runsGiven === 0
+                  ? 0
+                  : (
+                      (playerStats.bowling.overall.runs + bowler.runsGiven) /
+                      (playerStats.bowling.overall.wickets +
+                        bowler.wicketsTaken)
+                    ).toFixed(2),
+              economy:
+                playerStats.bowling.overall.balls + bowler.balls === 0
+                  ? 0
+                  : (
+                      (playerStats.bowling.overall.runs + bowler.runsGiven) /
+                      (playerStats.bowling.overall.balls + bowler.balls) /
+                      6
+                    ).toFixed(2),
+              best:
+                playerStats.bowling.overall.best.wickets ===
+                  bowler.wicketsTaken &&
+                playerStats.bowling.overall.best.runs >= bowler.runsGiven
+                  ? { wickets: bowler.wicketsTaken, runs: bowler.runsGiven }
+                  : playerStats.bowling.overall.best.wickets <
+                    bowler.wicketsTaken
+                  ? { wickets: bowler.wicketsTaken, runs: bowler.runsGiven }
+                  : {
+                      wickets: playerStats.bowling.overall.best.wickets,
+                      runs: playerStats.bowling.overall.best.runs,
+                    },
+              sr: (playerStats.bowling.overall.balls + bowler.balls === 0
+                ? 0
+                : (playerStats.bowling.overall.balls + bowler.balls) /
+                  (playerStats.bowling.overall.wickets + bowler.wicketsTaken)
+              ).toFixed(2),
+              "3W":
+                bowler.wicketsTaken >= 3
+                  ? playerStats.bowling.overall["3W"] + 1
+                  : playerStats.bowling.overall["3W"],
+              "5W":
+                bowler.wicketsTaken >= 5
+                  ? playerStats.bowling.overall["5W"] + 1
+                  : playerStats.bowling.overall["5W"],
+            },
+            "Stats.bowling.leather":
+              matchData.ballType === "leather"
+                ? {
+                    matches: playerStats.bowling.leather.matches + 1,
+                    innings: playerStats.bowling.leather.innings + 1,
+                    overs: playerStats.bowling.leather.overs + bowler.overs,
+                    balls: playerStats.bowling.leather.balls + bowler.balls,
+                    runs: playerStats.bowling.leather.runs + bowler.runsGiven,
+                    dots: playerStats.bowling.leather.dots + bowler.dots,
+                    wides: playerStats.bowling.leather.wides + bowler.wides,
+                    noBalls:
+                      playerStats.bowling.leather.noBalls + bowler.noBalls,
+                    maidens:
+                      playerStats.bowling.leather.maidens + bowler.maidenOvers,
+                    wickets:
+                      playerStats.bowling.leather.wickets + bowler.wicketsTaken,
+                    average:
+                      playerStats.bowling.leather.runs + bowler.runsGiven === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.leather.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.leather.wickets +
+                              bowler.wicketsTaken)
+                          ).toFixed(2),
+                    economy:
+                      playerStats.bowling.leather.balls + bowler.balls === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.leather.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.leather.balls + bowler.balls) /
+                            6
+                          ).toFixed(2),
+                    best:
+                      playerStats.bowling.leather.best.wickets ===
+                        bowler.wicketsTaken &&
+                      playerStats.bowling.leather.best.runs >= bowler.runsGiven
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : playerStats.bowling.leather.best.wickets <
+                          bowler.wicketsTaken
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : {
+                            wickets: playerStats.bowling.leather.best.wickets,
+                            runs: playerStats.bowling.leather.best.runs,
+                          },
+                    sr: (playerStats.bowling.leather.balls + bowler.balls === 0
+                      ? 0
+                      : (playerStats.bowling.leather.balls + bowler.balls) /
+                        (playerStats.bowling.leather.wickets +
+                          bowler.wicketsTaken)
+                    ).toFixed(2),
+                    "3W":
+                      bowler.wicketsTaken >= 3
+                        ? playerStats.bowling.leather["3W"] + 1
+                        : playerStats.bowling.leather["3W"],
+                    "5W":
+                      bowler.wicketsTaken >= 5
+                        ? playerStats.bowling.leather["5W"] + 1
+                        : playerStats.bowling.leather["5W"],
+                  }
+                : playerStats.bowling.leather,
+            "Stats.bowling.tennis":
+              matchData.ballType === "tennis"
+                ? {
+                    matches: playerStats.bowling.tennis.matches + 1,
+                    innings: playerStats.bowling.tennis.innings + 1,
+                    overs: playerStats.bowling.tennis.overs + bowler.overs,
+                    balls: playerStats.bowling.tennis.balls + bowler.balls,
+                    runs: playerStats.bowling.tennis.runs + bowler.runsGiven,
+                    dots: playerStats.bowling.tennis.dots + bowler.dots,
+                    wides: playerStats.bowling.tennis.wides + bowler.wides,
+                    noBalls:
+                      playerStats.bowling.tennis.noBalls + bowler.noBalls,
+                    maidens:
+                      playerStats.bowling.tennis.maidens + bowler.maidenOvers,
+                    wickets:
+                      playerStats.bowling.tennis.wickets + bowler.wicketsTaken,
+                    average:
+                      playerStats.bowling.tennis.runs + bowler.runsGiven === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.tennis.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.tennis.wickets +
+                              bowler.wicketsTaken)
+                          ).toFixed(2),
+                    economy:
+                      playerStats.bowling.tennis.balls + bowler.balls === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.tennis.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.tennis.balls + bowler.balls) /
+                            6
+                          ).toFixed(2),
+                    best:
+                      playerStats.bowling.tennis.best.wickets ===
+                        bowler.wicketsTaken &&
+                      playerStats.bowling.tennis.best.runs >= bowler.runsGiven
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : playerStats.bowling.tennis.best.wickets <
+                          bowler.wicketsTaken
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : {
+                            wickets: playerStats.bowling.tennis.best.wickets,
+                            runs: playerStats.bowling.tennis.best.runs,
+                          },
+                    sr: (playerStats.bowling.tennis.balls + bowler.balls === 0
+                      ? 0
+                      : (playerStats.bowling.tennis.balls + bowler.balls) /
+                        (playerStats.bowling.tennis.wickets +
+                          bowler.wicketsTaken)
+                    ).toFixed(2),
+                    "3W":
+                      bowler.wicketsTaken >= 3
+                        ? playerStats.bowling.tennis["3W"] + 1
+                        : playerStats.bowling.tennis["3W"],
+                    "5W":
+                      bowler.wicketsTaken >= 5
+                        ? playerStats.bowling.tennis["5W"] + 1
+                        : playerStats.bowling.tennis["5W"],
+                  }
+                : playerStats.bowling.tennis,
+            "Stats.bowling.other":
+              matchData.ballType === "other"
+                ? {
+                    matches: playerStats.bowling.other.matches + 1,
+                    innings: playerStats.bowling.other.innings + 1,
+                    overs: playerStats.bowling.other.overs + bowler.overs,
+                    balls: playerStats.bowling.other.balls + bowler.balls,
+                    runs: playerStats.bowling.other.runs + bowler.runsGiven,
+                    dots: playerStats.bowling.other.dots + bowler.dots,
+                    wides: playerStats.bowling.other.wides + bowler.wides,
+                    noBalls: playerStats.bowling.other.noBalls + bowler.noBalls,
+                    maidens:
+                      playerStats.bowling.other.maidens + bowler.maidenOvers,
+                    wickets:
+                      playerStats.bowling.other.wickets + bowler.wicketsTaken,
+                    average:
+                      playerStats.bowling.other.runs + bowler.runsGiven === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.other.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.other.wickets +
+                              bowler.wicketsTaken)
+                          ).toFixed(2),
+                    economy:
+                      playerStats.bowling.other.balls + bowler.balls === 0
+                        ? 0
+                        : (
+                            (playerStats.bowling.other.runs +
+                              bowler.runsGiven) /
+                            (playerStats.bowling.other.balls + bowler.balls) /
+                            6
+                          ).toFixed(2),
+                    best:
+                      playerStats.bowling.other.best.wickets ===
+                        bowler.wicketsTaken &&
+                      playerStats.bowling.other.best.runs >= bowler.runsGiven
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : playerStats.bowling.other.best.wickets <
+                          bowler.wicketsTaken
+                        ? {
+                            wickets: bowler.wicketsTaken,
+                            runs: bowler.runsGiven,
+                          }
+                        : {
+                            wickets: playerStats.bowling.other.best.wickets,
+                            runs: playerStats.bowling.other.best.runs,
+                          },
+                    sr: (playerStats.bowling.other.balls + bowler.balls === 0
+                      ? 0
+                      : (playerStats.bowling.other.balls + bowler.balls) /
+                        (playerStats.bowling.other.wickets +
+                          bowler.wicketsTaken)
+                    ).toFixed(2),
+                    "3W":
+                      bowler.wicketsTaken >= 3
+                        ? playerStats.bowling.other["3W"] + 1
+                        : playerStats.bowling.other["3W"],
+                    "5W":
+                      bowler.wicketsTaken >= 5
+                        ? playerStats.bowling.other["5W"] + 1
+                        : playerStats.bowling.other["5W"],
+                  }
+                : playerStats.bowling.other,
           },
           { merge: true }
         );

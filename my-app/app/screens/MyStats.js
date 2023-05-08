@@ -405,10 +405,22 @@ export default function MyStats() {
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>Best</Text>
-          <Text style={styles.cell}>{userData.Stats.bowling.overall.best}</Text>
-          <Text style={styles.cell}>{userData.Stats.bowling.leather.best}</Text>
-          <Text style={styles.cell}>{userData.Stats.bowling.tennis.best}</Text>
-          <Text style={styles.cell}>{userData.Stats.bowling.other.best}</Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.overall.best.wickets}-
+            {userData.Stats.bowling.overall.best.runs}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.leather.best.wickets}-
+            {userData.Stats.bowling.leather.best.runs}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.tennis.best.wickets}-
+            {userData.Stats.bowling.tennis.best.runs}
+          </Text>
+          <Text style={styles.cell}>
+            {userData.Stats.bowling.other.best.wickets}-
+            {userData.Stats.bowling.other.best.runs}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={{ flex: 1, fontWeight: "bold" }}>SR</Text>

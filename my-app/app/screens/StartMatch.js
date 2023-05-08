@@ -16,7 +16,7 @@ import { Context } from "../components/ContextProvider";
 import AppButton from "../components/AppButton";
 import AppTextInput from "../components/AppTextInput";
 
-import { addDoc, collection, getDocs, setDoc,doc } from "firebase/firestore";
+import { addDoc, collection, getDocs, setDoc, doc } from "firebase/firestore";
 import { auth, db } from "../config/firebase-config";
 
 import MyTeamsNavigator from "../navigation/MyTeamsNavigator";
@@ -67,7 +67,9 @@ export default function StartMatch({ route, navigation }) {
       setModalVisible(false);
       return;
     }
-    teamBoBeSelected === "A" ? setTeam1(team) : setTeam2(team);
+    teamBoBeSelected === "A"
+      ? (setTeam1(team), setteam1Squad({ type: "", players: [] }))
+      : (setTeam2(team), setteam2Squad({ type: "", players: [] }));
     setselectedTeam(team);
     setsquadModal(true);
     setModalVisible(false);
@@ -76,7 +78,7 @@ export default function StartMatch({ route, navigation }) {
   const squad = selectedTeam === team1 ? team1Squad : team2Squad;
 
   const handleSquadUpdate = (player) => {
-    if (selectedTeam.id === team1.id) {
+    if (team1 && selectedTeam.id === team1.id) {
       if (team1Squad.players.includes(player)) {
         setteam1Squad({
           ...team1Squad,
@@ -121,7 +123,13 @@ export default function StartMatch({ route, navigation }) {
     const searchResults = snapshot.docs.filter((doc) =>
       doc.data()["name"].toLowerCase().includes(name.toLowerCase())
     );
-    const result = searchResults.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const searchData = searchResults.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    const result = searchData.filter(
+      (teamSearch) => !teams.some((team) => team.id === teamSearch.id)
+    );
     setsearch(result);
   };
 
@@ -438,7 +446,11 @@ export default function StartMatch({ route, navigation }) {
           </ScrollView>
           <TouchableOpacity
             style={{ position: "absolute", top: 5, right: 5 }}
-            onPress={() => setsearchModal(false)}
+            onPress={() => {
+              setsearchModal(false);
+              setname("");
+              setsearch([]);
+            }}
           >
             <Entypo name="circle-with-cross" size={45} color="red" />
           </TouchableOpacity>
