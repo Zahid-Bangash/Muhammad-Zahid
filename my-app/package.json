@@ -11,7 +11,6 @@
   "dependencies": {
     "@firebase/storage": "^0.9.13",
     "@react-native-community/datetimepicker": "6.2.0",
-    "@react-native-picker/picker": "2.4.2",
     "@react-navigation/drawer": "^6.0.0",
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.1",
@@ -27,7 +26,9 @@
     "react-native-reanimated": "~2.9.1",
     "react-native-safe-area-context": "4.3.1",
     "react-native-screens": "~3.15.0",
-    "react-native-swiper": "^1.6.0"
+    "react-native-swiper": "^1.6.0",
+    "react-native-xml2js": "^1.0.3",
+    "react-native-webview": "11.23.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

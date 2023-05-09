@@ -16,7 +16,12 @@ export default function NewsCard({ image, onPress, date, description }) {
       <View style={styles.container}>
         <Image
           source={image}
-          style={{ width:"100%", height: 120, borderTopLeftRadius:20,borderTopRightRadius:20, }}
+          style={{
+            width: "100%",
+            height: 120,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          }}
         />
         <Text>{description}</Text>
         <View
@@ -26,7 +31,9 @@ export default function NewsCard({ image, onPress, date, description }) {
             marginTop: 10,
           }}
         ></View>
-        <Text style={{textAlign:'center',marginTop:5,fontWeight:'500',}}>{date}</Text>
+        <Text style={{ textAlign: "center", marginTop: 5, fontWeight: "500" }}>
+          {date}
+        </Text>
       </View>
     </TouchableWithoutFeedback>
   );
