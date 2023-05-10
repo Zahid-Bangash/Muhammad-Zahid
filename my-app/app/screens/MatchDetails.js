@@ -109,7 +109,6 @@ export default function MatchDetails({ route }) {
         if (querySnapshot.docs.length > 0) {
           const innings1Data = querySnapshot.docs[0].data();
           setfirstInnings(innings1Data);
-          console.log(innings1Data.ballsDelivered);
         }
       }
     );

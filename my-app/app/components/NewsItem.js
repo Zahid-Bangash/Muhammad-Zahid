@@ -7,15 +7,23 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 
-export default function NewsItem({ title, description, date, uri, onPress,navigation }) {
+export default function NewsItem({
+  title,
+  description,
+  date,
+  uri,
+  onPress,
+  navigation,
+}) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.container}>
         <Image
+          resizeMode="stretch"
           source={uri === "" ? require("../assets/team1.jpg") : { uri: uri }}
           style={{
             width: "100%",
-            height: 150,
+            height: 160,
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
           }}

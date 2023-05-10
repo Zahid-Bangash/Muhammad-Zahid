@@ -1,14 +1,10 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { WebView } from "react-native-webview";
 
 export default function NewsDetails({ route }) {
   const { link } = route.params;
-  return (
-    <View style={styles.container}>
-      <WebView source={{ uri: link }} />
-    </View>
-  );
+  return <WebView style={styles.container} source={{ uri: link }} />;
 }
 
 const styles = StyleSheet.create({
