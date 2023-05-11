@@ -6,13 +6,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 
 import ContextProvider from "../components/ContextProvider";
-import {
-  GoLive,
-  MyMatches,
-  MyTournaments,
-  MyClubs,
-  CustomDrawer,
-} from "../screens";
+import { MyMatches, MyTournaments, MyClubs, CustomDrawer } from "../screens";
 
 import TournamentNavigator from "./TournamentNavigator";
 import HomeNavigator from "./HomeNavigator";
@@ -20,6 +14,7 @@ import ProfileNavigator from "./ProfileNavigator";
 import MyTeamsNavigator from "./MyTeamsNavigator";
 import StartMatchNavigator from "./StartMatchNavigators";
 import MyStatsNavigator from "./MyStatsNavigator";
+import GoLiveNavigator from "./GoLiveNavigator";
 
 const Drawer = createDrawerNavigator();
 
@@ -79,11 +74,12 @@ const AppNavigator = () => (
       />
       <Drawer.Screen
         name="Go Live"
-        component={GoLive}
+        component={GoLiveNavigator}
         options={{
           drawerIcon: ({ size, color }) => (
             <Entypo name="video-camera" size={size} color={color} />
           ),
+          swipeEnabled: false,
         }}
       />
       <Drawer.Screen
