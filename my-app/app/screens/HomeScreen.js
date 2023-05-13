@@ -5,7 +5,7 @@ import { Context } from "../components/ContextProvider";
 
 import Screen from "../components/Screen";
 import Header from "../components/Header";
-import MatchCard from "../components/cards/MatchCard";
+import MyMatchCard from "../components/MyMatchCard";
 import TournamentCard from "../components/cards/TournamentCard";
 import ClubCard from "../components/cards/ClubCard";
 import PlayerCard from "../components/cards/PlayerCard";
@@ -13,8 +13,7 @@ import NewsCard from "../components/cards/NewsCard";
 import AppButton from "../components/AppButton";
 
 export default function HomeScreen({ navigation }) {
-  const { news } = useContext(Context);
-
+  const { news, allMatches, myMatches } = useContext(Context);
   return (
     <Screen>
       <Header
@@ -22,7 +21,12 @@ export default function HomeScreen({ navigation }) {
         handleNews={() => navigation.navigate("News")}
         handleDrawer={() => navigation.openDrawer()}
       />
-      <ScrollView contentContainerStyle={{ backgroundColor: "#e0dede",minHeight:'100%' }}>
+      <ScrollView
+        contentContainerStyle={{
+          backgroundColor: "#e0dede",
+          minHeight: "100%",
+        }}
+      >
         <Text style={{ fontWeight: "bold", fontSize: 20, margin: 20 }}>
           Matches
         </Text>
@@ -30,71 +34,58 @@ export default function HomeScreen({ navigation }) {
           horizontal
           contentContainerStyle={{ height: 160, paddingRight: 20 }}
         >
-          <MatchCard
-            status="LIVE"
-            category="T20"
-            description="Zahid VS Usama - 1st T20, Attock"
-            team1="ZAHID HANGU"
-            team2="USAMA HAZRO"
-            score1="110/5"
-            overs1="20.0"
-            score2="90/7"
-            overs2="17.0"
-            result="USAMA HAZRO requires 20 runs on 3 overs"
-            onPress={() => navigation.navigate("Match Details")}
-          />
-          <MatchCard
-            status="LIVE"
-            category="Club"
-            description="king eleven VS KPK - club match, Peshawar"
-            team1="KING ELEVEN"
-            team2="KPK"
-            score1="100/5"
-            overs1="10.0"
-            score2="190/7"
-            overs2="20.0"
-            result="KING ELEVEN requires 90 runs on 10 overs"
-            onPress={() => navigation.navigate("Match Details")}
-          />
-          <MatchCard
-            status="LIVE"
-            category="T20"
-            description="ABD VS ZFL - 3rd T20, Islamabad"
-            team1="ABD"
-            team2="ZFL"
-            score1="80/2"
-            overs1="10.3"
-            score2="0/0"
-            overs2="00.0"
-            result="ZFL Yet to bat"
-            onPress={() => navigation.navigate("Match Details")}
-          />
-          <MatchCard
-            status="LIVE"
-            category="T20"
-            description="ABD VS ZFL - 3rd T20, Islamabad"
-            team1="ABD"
-            team2="ZFL"
-            score1="80/2"
-            overs1="10.3"
-            score2="0/0"
-            overs2="00.0"
-            result="ZFL Yet to bat"
-            onPress={() => navigation.navigate("Match Details")}
-          />
-          <MatchCard
-            status="LIVE"
-            category="T20"
-            description="ABD VS ZFL - 3rd T20, Islamabad"
-            team1="ABD"
-            team2="ZFL"
-            score1="80/2"
-            overs1="10.3"
-            score2="0/0"
-            overs2="00.0"
-            result="ZFL Yet to bat"
-            onPress={() => navigation.navigate("Match Details")}
-          />
+          {allMatches.length > 0 ? (
+            allMatches.map((match) => (
+              <MyMatchCard
+                style={{ width: 320, marginLeft: 20 }}
+                key={match.id}
+                team1={match.battingTeam}
+                team2={match.bowlingTeam}
+                status={match.status}
+                result={match.result}
+                matchFormat={match.matchFormat}
+                date={match.date}
+                firstInningsBalls={
+                  match.innings1.length > 0
+                    ? match.innings1[0].ballsDelivered
+                    : 0
+                }
+                secondInningsBalls={
+                  match.innings2.length > 0
+                    ? match.innings2[0].ballsDelivered
+                    : 0
+                }
+                firstInningsRuns={
+                  match.innings1.length > 0 ? match.innings1[0].totalRuns : 0
+                }
+                secondInningsRuns={
+                  match.innings2.length > 0 ? match.innings2[0].totalRuns : 0
+                }
+                firstInningsWickets={
+                  match.innings1.length > 0 ? match.innings1[0].wicketsDown : 0
+                }
+                secondInningsWickets={
+                  match.innings2.length > 0 ? match.innings2[0].wicketsDown : 0
+                }
+              />
+            ))
+          ) : (
+            <MyMatchCard
+              style={{ width: 320, marginLeft: 20 }}
+              team1="zahid"
+              team2="usama"
+              status="completed"
+              result="zahid won by 9 runs"
+              matchFormat="T20"
+              date="14/05/23"
+              firstInningsBalls={32}
+              secondInningsBalls={22}
+              firstInningsRuns={71}
+              secondInningsRuns={62}
+              firstInningsWickets={2}
+              secondInningsWickets={3}
+            />
+          )}
         </ScrollView>
         <Text style={{ fontWeight: "bold", fontSize: 20, margin: 20 }}>
           Tournaments
@@ -241,20 +232,35 @@ export default function HomeScreen({ navigation }) {
             alignItems: "center",
           }}
         >
-          {news.slice(0, 6).map((article, index) => (
+          {news.length > 0 ? (
+            news
+              .slice(0, 6)
+              .map((article, index) => (
+                <NewsCard
+                  key={index}
+                  uri={article.coverImage}
+                  description={article.description}
+                  date={article.pubDate}
+                  onPress={() =>
+                    navigation.navigate("News Details", { link: article.link })
+                  }
+                />
+              ))
+          ) : (
             <NewsCard
-              key={index}
-              uri={article.coverImage}
-              description={article.description}
-              date={article.pubDate}
-              onPress={() =>
-                navigation.navigate("News Details", { link: article.link })
-              }
+              uri=""
+              description="On a pitch where none of his team-mates crossed 30, Prabhsrimran scored a 65-ball 103 to secure"
+              date="Sunday, 14 May 2023 1:10:10"
             />
-          ))}
+          )}
           {news.length > 0 ? (
             <AppButton
-              style={{ width: 100, marginLeft: 5, backgroundColor: "green" }}
+              style={{
+                width: 100,
+                marginLeft: 5,
+                backgroundColor: "green",
+                borderRadius: 10,
+              }}
               onPress={() => navigation.navigate("News")}
             >
               View More

@@ -1,64 +1,42 @@
 import React, { useContext } from "react";
-import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { Context } from "../components/ContextProvider";
 
+import MyMatchCard from "../components/MyMatchCard";
+
 export default function MyMatches() {
-  const { myMacthes } = useContext(Context);
+  const { myMatches } = useContext(Context);
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View
-        style={{
-          width: "95%",
-          height: 150,
-          borderRadius: 20,
-          backgroundColor: "white",
-          elevation: 5,
-          padding: 10,
-        }}
-      >
-        <Text
-          style={{
-            color: "grey",
-            fontWeight: "bold",
-          }}
-        >{`Open match, Club Cricket, 09/02/23`}</Text>
-        <Text
-          style={{
-            color: "red",
-            position: "absolute",
-            top: 5,
-            right: 10,
-            fontWeight: "500",
-            textTransform: "uppercase",
-          }}
-        >
-          live
-        </Text>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginTop: 10,
-          }}
-        >
-          <View style={{ flexDirection: "row" }}>
-            <Image
-              source={require("../assets/team3.jpg")}
-              style={{ width: 30, height: 30, borderRadius: 15 }}
-            />
-            <Text
-              style={{
-                textTransform: "uppercase",
-                fontWeight: "bold",
-                marginLeft: 10,
-              }}
-            >
-              Abid
-            </Text>
-          </View>
-          <Text style={{ fontWeight: "bold" }}>53-1(0.3)</Text>
-        </View>
-      </View>
+      {myMatches.map((match) => (
+        <MyMatchCard
+          key={match.id}
+          team1={match.battingTeam}
+          team2={match.bowlingTeam}
+          status={match.status}
+          result={match.result}
+          matchFormat={match.matchFormat}
+          date={match.date}
+          firstInningsBalls={
+            match.innings1.length > 0 ? match.innings1[0].ballsDelivered : 0
+          }
+          secondInningsBalls={
+            match.innings2.length > 0 ? match.innings2[0].ballsDelivered : 0
+          }
+          firstInningsRuns={
+            match.innings1.length > 0 ? match.innings1[0].totalRuns : 0
+          }
+          secondInningsRuns={
+            match.innings2.length > 0 ? match.innings2[0].totalRuns : 0
+          }
+          firstInningsWickets={
+            match.innings1.length > 0 ? match.innings1[0].wicketsDown : 0
+          }
+          secondInningsWickets={
+            match.innings2.length > 0 ? match.innings2[0].wicketsDown : 0
+          }
+        />
+      ))}
     </ScrollView>
   );
 }

@@ -13,10 +13,11 @@ export default function MatchCard({
   overs2,
   result,
   onPress,
+  style,
 }) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
-      <View style={styles.container}>
+      <View style={[styles.container,style]}>
         <View
           style={{
             flexDirection: "row",

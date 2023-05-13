@@ -190,7 +190,7 @@ export default function StartMatch({ route, navigation }) {
           },
           totalOvers: matchDetails.overs,
           target: 0,
-          status: "InProgress",
+          status: "live",
           result: "",
           battingTeam: battingTeam,
           bowlingTeam: bowlingTeam,

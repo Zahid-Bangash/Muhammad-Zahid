@@ -7,6 +7,7 @@ import {
   onSnapshot,
   doc,
   query,
+  where,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import { auth, db, storage } from "../config/firebase-config";
@@ -192,11 +193,57 @@ const ContextProvider = ({ children }) => {
   const [teams, setTeams] = useState([]);
   const [profileImageUri, setprofileImageUri] = useState(null);
   const [news, setNews] = useState([]);
+  const [allMatches, setallMatches] = useState([]);
   const [myMatches, setmyMatches] = useState([]);
 
   useEffect(() => {
+    const getAllMatches = async () => {
+      const allMatchesRef = collection(db, "Matches");
+
+      onSnapshot(allMatchesRef, (allmatchesSnapshot) => {
+        const matches = [];
+
+        allmatchesSnapshot.forEach(async (matchDoc) => {
+          const matchData = matchDoc.data();
+          const matchId = matchDoc.id;
+          let innings1 = [],
+            innings2 = [];
+          const inningsQuery1 = query(
+            collection(db, "Matches", matchId, "innings"),
+            where("inningsNo", "==", 1)
+          );
+          const inningsSnapshot1 = await getDocs(inningsQuery1);
+          if (!inningsSnapshot1.empty) {
+            innings1 = inningsSnapshot1.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+          }
+          const inningsQuery2 = query(
+            collection(db, "Matches", matchId, "innings"),
+            where("inningsNo", "==", 2)
+          );
+          const inningsSnapshot2 = await getDocs(inningsQuery2);
+          if (!inningsSnapshot2.empty) {
+            innings2 = inningsSnapshot2.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+          }
+
+          matches.push({ id: matchId, ...matchData, innings1, innings2 });
+        });
+
+        setallMatches(matches);
+      });
+    };
+
+    getAllMatches();
+  }, []);
+
+  useEffect(() => {
+    const userId = auth.currentUser && auth.currentUser.uid;
     const fetchData = async () => {
-      const userId = auth.currentUser && auth.currentUser.uid;
       const teamsCollectionRef = collection(db, "users", userId, "Teams");
       const teamsSnapshot = await getDocs(teamsCollectionRef);
       const teamsData = teamsSnapshot.docs.map((doc) => ({
@@ -216,32 +263,46 @@ const ContextProvider = ({ children }) => {
         setUserData(data);
       });
     };
-
     const getMatchesWithInnings = async () => {
-      const matchesQuery = query(collection(db, "Matches"));
-      const matchesSnapshot = await getDocs(matchesQuery);
-      const matches = [];
+      const matchesCollectionRef = collection(db, "users", userId, "Matches");
 
-      matchesSnapshot.forEach(async (matchDoc) => {
-        const matchData = matchDoc.data();
-        const matchId = matchDoc.id;
-        const inningsQuery = query(
-          collection(db, "Matches", matchId, "innings")
-        );
-        const inningsSnapshot = await getDocs(inningsQuery);
-        const innings = [];
+      onSnapshot(matchesCollectionRef, (matchesSnapshot) => {
+        const matches = [];
 
-        inningsSnapshot.forEach((inningDoc) => {
-          const inningData = inningDoc.data();
-          const inningId = inningDoc.id;
-          innings.push({ id: inningId, ...inningData });
+        matchesSnapshot.forEach(async (matchDoc) => {
+          const matchData = matchDoc.data();
+          const matchId = matchDoc.id;
+          let innings1 = [],
+            innings2 = [];
+          const inningsQuery1 = query(
+            collection(db, "users", userId, "Matches", matchId, "innings"),
+            where("inningsNo", "==", 1)
+          );
+          const inningsSnapshot1 = await getDocs(inningsQuery1);
+          if (!inningsSnapshot1.empty) {
+            innings1 = inningsSnapshot1.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+          }
+          const inningsQuery2 = query(
+            collection(db, "users", userId, "Matches", matchId, "innings"),
+            where("inningsNo", "==", 2)
+          );
+          const inningsSnapshot2 = await getDocs(inningsQuery2);
+          if (!inningsSnapshot2.empty) {
+            innings2 = inningsSnapshot2.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+          }
+
+          matches.push({ id: matchId, ...matchData, innings1, innings2 });
         });
 
-        matches.push({ id: matchId, innings, ...matchData });
+        setmyMatches(matches);
       });
-      setmyMatches(matches);
     };
-
     fetchData();
     getMatchesWithInnings();
   }, []);
@@ -279,6 +340,7 @@ const ContextProvider = ({ children }) => {
         setprofileImageUri,
         news,
         myMatches,
+        allMatches,
       }}
     >
       {children}
