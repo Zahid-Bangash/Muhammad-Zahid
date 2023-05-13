@@ -8,6 +8,7 @@ import {
   doc,
   query,
   where,
+  orderBy,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import { auth, db, storage } from "../config/firebase-config";
@@ -195,7 +196,7 @@ const ContextProvider = ({ children }) => {
   const [news, setNews] = useState([]);
   const [allMatches, setallMatches] = useState([]);
   const [myMatches, setmyMatches] = useState([]);
-
+  const [players, setplayers] = useState([]);
   useEffect(() => {
     const getAllMatches = async () => {
       const allMatchesRef = collection(db, "Matches");
@@ -329,6 +330,36 @@ const ContextProvider = ({ children }) => {
       .catch((error) => console.error(error));
   }, []);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const usersRef = collection(db, "users");
+    
+      onSnapshot(usersRef, (usersSnapshot) => {
+        const usersData = [];
+    
+        usersSnapshot.forEach(async (doc) => {
+          const userData = doc.data();
+          const userId = doc.id;
+          let dp = "";
+          const imageRef = ref(storage, `ProfileImages/dp${userId}`);
+          try {
+            const url = await getDownloadURL(imageRef);
+            if (url) dp = url;
+          } catch (error) {
+            console.log(
+              `Error getting profile image for user ${userId}: ${error}`
+            );
+          }
+    
+          usersData.push({ id: userId, image: dp, ...userData });
+        });
+    
+        setplayers(usersData);
+      });
+    };
+    
+    fetchUsers();
+  }, []);
   return (
     <Context.Provider
       value={{
@@ -341,6 +372,7 @@ const ContextProvider = ({ children }) => {
         news,
         myMatches,
         allMatches,
+        players,
       }}
     >
       {children}

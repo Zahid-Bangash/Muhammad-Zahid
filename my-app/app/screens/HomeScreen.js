@@ -13,7 +13,7 @@ import NewsCard from "../components/cards/NewsCard";
 import AppButton from "../components/AppButton";
 
 export default function HomeScreen({ navigation }) {
-  const { news, allMatches, myMatches } = useContext(Context);
+  const { news, allMatches, players } = useContext(Context);
   return (
     <Screen>
       <Header
@@ -35,40 +35,46 @@ export default function HomeScreen({ navigation }) {
           contentContainerStyle={{ height: 160, paddingRight: 20 }}
         >
           {allMatches.length > 0 ? (
-            allMatches.map((match) => (
-              <MyMatchCard
-                style={{ width: 320, marginLeft: 20 }}
-                key={match.id}
-                team1={match.battingTeam}
-                team2={match.bowlingTeam}
-                status={match.status}
-                result={match.result}
-                matchFormat={match.matchFormat}
-                date={match.date}
-                firstInningsBalls={
-                  match.innings1.length > 0
-                    ? match.innings1[0].ballsDelivered
-                    : 0
-                }
-                secondInningsBalls={
-                  match.innings2.length > 0
-                    ? match.innings2[0].ballsDelivered
-                    : 0
-                }
-                firstInningsRuns={
-                  match.innings1.length > 0 ? match.innings1[0].totalRuns : 0
-                }
-                secondInningsRuns={
-                  match.innings2.length > 0 ? match.innings2[0].totalRuns : 0
-                }
-                firstInningsWickets={
-                  match.innings1.length > 0 ? match.innings1[0].wicketsDown : 0
-                }
-                secondInningsWickets={
-                  match.innings2.length > 0 ? match.innings2[0].wicketsDown : 0
-                }
-              />
-            ))
+            allMatches
+              .slice(0, 6)
+              .map((match) => (
+                <MyMatchCard
+                  style={{ width: 320, marginLeft: 20 }}
+                  key={match.id}
+                  team1={match.battingTeam}
+                  team2={match.bowlingTeam}
+                  status={match.status}
+                  result={match.result}
+                  matchFormat={match.matchFormat}
+                  date={match.date}
+                  firstInningsBalls={
+                    match.innings1.length > 0
+                      ? match.innings1[0].ballsDelivered
+                      : 0
+                  }
+                  secondInningsBalls={
+                    match.innings2.length > 0
+                      ? match.innings2[0].ballsDelivered
+                      : 0
+                  }
+                  firstInningsRuns={
+                    match.innings1.length > 0 ? match.innings1[0].totalRuns : 0
+                  }
+                  secondInningsRuns={
+                    match.innings2.length > 0 ? match.innings2[0].totalRuns : 0
+                  }
+                  firstInningsWickets={
+                    match.innings1.length > 0
+                      ? match.innings1[0].wicketsDown
+                      : 0
+                  }
+                  secondInningsWickets={
+                    match.innings2.length > 0
+                      ? match.innings2[0].wicketsDown
+                      : 0
+                  }
+                />
+              ))
           ) : (
             <MyMatchCard
               style={{ width: 320, marginLeft: 20 }}
@@ -188,38 +194,34 @@ export default function HomeScreen({ navigation }) {
           horizontal
           contentContainerStyle={{ height: 160, paddingRight: 20 }}
         >
-          <PlayerCard
-            name="Muhammad Zahid"
-            image={require("../assets/profile.jpeg")}
-            runs={200}
-            wickets={25}
-            matches={10}
-            type="Batter"
-          />
-          <PlayerCard
-            name="Shahid Afridi"
-            image={require("../assets/shahid.jpg")}
-            runs={2000}
-            wickets={50}
-            matches={70}
-            type="All rounder"
-          />
-          <PlayerCard
-            name="Alyan Subhani"
-            image={require("../assets/player2.jpg")}
-            runs={200}
-            wickets={20}
-            matches={7}
-            type="Batter"
-          />
-          <PlayerCard
-            name="Muhammad Osama"
-            image={require("../assets/player1.jpg")}
-            runs={150}
-            wickets={7}
-            matches={3}
-            type="Bowler"
-          />
+          {players.length > 0 ? (
+            players
+              .slice(0, 6)
+              .map((player) => (
+                <PlayerCard
+                  key={player.id}
+                  name={player.Name}
+                  image={
+                    player.image
+                      ? { uri: player.image }
+                      : require("../assets/profile.jpeg")
+                  }
+                  runs={player.Stats.batting.overall.runs}
+                  wickets={player.Stats.bowling.overall.wickets}
+                  matches={player.Stats.batting.overall.matches}
+                  type={player.PlayingRole}
+                />
+              ))
+          ) : (
+            <PlayerCard
+              name="Muhammad Zahid"
+              image={require("../assets/profile.jpeg")}
+              runs={200}
+              wickets={25}
+              matches={10}
+              type="Batter"
+            />
+          )}
         </ScrollView>
         <Text style={{ fontWeight: "bold", fontSize: 20, margin: 20 }}>
           News/Blogs
