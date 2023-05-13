@@ -1,17 +1,19 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, Text, ScrollView, TouchableWithoutFeedback } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { Context } from "../components/ContextProvider";
 
 import Screen from "../components/Screen";
-// import Header from "./Header";
 import Header from "../components/Header";
 import MatchCard from "../components/cards/MatchCard";
 import TournamentCard from "../components/cards/TournamentCard";
 import ClubCard from "../components/cards/ClubCard";
 import PlayerCard from "../components/cards/PlayerCard";
 import NewsCard from "../components/cards/NewsCard";
+import AppButton from "../components/AppButton";
 
 export default function HomeScreen({ navigation }) {
+  const { news } = useContext(Context);
 
   return (
     <Screen>
@@ -20,7 +22,7 @@ export default function HomeScreen({ navigation }) {
         handleNews={() => navigation.navigate("News")}
         handleDrawer={() => navigation.openDrawer()}
       />
-      <ScrollView contentContainerStyle={{ backgroundColor: "#e0dede" }}>
+      <ScrollView contentContainerStyle={{ backgroundColor: "#e0dede",minHeight:'100%' }}>
         <Text style={{ fontWeight: "bold", fontSize: 20, margin: 20 }}>
           Matches
         </Text>
@@ -233,28 +235,31 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <ScrollView
           horizontal
-          contentContainerStyle={{ paddingRight: 20, height: 200 }}
+          contentContainerStyle={{
+            paddingRight: 5,
+            height: 200,
+            alignItems: "center",
+          }}
         >
-          <NewsCard
-            image={require("../assets/india.jpg")}
-            description="India won the match against pakistan in 2022 men worldcup ..."
-            date="03 November, 2022"
-          />
-          <NewsCard
-            image={require("../assets/australia.jpg")}
-            description="Australia won the match against pakistan in 2022 men worldcup ..."
-            date="01 March, 2022"
-          />
-          <NewsCard
-            image={require("../assets/pakistan.jpg")}
-            description="Pakistan won the match against pakistan in 2022 men worldcup ..."
-            date="07 October, 2022"
-          />
-          <NewsCard
-            image={require("../assets/srilanka.jpg")}
-            description="Srilanka won the match against pakistan in 2020 men worldcup ..."
-            date="05 Jun, 2022"
-          />
+          {news.slice(0, 6).map((article, index) => (
+            <NewsCard
+              key={index}
+              uri={article.coverImage}
+              description={article.description}
+              date={article.pubDate}
+              onPress={() =>
+                navigation.navigate("News Details", { link: article.link })
+              }
+            />
+          ))}
+          {news.length > 0 ? (
+            <AppButton
+              style={{ width: 100, marginLeft: 5, backgroundColor: "green" }}
+              onPress={() => navigation.navigate("News")}
+            >
+              View More
+            </AppButton>
+          ) : null}
         </ScrollView>
         <Text style={{ fontWeight: "bold", fontSize: 20, margin: 20 }}>
           Support

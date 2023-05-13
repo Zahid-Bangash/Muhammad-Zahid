@@ -6,7 +6,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 
 import ContextProvider from "../components/ContextProvider";
-import { MyMatches, MyTournaments, MyClubs, CustomDrawer } from "../screens";
+import { MyTournaments, MyClubs, CustomDrawer } from "../screens";
 
 import TournamentNavigator from "./TournamentNavigator";
 import HomeNavigator from "./HomeNavigator";
@@ -15,6 +15,7 @@ import MyTeamsNavigator from "./MyTeamsNavigator";
 import StartMatchNavigator from "./StartMatchNavigators";
 import MyStatsNavigator from "./MyStatsNavigator";
 import GoLiveNavigator from "./GoLiveNavigator";
+import MyMatchesNavigator from "./MyMatchesNavigator";
 
 const Drawer = createDrawerNavigator();
 
@@ -84,7 +85,7 @@ const AppNavigator = () => (
       />
       <Drawer.Screen
         name="My Matches"
-        component={MyMatches}
+        component={MyMatchesNavigator}
         options={{
           drawerIcon: ({ size, color }) => (
             <MaterialCommunityIcons name="cricket" size={size} color={color} />

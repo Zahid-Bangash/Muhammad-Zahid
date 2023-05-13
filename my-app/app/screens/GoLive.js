@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import {camera} from 'expo-camera'
-
+import { Camera } from "expo-camera";
 
 export default function GoLive() {
   const [hasPermission, setHasPermission] = useState(null);

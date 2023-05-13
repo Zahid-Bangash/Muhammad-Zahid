@@ -10,12 +10,12 @@ import {
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-export default function NewsCard({ image, onPress, date, description }) {
+export default function NewsCard({ uri, onPress, date, description }) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.container}>
         <Image
-          source={image}
+          source={uri !== "" ? { uri: uri } : require("../../assets/team1.jpg")}
           style={{
             width: "100%",
             height: 120,
@@ -23,7 +23,9 @@ export default function NewsCard({ image, onPress, date, description }) {
             borderTopRightRadius: 20,
           }}
         />
-        <Text>{description}</Text>
+        <Text numberOfLines={2} style={{ padding: 3 }}>
+          {description}
+        </Text>
         <View
           style={{
             borderBottomWidth: 0.5,

@@ -1,7 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { createContext } from "react";
-
-import { collection, getDocs, onSnapshot, doc } from "firebase/firestore";
+import { parseString } from "react-native-xml2js";
+import {
+  collection,
+  getDocs,
+  onSnapshot,
+  doc,
+  query,
+} from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import { auth, db, storage } from "../config/firebase-config";
 
@@ -185,15 +191,13 @@ const ContextProvider = ({ children }) => {
   });
   const [teams, setTeams] = useState([]);
   const [profileImageUri, setprofileImageUri] = useState(null);
+  const [news, setNews] = useState([]);
+  const [myMatches, setmyMatches] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const teamsCollectionRef = collection(
-        db,
-        "users",
-        auth.currentUser.uid,
-        "Teams"
-      );
+      const userId = auth.currentUser && auth.currentUser.uid;
+      const teamsCollectionRef = collection(db, "users", userId, "Teams");
       const teamsSnapshot = await getDocs(teamsCollectionRef);
       const teamsData = teamsSnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -201,12 +205,11 @@ const ContextProvider = ({ children }) => {
       }));
       setTeams(teamsData);
 
-      const imageRef = ref(storage, `ProfileImages/dp${auth.currentUser.uid}`);
+      const imageRef = ref(storage, `ProfileImages/dp${userId}`);
       getDownloadURL(imageRef)
         .then((url) => setprofileImageUri(url))
         .catch((error) => console.log(error));
 
-      const userId = auth.currentUser && auth.currentUser.uid;
       const docRef = doc(db, "users", userId);
       onSnapshot(docRef, (doc) => {
         const data = doc.data();
@@ -214,7 +217,55 @@ const ContextProvider = ({ children }) => {
       });
     };
 
+    const getMatchesWithInnings = async () => {
+      const matchesQuery = query(collection(db, "Matches"));
+      const matchesSnapshot = await getDocs(matchesQuery);
+      const matches = [];
+
+      matchesSnapshot.forEach(async (matchDoc) => {
+        const matchData = matchDoc.data();
+        const matchId = matchDoc.id;
+        const inningsQuery = query(
+          collection(db, "Matches", matchId, "innings")
+        );
+        const inningsSnapshot = await getDocs(inningsQuery);
+        const innings = [];
+
+        inningsSnapshot.forEach((inningDoc) => {
+          const inningData = inningDoc.data();
+          const inningId = inningDoc.id;
+          innings.push({ id: inningId, ...inningData });
+        });
+
+        matches.push({ id: matchId, innings, ...matchData });
+      });
+      setmyMatches(matches);
+    };
+
     fetchData();
+    getMatchesWithInnings();
+  }, []);
+
+  useEffect(() => {
+    fetch("https://www.espncricinfo.com/rss/content/story/feeds/0.xml")
+      .then((response) => response.text())
+      .then((responseText) => {
+        parseString(responseText, (err, result) => {
+          if (err) {
+            console.error(err);
+          } else {
+            const newsData = result.rss.channel[0].item.map((item) => ({
+              title: item.title[0],
+              link: item.link[0],
+              description: item.description[0],
+              pubDate: item.pubDate[0],
+              coverImage: item.coverImages[0] ? item.coverImages[0] : "",
+            }));
+            setNews(newsData);
+          }
+        });
+      })
+      .catch((error) => console.error(error));
   }, []);
 
   return (
@@ -226,6 +277,8 @@ const ContextProvider = ({ children }) => {
         setTeams,
         profileImageUri,
         setprofileImageUri,
+        news,
+        myMatches,
       }}
     >
       {children}
