@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Camera } from "expo-camera";
+import {camera} from 'expo-camera'
 
 
 export default function GoLive() {
