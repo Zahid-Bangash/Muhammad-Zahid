@@ -6,8 +6,10 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  BackHandler,
 } from "react-native";
 import Swiper from "react-native-swiper";
+import { useBackButton } from "@react-navigation/native";
 
 import { auth, db } from "../config/firebase-config";
 import { doc, onSnapshot, collection, query, where } from "firebase/firestore";
@@ -15,7 +17,7 @@ import { doc, onSnapshot, collection, query, where } from "firebase/firestore";
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
 
-export default function MatchDetails({ route,navigation }) {
+export default function MatchDetails({ route, navigation }) {
   const { matchId } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
   const [matchData, setmatchData] = useState({
@@ -88,16 +90,28 @@ export default function MatchDetails({ route,navigation }) {
   });
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("blur", () => {
+    const handleBackPress = () => {
       navigation.reset({
         index: 0,
-        routes: [{ name: "Create Match" }],
+        routes: [{ name: "Home" }],
       });
-    });
-  
-    return unsubscribe;
-  }, [navigation]);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Start a Match" }],
+      });
+      console.log("backpressed");
+      return false; // Return false to allow the default back behavior
+    };
 
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBackPress
+    );
+
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
   useEffect(() => {
     const matchDocRef = doc(db, "Matches", matchId);
     const firstInningsQuery = query(

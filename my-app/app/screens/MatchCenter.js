@@ -49,6 +49,7 @@ export default function MatchCenter({ route, navigation }) {
   const [bye, setbye] = useState(1);
   const [legBye, setlegBye] = useState(1);
 
+  const [swiperScrollEnabled, setSwiperScrollEnabled] = useState(true);
   //Out states
   const [dismissalTypesModal, setDismissalTypesModal] = useState(false);
   const [dismissalType, setdismissalType] = useState(null);
@@ -1910,7 +1911,7 @@ export default function MatchCenter({ route, navigation }) {
       index={swiperIndex}
       onIndexChanged={(index) => setSwiperIndex(index)}
       renderPagination={renderPagination}
-      nestedScrollEnabled
+      scrollEnabled={swiperScrollEnabled}
     >
       <View style={styles.slide}>
         <View
@@ -2173,7 +2174,12 @@ export default function MatchCenter({ route, navigation }) {
             alignItems: "center",
           }}
         >
-          <ScrollView horizontal>
+          <ScrollView
+            horizontal
+            nestedScrollEnabled
+            onScrollBeginDrag={() => setSwiperScrollEnabled(false)}
+            onScrollEndDrag={() => setSwiperScrollEnabled(true)}
+          >
             {inningsData.currentOver.length > 0 &&
               inningsData.currentOver.map((element, index) => (
                 <View
