@@ -1,26 +1,327 @@
-import React from 'react'
-import { View,Text,StyleSheet } from 'react-native'
+import React, { useState, useContext } from "react";
+import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Context } from "../components/ContextProvider";
+import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 
-import Screen from '../components/Screen'
-import Box from '../components/Box';
+import { addDoc, collection, setDoc, doc } from "firebase/firestore";
+import { auth, db } from "../config/firebase-config";
 
-export default function AddTS() {
+import AppTextInput from "../components/AppTextInput";
+import AppButton from "../components/AppButton";
+import CustomTextInput from "../components/CustomTextInput";
+
+export default function AddTS({ navigation }) {
+  const { userData } = useContext(Context);
+  const [showStartDatePicker, setshowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setshowEndDatePicker] = useState(false);
+  const [details, setdetails] = useState({
+    name: "",
+    city: "",
+    organizer: userData.Name,
+    organizerPhone: userData.PhoneNumber,
+    organizerEmail: userData.Email,
+    startDate: new Date(),
+    endDate: new Date(),
+    ballType: "",
+    matchType: "",
+  });
+  const handleStartDateChange = (event, selectedDate) => {
+    setshowStartDatePicker(false);
+    const currentDate = selectedDate || date;
+    setdetails({ ...details, startDate: currentDate });
+  };
+  const handleEndDateChange = (event, selectedDate) => {
+    setshowEndDatePicker(false);
+    const currentDate = selectedDate || date;
+    setdetails({ ...details, endDate: currentDate });
+  };
+
+  const handleCreateTournament = async () => {
+    if (details.name === "") {
+      alert("Enter Tournament Name");
+      return;
+    }
+    if (details.city === "") {
+      alert("Enter City Name");
+      return;
+    }
+    if (details.ballType === "") {
+      alert("Select Ball Type");
+      return;
+    }
+    if (details.matchType === "") {
+      alert("Select Match Type");
+      return;
+    }
+    try {
+      const tournamentRef = await addDoc(
+        collection(db, "users", auth.currentUser.uid, "Tournamnets"),
+        {
+          name: details.name,
+          city: details.city,
+          organizer: {
+            name: details.organizer,
+            phone: details.organizerPhone,
+            email: details.organizerEmail,
+          },
+          startDate: details.startDate,
+          endDate: details.endDate,
+          ballType: details.ballType,
+          matchType: details.matchType,
+        }
+      );
+      const publicTournamentRef = doc(db, "Tournaments", tournamentRef.id);
+      await setDoc(publicTournamentRef, {
+        name: details.name,
+        city: details.city,
+        organizer: {
+          name: details.organizer,
+          phone: details.organizerPhone,
+          email: details.organizerEmail,
+        },
+        startDate: details.startDate,
+        endDate: details.endDate,
+        ballType: details.ballType,
+        matchType: details.matchType,
+        status:'Ongoing',
+      });
+      console.log("Tournament created with ID: ", tournamentRef.id);
+      navigation.navigate("Tournament Details", { id: tournamentRef.id });
+    } catch (err) {
+      console.error("Error creating tournament: ", err);
+    }
+  };
   return (
-    <Screen>
-      <View style={{flex:1,}}>
-        <Text style={{fontWeight:'bold',fontSize:25,textAlign:'center',marginBottom:30,}}>Choose Your Role</Text>
-        <View style={{flexDirection:'row',justifyContent:'center',padding:5,}}>
-            <Box>Organizer</Box>
-            <Box>Scorer</Box>
-        </View>
-        <View style={{flexDirection:'row',justifyContent:'center'}}>
-            <Box>Player</Box>
-          <Box>None of the Above</Box>
-        </View>
+    <View style={styles.container}>
+      <CustomTextInput
+        label="Tournament Name"
+        value={details.name}
+        onChangeText={(text) => setdetails({ ...details, name: text })}
+      />
+      <CustomTextInput
+        label="City"
+        value={details.city}
+        onChangeText={(text) => setdetails({ ...details, city: text })}
+      />
+      <CustomTextInput
+        label="Organizer Name"
+        value={details.organizer}
+        onChangeText={(text) => setdetails({ ...details, organizer: text })}
+      />
+      <CustomTextInput
+        label="Organizer Number"
+        value={details.organizerPhone}
+        onChangeText={(text) =>
+          setdetails({ ...details, organizerPhone: text })
+        }
+      />
+      <CustomTextInput
+        label="Organizer Email"
+        value={details.organizerEmail}
+        onChangeText={(text) =>
+          setdetails({ ...details, organizerEmail: text })
+        }
+      />
+      <Text style={{ marginTop: 10, fontWeight: "bold" }}>
+        Tournament Dates
+      </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          width: "80%",
+        }}
+      >
+        <TouchableWithoutFeedback onPress={() => setshowStartDatePicker(true)}>
+          <View style={{ width: "55%" }}>
+            <AppTextInput
+              editable={false}
+              value={details.startDate.toLocaleDateString()}
+              style={{ borderBottomWidth: 1 }}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+        {showStartDatePicker && (
+          <DateTimePicker
+            maximumDate={new Date()}
+            mode="date"
+            display="default"
+            onChange={handleStartDateChange}
+          />
+        )}
+        <TouchableWithoutFeedback onPress={() => setshowEndDatePicker(true)}>
+          <View style={{ width: "55%" }}>
+            <AppTextInput
+              editable={false}
+              value={details.endDate.toLocaleDateString()}
+              style={{ borderBottomWidth: 1 }}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+        {showEndDatePicker && (
+          <DateTimePicker
+            value={details.endDate}
+            minimumDate={new Date()}
+            mode="date"
+            display="default"
+            onChange={handleEndDateChange}
+          />
+        )}
       </View>
-    </Screen>
-  )
+      <Text style={{ fontWeight: "bold", margin: 10 }}>Ball Type</Text>
+      <RadioButtonGroup
+        selected={details.ballType}
+        onSelected={(val) => setdetails({ ...details, ballType: val })}
+        radioBackground="green"
+        containerStyle={{ flexDirection: "row" }}
+      >
+        <RadioButtonItem
+          label="LEATHER"
+          value="leather"
+          style={{ marginHorizontal: 10 }}
+        />
+        <RadioButtonItem
+          label="TENNIS"
+          value="tennis"
+          style={{ marginHorizontal: 10 }}
+        />
+        <RadioButtonItem
+          label="OTHER"
+          value="other"
+          style={{ marginHorizontal: 10 }}
+        />
+      </RadioButtonGroup>
+      <Text style={{ fontWeight: "bold", marginTop: 10 }}>Match Type</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: 10,
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "space-around",
+        }}
+      >
+        <TouchableWithoutFeedback
+          onPress={() => setdetails({ ...details, matchType: "T10" })}
+        >
+          <View
+            style={{
+              backgroundColor:
+                details.matchType === "T10" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>T10</Text>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback
+          onPress={() => setdetails({ ...details, matchType: "T20" })}
+        >
+          <View
+            style={{
+              backgroundColor:
+                details.matchType === "T20" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>T20</Text>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback
+          onPress={() => setdetails({ ...details, matchType: "ODI" })}
+        >
+          <View
+            style={{
+              backgroundColor:
+                details.matchType === "ODI" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>ODI</Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: 10,
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "space-around",
+        }}
+      >
+        <TouchableWithoutFeedback
+          onPress={() => setdetails({ ...details, matchType: "100" })}
+        >
+          <View
+            style={{
+              backgroundColor:
+                details.matchType === "100" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>100</Text>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback
+          onPress={() => setdetails({ ...details, matchType: "Test" })}
+        >
+          <View
+            style={{
+              backgroundColor:
+                details.matchType === "Test" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>Test</Text>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback
+          onPress={() => setdetails({ ...details, matchType: "Club" })}
+        >
+          <View
+            style={{
+              backgroundColor:
+                details.matchType === "Club" ? "green" : "#e0dede",
+              borderWidth: 0.5,
+              width: "20%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 17 }}>Club</Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
+      <AppButton
+        style={{ width: "82%", marginTop: 40 }}
+        onPress={handleCreateTournament}
+      >
+        Create
+      </AppButton>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-})
+  container: {
+    flex: 1,
+    alignItems: "center",
+    paddingTop: 20,
+  },
+});

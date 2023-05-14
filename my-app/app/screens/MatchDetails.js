@@ -15,7 +15,7 @@ import { doc, onSnapshot, collection, query, where } from "firebase/firestore";
 import Batter from "../components/Batter";
 import Bowler from "../components/Bowler";
 
-export default function MatchDetails({ route }) {
+export default function MatchDetails({ route,navigation }) {
   const { matchId } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
   const [matchData, setmatchData] = useState({
@@ -88,6 +88,17 @@ export default function MatchDetails({ route }) {
   });
 
   useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Create Match" }],
+      });
+    });
+  
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
     const matchDocRef = doc(db, "Matches", matchId);
     const firstInningsQuery = query(
       collection(matchDocRef, "innings"),
@@ -152,7 +163,7 @@ export default function MatchDetails({ route }) {
         <Text
           style={[
             styles.buttonText,
-            swiperIndex === 2 && { fontWeight: "bold" },
+            swiperIndex === 1 && { fontWeight: "bold" },
           ]}
         >
           Info

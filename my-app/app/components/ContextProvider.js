@@ -23,7 +23,7 @@ const ContextProvider = ({ children }) => {
     DOB: "-",
     Location: "your city",
     BattingStyle: "-",
-    PlayingRole: "-",
+    PlayingRole: "Playing Role",
     BowlingStyle: "-",
     ShirtNumber: "-",
     Stats: {
@@ -333,10 +333,10 @@ const ContextProvider = ({ children }) => {
   useEffect(() => {
     const fetchUsers = async () => {
       const usersRef = collection(db, "users");
-    
+
       onSnapshot(usersRef, (usersSnapshot) => {
         const usersData = [];
-    
+
         usersSnapshot.forEach(async (doc) => {
           const userData = doc.data();
           const userId = doc.id;
@@ -350,14 +350,14 @@ const ContextProvider = ({ children }) => {
               `Error getting profile image for user ${userId}: ${error}`
             );
           }
-    
+
           usersData.push({ id: userId, image: dp, ...userData });
         });
-    
+
         setplayers(usersData);
       });
     };
-    
+
     fetchUsers();
   }, []);
   return (

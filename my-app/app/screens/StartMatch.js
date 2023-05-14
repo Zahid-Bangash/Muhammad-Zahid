@@ -546,8 +546,6 @@ export default function StartMatch({ route, navigation }) {
         <TouchableWithoutFeedback onPress={() => setShowDatePicker(true)}>
           <View style={{ width: "55%" }}>
             <AppTextInput
-              placeholder="Date"
-              autoComplete="off"
               editable={false}
               value={matchDetails.date.toLocaleDateString()}
             />
@@ -564,8 +562,6 @@ export default function StartMatch({ route, navigation }) {
         <TouchableWithoutFeedback onPress={() => setShowTimePicker(true)}>
           <View style={{ width: "55%" }}>
             <AppTextInput
-              placeholder="Time"
-              autoComplete="off"
               editable={false}
               value={matchDetails.time.toLocaleTimeString()}
             />
@@ -591,7 +587,7 @@ export default function StartMatch({ route, navigation }) {
         }
         style={{ marginTop: 10 }}
       />
-      <Text style={{ fontWeight: "bold", marginTop: 10 }}>Ball Type</Text>
+      <Text style={{ fontWeight: "bold", margin: 10 }}>Ball Type</Text>
       <RadioButtonGroup
         selected={matchDetails.ballType}
         onSelected={(val) =>
@@ -603,10 +599,10 @@ export default function StartMatch({ route, navigation }) {
         <RadioButtonItem
           label="LEATHER"
           value="leather"
-          style={{ margin: 10 }}
+          style={{ marginHorizontal: 10 }}
         />
-        <RadioButtonItem label="TENNIS" value="tennis" style={{ margin: 10 }} />
-        <RadioButtonItem label="OTHER" value="other" style={{ margin: 10 }} />
+        <RadioButtonItem label="TENNIS" value="tennis" style={{ marginHorizontal: 10 }} />
+        <RadioButtonItem label="OTHER" value="other" style={{ marginHorizontal: 10 }} />
       </RadioButtonGroup>
       <Text style={{ fontWeight: "bold", marginTop: 10 }}>Match Format</Text>
       <View

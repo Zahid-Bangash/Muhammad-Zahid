@@ -31,13 +31,12 @@ export default function PlayerCard({
             <Text
               style={{
                 fontWeight: "bold",
-                textAlign: "center",
-                color:'white',
+                color: "white",
               }}
             >
               {name}
             </Text>
-            <Text style={{color:'white'}}>{type}</Text>
+            <Text style={{ color: "white" }}>{type}</Text>
           </View>
         </View>
         <View
@@ -49,22 +48,22 @@ export default function PlayerCard({
           }}
         >
           <View>
-            <Text style={{ fontWeight: "bold",color:'white' }}>Matches</Text>
-            <Text style={{color:'white'}}>{matches}</Text>
+            <Text style={{ fontWeight: "bold", color: "white" }}>Matches</Text>
+            <Text style={{ color: "white" }}>{matches}</Text>
           </View>
           <View
             style={{ borderWidth: 0.5, borderLeftColor: "white", height: 25 }}
           ></View>
           <View>
-            <Text style={{ fontWeight: "bold",color:'white' }}>Runs</Text>
-            <Text style={{color:'white'}}>{runs}</Text>
+            <Text style={{ fontWeight: "bold", color: "white" }}>Runs</Text>
+            <Text style={{ color: "white" }}>{runs}</Text>
           </View>
           <View
             style={{ borderWidth: 0.5, borderLeftColor: "white", height: 25 }}
           ></View>
           <View>
-            <Text style={{ fontWeight: "bold",color:'white' }}>wickets</Text>
-            <Text style={{color:'white'}}>{wickets}</Text>
+            <Text style={{ fontWeight: "bold", color: "white" }}>wickets</Text>
+            <Text style={{ color: "white" }}>{wickets}</Text>
           </View>
         </View>
         <View
@@ -84,7 +83,7 @@ export default function PlayerCard({
               alignItems: "center",
             }}
           >
-            <Text style={{fontWeight:'bold'}}>Profile</Text>
+            <Text style={{ fontWeight: "bold" }}>Profile</Text>
           </View>
           <View
             style={{ borderWidth: 0.5, borderLeftColor: "white", height: 28 }}
@@ -97,7 +96,7 @@ export default function PlayerCard({
               alignItems: "center",
             }}
           >
-            <Text style={{fontWeight:'bold'}}>Insight</Text>
+            <Text style={{ fontWeight: "bold" }}>Insight</Text>
           </View>
         </View>
       </View>

@@ -51,7 +51,7 @@ export default function RegisterScreen({ navigation }) {
               DOB: "-",
               Location: "-",
               BattingStyle: "-",
-              PlayingRole: "-",
+              PlayingRole: "Playing Role",
               BowlingStyle: "-",
               ShirtNumber: "-",
               Stats: {

@@ -27,8 +27,6 @@ const HomeNavigator = () => (
       component={NewsDetails}
       options={{ headerShown: false }}
     />
-    <Stack.Screen name="Match Details" component={MatchDetails} />
-    <Stack.Screen name="Tournament Details" component={TournamnetDetails} />
   </Stack.Navigator>
 );
 

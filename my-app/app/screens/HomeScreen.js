@@ -35,46 +35,46 @@ export default function HomeScreen({ navigation }) {
           contentContainerStyle={{ height: 160, paddingRight: 20 }}
         >
           {allMatches.length > 0 ? (
-            allMatches
-              .slice(0, 6)
-              .map((match) => (
-                <MyMatchCard
-                  style={{ width: 320, marginLeft: 20 }}
-                  key={match.id}
-                  team1={match.battingTeam}
-                  team2={match.bowlingTeam}
-                  status={match.status}
-                  result={match.result}
-                  matchFormat={match.matchFormat}
-                  date={match.date}
-                  firstInningsBalls={
-                    match.innings1.length > 0
-                      ? match.innings1[0].ballsDelivered
-                      : 0
-                  }
-                  secondInningsBalls={
-                    match.innings2.length > 0
-                      ? match.innings2[0].ballsDelivered
-                      : 0
-                  }
-                  firstInningsRuns={
-                    match.innings1.length > 0 ? match.innings1[0].totalRuns : 0
-                  }
-                  secondInningsRuns={
-                    match.innings2.length > 0 ? match.innings2[0].totalRuns : 0
-                  }
-                  firstInningsWickets={
-                    match.innings1.length > 0
-                      ? match.innings1[0].wicketsDown
-                      : 0
-                  }
-                  secondInningsWickets={
-                    match.innings2.length > 0
-                      ? match.innings2[0].wicketsDown
-                      : 0
-                  }
-                />
-              ))
+            allMatches.slice(0, 6).map((match) => (
+              <MyMatchCard
+                style={{ width: 320, marginLeft: 20 }}
+                key={match.id}
+                team1={match.battingTeam}
+                team2={match.bowlingTeam}
+                status={match.status}
+                result={match.result}
+                matchFormat={match.matchFormat}
+                date={match.date}
+                firstInningsBalls={
+                  match.innings1.length > 0
+                    ? match.innings1[0].ballsDelivered
+                    : 0
+                }
+                secondInningsBalls={
+                  match.innings2.length > 0
+                    ? match.innings2[0].ballsDelivered
+                    : 0
+                }
+                firstInningsRuns={
+                  match.innings1.length > 0 ? match.innings1[0].totalRuns : 0
+                }
+                secondInningsRuns={
+                  match.innings2.length > 0 ? match.innings2[0].totalRuns : 0
+                }
+                firstInningsWickets={
+                  match.innings1.length > 0 ? match.innings1[0].wicketsDown : 0
+                }
+                secondInningsWickets={
+                  match.innings2.length > 0 ? match.innings2[0].wicketsDown : 0
+                }
+                onPress={() =>
+                  navigation.navigate("Start a Match", {
+                    screen: "Match Details",
+                    params: { matchId: match.id },
+                  })
+                }
+              />
+            ))
           ) : (
             <MyMatchCard
               style={{ width: 320, marginLeft: 20 }}
@@ -106,7 +106,11 @@ export default function HomeScreen({ navigation }) {
             status="Ongoing"
             image={require("../assets/t1.jpg")}
             date="03 Nov, 2022 to 20 Dec, 2022"
-            onPress={() => navigation.navigate("Tournament Details")}
+            onPress={() =>
+              navigation.navigate("Add Tournament/series", {
+                screen: "Tournament Details",
+              })
+            }
           />
           <TournamentCard
             name="Night tournament - Hazro"

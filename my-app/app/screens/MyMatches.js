@@ -4,7 +4,7 @@ import { Context } from "../components/ContextProvider";
 
 import MyMatchCard from "../components/MyMatchCard";
 
-export default function MyMatches() {
+export default function MyMatches({ navigation }) {
   const { myMatches } = useContext(Context);
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -34,6 +34,12 @@ export default function MyMatches() {
           }
           secondInningsWickets={
             match.innings2.length > 0 ? match.innings2[0].wicketsDown : 0
+          }
+          onPress={() =>
+            navigation.navigate("Start a Match", {
+              screen: "Match Details",
+              params: { matchId: match.id },
+            })
           }
         />
       ))}
