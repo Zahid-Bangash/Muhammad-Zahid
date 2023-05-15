@@ -113,13 +113,13 @@ export default function MyMatchCard({
           style={{
             borderBottomWidth: 0.5,
             borderBottomColor: "#000",
-            marginTop: 5,
+            marginTop: 8,
           }}
         ></View>
         <Text
           style={{
             alignSelf: "flex-end",
-            marginTop: 5,
+            marginTop: 10,
             color: "grey",
             fontWeight: "bold",
           }}
@@ -134,7 +134,7 @@ export default function MyMatchCard({
 const styles = StyleSheet.create({
   container: {
     width: "95%",
-    height: Dimensions.get('screen').height*0.20,
+    height: Dimensions.get("screen").height * 0.2,
     borderRadius: 20,
     backgroundColor: "white",
     elevation: 5,

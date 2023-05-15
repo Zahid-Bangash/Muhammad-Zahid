@@ -20,22 +20,34 @@ export default function MatchCard({ name, place, captain, onPress, onDelete }) {
           style={{ width: 60, height: 60, borderRadius: 30, marginLeft: 10 }}
         />
         <View style={{ marginLeft: 5, width: "78%" }}>
-          <Text style={{ fontWeight: "bold", fontSize: 15, marginLeft: "30%" }}>
+          <Text style={{ fontWeight: "bold", fontSize: 15, marginLeft: "27%" }}>
             {name}
           </Text>
           <View
             style={{
               flexDirection: "row",
               width: "100%",
-              justifyContent: "space-around",
+              justifyContent: "space-between",
               marginTop: 10,
             }}
           >
-            <View style={{ flexDirection: "row" }}>
-              <Ionicons name="location" size={19} color="#FE7F0A" />
-              <Text>{place}</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Ionicons name="location" size={17} color="green" />
+              <Text style={{ fontWeight: "500" }}>{place}</Text>
             </View>
-            <Text>{`Captain: ${captain}`}</Text>
+            <Text
+              style={{
+                fontWeight: "500",
+                textTransform: "capitalize",
+                marginRight: 10,
+              }}
+            >{`Captain: ${captain}`}</Text>
           </View>
         </View>
         <TouchableOpacity

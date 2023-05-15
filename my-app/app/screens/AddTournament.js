@@ -84,7 +84,7 @@ export default function AddTS({ navigation }) {
         endDate: details.endDate,
         ballType: details.ballType,
         matchType: details.matchType,
-        status:'Ongoing',
+        status: "Ongoing",
       });
       console.log("Tournament created with ID: ", tournamentRef.id);
       navigation.navigate("Tournament Details", { id: tournamentRef.id });
@@ -143,7 +143,7 @@ export default function AddTS({ navigation }) {
         </TouchableWithoutFeedback>
         {showStartDatePicker && (
           <DateTimePicker
-          value={details.startDate}
+            value={details.startDate}
             mode="date"
             display="default"
             onChange={handleStartDateChange}
@@ -174,6 +174,7 @@ export default function AddTS({ navigation }) {
         onSelected={(val) => setdetails({ ...details, ballType: val })}
         radioBackground="green"
         containerStyle={{ flexDirection: "row" }}
+        // style={{with:'100%'}}
       >
         <RadioButtonItem
           label="LEATHER"
@@ -196,7 +197,7 @@ export default function AddTS({ navigation }) {
         style={{
           flexDirection: "row",
           marginTop: 10,
-          width: "100%",
+          width: "92%",
           alignItems: "center",
           justifyContent: "space-around",
         }}
@@ -254,7 +255,7 @@ export default function AddTS({ navigation }) {
         style={{
           flexDirection: "row",
           marginTop: 10,
-          width: "100%",
+          width: "92%",
           alignItems: "center",
           justifyContent: "space-around",
         }}

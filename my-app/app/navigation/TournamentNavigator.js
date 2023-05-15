@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import { AddTS, TournamnetDetails } from "../screens";
+import { AddTournament, TournamnetDetails } from "../screens";
 
 const Stack = createNativeStackNavigator();
 
@@ -21,7 +21,7 @@ const TournamentNavigator = () => (
   >
     <Stack.Screen
       name="Create Tournament"
-      component={AddTS}
+      component={AddTournament}
       options={({ navigation }) => ({
         headerLeft: () => (
           <TouchableOpacity

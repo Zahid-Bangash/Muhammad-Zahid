@@ -5,7 +5,7 @@ export { default as HomeScreen } from "./HomeScreen";
 export { default as ProfileScreen } from "./ProfileScreen";
 export { default as EditProfile } from "./EditProfile";
 export { default as CustomDrawer } from "./CustomDrawer";
-export { default as AddTS } from "./AddTS";
+export { default as AddTournament } from "./AddTournament";
 export { default as StartMatch } from "./StartMatch";
 export { default as StartInnings } from "./StartInnings";
 export { default as MatchCenter } from "./MatchCenter";
