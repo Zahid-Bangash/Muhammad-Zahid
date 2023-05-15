@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   ImageBackground,
+  Dimensions,
 } from "react-native";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -52,8 +53,8 @@ export default function ClubCard({ name, onPress, image, address }) {
 
 const styles = StyleSheet.create({
   container: {
-    width: 320,
-    height: 150,
+    width: Dimensions.get('screen').width*0.90,
+    height: Dimensions.get('screen').height*0.20,
     borderRadius: 20,
     marginLeft: 20,
     elevation: 5,

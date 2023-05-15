@@ -1,8 +1,13 @@
 import React, { useContext } from "react";
-import { View, Text, ScrollView, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Dimensions,
+} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Context } from "../components/ContextProvider";
-
 import Screen from "../components/Screen";
 import Header from "../components/Header";
 import MyMatchCard from "../components/MyMatchCard";
@@ -32,12 +37,15 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <ScrollView
           horizontal
-          contentContainerStyle={{ height: 160, paddingRight: 20 }}
+          contentContainerStyle={{ height: Dimensions.get('screen').height*0.213, paddingRight: 20 }}
         >
           {allMatches.length > 0 ? (
             allMatches.slice(0, 6).map((match) => (
               <MyMatchCard
-                style={{ width: 320, marginLeft: 20 }}
+                style={{
+                  width: Dimensions.get("screen").width * 0.9,
+                  marginLeft: 20,
+                }}
                 key={match.id}
                 team1={match.battingTeam}
                 team2={match.bowlingTeam}
@@ -77,7 +85,10 @@ export default function HomeScreen({ navigation }) {
             ))
           ) : (
             <MyMatchCard
-              style={{ width: 320, marginLeft: 20 }}
+              style={{
+                width: Dimensions.get("screen").width * 0.9,
+                marginLeft: 20,
+              }}
               team1="zahid"
               team2="usama"
               status="completed"
@@ -98,7 +109,7 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <ScrollView
           horizontal
-          contentContainerStyle={{ paddingRight: 20, height: 160 }}
+          contentContainerStyle={{ paddingRight: 20, height: Dimensions.get('screen').height*0.213 }}
         >
           <TournamentCard
             name="zahid bangash tournament- hangu"
@@ -158,7 +169,7 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <ScrollView
           horizontal
-          contentContainerStyle={{ paddingRight: 20, height: 160 }}
+          contentContainerStyle={{ paddingRight: 20, height: Dimensions.get('screen').height*0.213 }}
         >
           <ClubCard
             name="Harzo Cricket Club"
@@ -196,7 +207,7 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <ScrollView
           horizontal
-          contentContainerStyle={{ height: 160, paddingRight: 20 }}
+          contentContainerStyle={{ height: Dimensions.get('screen').height*0.213, paddingRight: 20 }}
         >
           {players.length > 0 ? (
             players
@@ -234,7 +245,7 @@ export default function HomeScreen({ navigation }) {
           horizontal
           contentContainerStyle={{
             paddingRight: 5,
-            height: 200,
+            height: Dimensions.get('screen').height*0.27,
             alignItems: "center",
           }}
         >
@@ -279,8 +290,8 @@ export default function HomeScreen({ navigation }) {
         <View
           style={{
             padding: 20,
-            width: 320,
-            height: 140,
+            width: Dimensions.get("screen").width * 0.9,
+            height: Dimensions.get('screen').height*0.19,
             backgroundColor: "#3f8c67",
             borderRadius: 20,
             marginLeft: 20,

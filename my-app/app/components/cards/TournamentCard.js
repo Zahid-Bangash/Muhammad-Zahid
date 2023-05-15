@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   Image,
+  Dimensions,
 } from "react-native";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -48,8 +49,8 @@ export default function TournamentCard({ name, teams, status,onPress,image,date 
 
 const styles = StyleSheet.create({
   container: {
-    width: 320,
-    height: 150,
+    width: Dimensions.get('screen').width*0.90,
+    height: Dimensions.get('screen').height*0.20,
     borderRadius: 20,
     marginLeft: 20,
     backgroundColor: "white",

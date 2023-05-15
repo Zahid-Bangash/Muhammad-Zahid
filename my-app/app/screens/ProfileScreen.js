@@ -12,7 +12,6 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Context } from "../components/ContextProvider";
 
 import * as ImagePicker from "expo-image-picker";
-// import { Camera } from "expo-camera";
 
 import { ref, uploadBytes } from "@firebase/storage";
 import { auth, storage } from "../config/firebase-config";

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import Swiper from "react-native-swiper";
 import AppButton from "../components/AppButton";
-
+import TeamCard from "../components/cards/TeamCard";
 export default function TournamnetDetails({ navigation }) {
   const [swiperIndex, setSwiperIndex] = useState(0);
 
@@ -88,21 +88,164 @@ export default function TournamnetDetails({ navigation }) {
       renderPagination={renderPagination}
       nestedScrollEnabled
     >
-      <View style={styles.slide}>
+      <View style={[styles.slide, { backgroundColor: "white" }]}>
         <Image
           source={require("../assets/team4.jpg")}
-          style={{ width: "100%", height: 200 }}
+          style={{ width: "100%", height: "27%" }}
         />
-        <Text style={{ fontWeight: "bold" }}>Name</Text>
-        <Text style={{ fontWeight: "bold" }}>Organizer</Text>
-        <Text style={{ fontWeight: "bold" }}>01/02/23 - 05/02/23</Text>
-        <AppButton style={{ borderRadius: 0, width: "100%" }}>
+        <View
+          style={{
+            alignSelf: "flex-start",
+            marginLeft: "2%",
+            height: "10%",
+            justifyContent: "space-around",
+          }}
+        >
+          <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+            Hazro night tournament
+          </Text>
+          <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+            Organized by : Zahid
+          </Text>
+          <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+            Dates: 01/02/23 - 05/02/23
+          </Text>
+        </View>
+        <AppButton
+          style={{
+            borderRadius: 0,
+            width: "100%",
+            height: "8%",
+            marginVertical: "3%",
+          }}
+        >
           Start Match
         </AppButton>
-        <Text>Teams</Text>
+        <Text
+          style={{
+            fontWeight: "bold",
+            alignSelf: "flex-start",
+            marginLeft: "2%",
+            fontSize: 17,
+          }}
+        >
+          Top Players
+        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-around",
+            width: "100%",
+            margin: "3%",
+            height: "17%",
+          }}
+        >
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <Text style={{ fontWeight: "bold", color: "grey" }}>Most Runs</Text>
+            <Text style={{ fontWeight: "bold", fontSize: 70 }}>0</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>Team Name</Text>
+          </View>
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <Text style={{ fontWeight: "bold", color: "grey" }}>Most Runs</Text>
+            <Text style={{ fontWeight: "bold", fontSize: 70 }}>0</Text>
+            <Text style={{ fontWeight: "bold", color: "grey" }}>Team Name</Text>
+          </View>
+        </View>
+        <View
+          style={{
+            borderBottomWidth: 0.5,
+            borderColor: "grey",
+            width: "100%",
+            margin: "5%",
+          }}
+        ></View>
+        <Text
+          style={{
+            fontWeight: "bold",
+            alignSelf: "flex-start",
+            marginLeft: "2%",
+            fontSize: 17,
+          }}
+        >
+          Tournament Boundaries
+        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-around",
+            width: "100%",
+            margin: "3%",
+            height: "17%",
+          }}
+        >
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <Text style={{ fontWeight: "bold", color: "grey" }}>Sixes</Text>
+            <Text style={{ fontWeight: "bold", fontSize: 70 }}>0</Text>
+          </View>
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <Text style={{ fontWeight: "bold", color: "grey" }}>Fours</Text>
+            <Text style={{ fontWeight: "bold", fontSize: 70 }}>0</Text>
+          </View>
+        </View>
       </View>
       <View style={styles.slide}>
-        <Text>teams</Text>
+        <ScrollView>
+          <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
+        </ScrollView>
+        <View
+          style={{
+            flexDirection: "row",
+            height: "8%",
+            position: "absolute",
+            bottom: 0,
+            justifyContent: "space-between",
+          }}
+        >
+          <AppButton
+            style={{
+              width: "49.5%",
+              borderRadius: 0,
+              backgroundColor: "green",
+              height: "100%",
+            }}
+          >
+            Add Team
+          </AppButton>
+          <AppButton
+            style={{
+              width: "49.5%",
+              borderRadius: 0,
+              height: "100%",
+              backgroundColor: "green",
+            }}
+          >
+            Remove Team
+          </AppButton>
+        </View>
       </View>
       <View style={styles.slide}>
         <Text>matches</Text>
@@ -118,7 +261,8 @@ const styles = StyleSheet.create({
   slide: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 40,
+    paddingTop: 48,
+    padding: 10,
   },
   pagination: {
     flexDirection: "row",

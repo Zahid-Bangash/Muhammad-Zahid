@@ -250,7 +250,7 @@ export default function StartMatch({ route, navigation }) {
           flexDirection: "row",
           justifyContent: "space-around",
           width: "100%",
-          height: 150,
+          height: "17.18%",
         }}
       >
         <View style={{ justifyContent: "space-between", alignItems: "center" }}>
@@ -601,8 +601,16 @@ export default function StartMatch({ route, navigation }) {
           value="leather"
           style={{ marginHorizontal: 10 }}
         />
-        <RadioButtonItem label="TENNIS" value="tennis" style={{ marginHorizontal: 10 }} />
-        <RadioButtonItem label="OTHER" value="other" style={{ marginHorizontal: 10 }} />
+        <RadioButtonItem
+          label="TENNIS"
+          value="tennis"
+          style={{ marginHorizontal: 10 }}
+        />
+        <RadioButtonItem
+          label="OTHER"
+          value="other"
+          style={{ marginHorizontal: 10 }}
+        />
       </RadioButtonGroup>
       <Text style={{ fontWeight: "bold", marginTop: 10 }}>Match Format</Text>
       <View

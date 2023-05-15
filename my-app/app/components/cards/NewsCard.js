@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   Image,
+  Dimensions,
 } from "react-native";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -15,6 +16,7 @@ export default function NewsCard({ uri, onPress, date, description }) {
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.container}>
         <Image
+          resizeMode="stretch"
           source={uri !== "" ? { uri: uri } : require("../../assets/team1.jpg")}
           style={{
             width: "100%",
@@ -43,12 +45,11 @@ export default function NewsCard({ uri, onPress, date, description }) {
 
 const styles = StyleSheet.create({
   container: {
-    width: 320,
-    height: 200,
+    width: Dimensions.get("screen").width * 0.9,
+    height: Dimensions.get("screen").height * 0.24,
     backgroundColor: "white",
     borderRadius: 20,
     marginLeft: 20,
     elevation: 5,
-    // padding: 20,
   },
 });

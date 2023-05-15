@@ -40,7 +40,7 @@ export default function CustomDrawer(props) {
             height: 150,
             flexDirection: "row",
             alignItems: "center",
-            paddingLeft: 3,
+            paddingLeft: 12,
           }}
         >
           <TouchableWithoutFeedback
@@ -58,12 +58,14 @@ export default function CustomDrawer(props) {
               />
             )}
           </TouchableWithoutFeedback>
-          <View style={{ marginLeft: 3 }}>
+          <View style={{ marginLeft: 10 }}>
             <Text style={{ fontSize: 15, fontWeight: "bold" }}>
               {userData.Name}
             </Text>
-            <Text style={{ fontSize: 12 }}>{userData.PhoneNumber}</Text>
-            <Text style={{ fontSize: 12 }}>{userData.Email}</Text>
+            <Text style={{ fontSize: 15 }}>{userData.PhoneNumber}</Text>
+            <Text style={{ fontSize: 15, textTransform: "capitalize" }}>
+              {userData.Email}
+            </Text>
           </View>
         </View>
         <View style={{ backgroundColor: "white" }}>

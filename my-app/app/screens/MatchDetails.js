@@ -90,28 +90,16 @@ export default function MatchDetails({ route, navigation }) {
   });
 
   useEffect(() => {
-    const handleBackPress = () => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      console.log("went back");
       navigation.reset({
         index: 0,
-        routes: [{ name: "Home" }],
+        routes: [{ name: "Create Match" }],
       });
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "Start a Match" }],
-      });
-      console.log("backpressed");
-      return false; // Return false to allow the default back behavior
-    };
+    });
 
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      handleBackPress
-    );
-
-    return () => {
-      backHandler.remove();
-    };
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
   useEffect(() => {
     const matchDocRef = doc(db, "Matches", matchId);
     const firstInningsQuery = query(

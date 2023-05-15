@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Image,
   TouchableWithoutFeedback,
+  Dimensions,
 } from "react-native";
 
 export default function MyMatchCard({
@@ -133,7 +134,7 @@ export default function MyMatchCard({
 const styles = StyleSheet.create({
   container: {
     width: "95%",
-    height: 150,
+    height: Dimensions.get('screen').height*0.20,
     borderRadius: 20,
     backgroundColor: "white",
     elevation: 5,

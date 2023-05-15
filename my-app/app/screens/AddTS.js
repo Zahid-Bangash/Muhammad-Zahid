@@ -143,7 +143,7 @@ export default function AddTS({ navigation }) {
         </TouchableWithoutFeedback>
         {showStartDatePicker && (
           <DateTimePicker
-            maximumDate={new Date()}
+          value={details.startDate}
             mode="date"
             display="default"
             onChange={handleStartDateChange}
