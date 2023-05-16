@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 
 import ContextProvider from "../components/ContextProvider";
-import { MyTournaments, MyClubs, CustomDrawer } from "../screens";
+import { MyClubs, CustomDrawer } from "../screens";
 
 import TournamentNavigator from "./TournamentNavigator";
 import HomeNavigator from "./HomeNavigator";
@@ -17,6 +17,7 @@ import StartMatchNavigator from "./StartMatchNavigators";
 import MyStatsNavigator from "./MyStatsNavigator";
 import GoLiveNavigator from "./GoLiveNavigator";
 import MyMatchesNavigator from "./MyMatchesNavigator";
+import MyTournamentsNavigator from "./MyTournamentsNavigator";
 
 const Drawer = createDrawerNavigator();
 
@@ -111,7 +112,7 @@ const AppNavigator = () => (
         />
         <Drawer.Screen
           name="My Tournaments"
-          component={MyTournaments}
+          component={MyTournamentsNavigator}
           options={{
             drawerIcon: ({ size, color }) => (
               <Entypo name="trophy" size={size} color={color} />

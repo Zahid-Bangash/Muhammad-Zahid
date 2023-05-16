@@ -11,10 +11,19 @@ import {
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-export default function TournamentCard({ name, teams, status,onPress,image,date }) {
+export default function TournamentCard({
+  name,
+  teams,
+  status,
+  onPress,
+  image,
+  startDate,
+  endDate,
+  style,
+}) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
-      <View style={styles.container}>
+      <View style={[styles.container, style]}>
         <Text style={{ position: "absolute", top: 5, right: 12, color: "red" }}>
           {status}
         </Text>
@@ -27,9 +36,9 @@ export default function TournamentCard({ name, teams, status,onPress,image,date 
             <Text style={{ fontWeight: "bold", textAlign: "center" }}>
               {name}
             </Text>
-            <View style={{ flexDirection: "row",alignItems:'center' }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
               <MaterialIcons name="groups" size={22} color="#FE7F0A" />
-              <Text style={{marginLeft:5}}>{teams} teams</Text>
+              <Text style={{ marginLeft: 5 }}>{teams} teams</Text>
             </View>
           </View>
         </View>
@@ -39,9 +48,10 @@ export default function TournamentCard({ name, teams, status,onPress,image,date 
             borderBottomColor: "#000",
             marginTop: 20,
           }}
-        >
-        </View>
-        <Text style={{textAlign:'center',marginTop:10,}}>{date}</Text>
+        ></View>
+        <Text
+          style={{ textAlign: "center", marginTop: 20 }}
+        >{`${startDate} to ${endDate}`}</Text>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -49,8 +59,8 @@ export default function TournamentCard({ name, teams, status,onPress,image,date 
 
 const styles = StyleSheet.create({
   container: {
-    width: Dimensions.get('screen').width*0.90,
-    height: Dimensions.get('screen').height*0.20,
+    width: Dimensions.get("screen").width * 0.9,
+    height: Dimensions.get("screen").height * 0.2,
     borderRadius: 20,
     marginLeft: 20,
     backgroundColor: "white",

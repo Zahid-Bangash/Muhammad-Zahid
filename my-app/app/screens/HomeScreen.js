@@ -37,7 +37,10 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <ScrollView
           horizontal
-          contentContainerStyle={{ height: Dimensions.get('screen').height*0.213, paddingRight: 20 }}
+          contentContainerStyle={{
+            height: Dimensions.get("screen").height * 0.213,
+            paddingRight: 20,
+          }}
         >
           {allMatches.length > 0 ? (
             allMatches.slice(0, 6).map((match) => (
@@ -109,14 +112,18 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <ScrollView
           horizontal
-          contentContainerStyle={{ paddingRight: 20, height: Dimensions.get('screen').height*0.213 }}
+          contentContainerStyle={{
+            paddingRight: 20,
+            height: Dimensions.get("screen").height * 0.213,
+          }}
         >
           <TournamentCard
             name="zahid bangash tournament- hangu"
             teams={12}
             status="Ongoing"
             image={require("../assets/t1.jpg")}
-            date="03 Nov, 2022 to 20 Dec, 2022"
+            startDate="03 Nov, 2022"
+            endDate="03 Dec, 2022"
             onPress={() =>
               navigation.navigate("Add Tournament/series", {
                 screen: "Tournament Details",
@@ -169,7 +176,10 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <ScrollView
           horizontal
-          contentContainerStyle={{ paddingRight: 20, height: Dimensions.get('screen').height*0.213 }}
+          contentContainerStyle={{
+            paddingRight: 20,
+            height: Dimensions.get("screen").height * 0.213,
+          }}
         >
           <ClubCard
             name="Harzo Cricket Club"
@@ -207,7 +217,10 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <ScrollView
           horizontal
-          contentContainerStyle={{ height: Dimensions.get('screen').height*0.213, paddingRight: 20 }}
+          contentContainerStyle={{
+            height: Dimensions.get("screen").height * 0.213,
+            paddingRight: 20,
+          }}
         >
           {players.length > 0 ? (
             players
@@ -245,7 +258,7 @@ export default function HomeScreen({ navigation }) {
           horizontal
           contentContainerStyle={{
             paddingRight: 5,
-            height: Dimensions.get('screen').height*0.27,
+            height: Dimensions.get("screen").height * 0.27,
             alignItems: "center",
           }}
         >
@@ -291,7 +304,7 @@ export default function HomeScreen({ navigation }) {
           style={{
             padding: 20,
             width: Dimensions.get("screen").width * 0.9,
-            height: Dimensions.get('screen').height*0.19,
+            height: Dimensions.get("screen").height * 0.19,
             backgroundColor: "#3f8c67",
             borderRadius: 20,
             marginLeft: 20,

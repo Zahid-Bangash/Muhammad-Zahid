@@ -22,7 +22,7 @@ import MyMatchCard from "../components/MyMatchCard";
 import AppTextInput from "../components/AppTextInput";
 
 export default function TournamnetDetails({ navigation, route }) {
-  const { TournamentData, tournamentTeams, teams } = useContext(Context);
+  const { TournamentData, myTournamentTeams, teams } = useContext(Context);
   const { id } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
   const [showAddTeamModal, setshowAddTeamModal] = useState(false);
@@ -297,13 +297,13 @@ export default function TournamnetDetails({ navigation, route }) {
       </View>
       <View style={[styles.slide, { paddingBottom: "12.5%" }]}>
         <ScrollView contentContainerStyle={{ padding: 10 }}>
-          {tournamentTeams.length > 0 ? (
+          {/* {myTournamentTeams.length > 0 ? (
             <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
           ) : (
             <Text style={{ fontWeight: "bold", fontSize: 17 }}>
               No Team Added
             </Text>
-          )}
+          )} */}
         </ScrollView>
         <AppButton
           style={{
@@ -321,18 +321,15 @@ export default function TournamnetDetails({ navigation, route }) {
         <Modal
           visible={showAddTeamModal}
           animationType="slide"
-          transparent
           onRequestClose={() => setshowAddTeamModal(false)}
         >
           <View
             style={{
               position: "absolute",
               backgroundColor: "#07FFF0",
-              transform: [{ translateX: 28 }, { translateY: 80 }],
-              width: "85%",
-              height: "85%",
+              width: "100%",
+              height: "100%",
               alignItems: "center",
-              borderRadius: 20,
               paddingVertical: 50,
             }}
           >
@@ -400,18 +397,15 @@ export default function TournamnetDetails({ navigation, route }) {
         <Modal
           visible={showSearchModal}
           animationType="slide"
-          transparent
           onRequestClose={() => setsearchModal(false)}
         >
           <View
             style={{
               position: "absolute",
               backgroundColor: "#07FFF0",
-              transform: [{ translateX: 28 }, { translateY: 80 }],
-              width: "85%",
-              height: "85%",
+              width: "100%",
+              height: "100%",
               alignItems: "center",
-              borderRadius: 20,
               paddingVertical: 50,
             }}
           >

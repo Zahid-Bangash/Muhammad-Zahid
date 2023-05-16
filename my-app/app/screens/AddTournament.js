@@ -56,7 +56,7 @@ export default function AddTS({ navigation }) {
     }
     try {
       const tournamentRef = await addDoc(
-        collection(db, "users", auth.currentUser.uid, "Tournamnets"),
+        collection(db, "users", auth.currentUser.uid, "Tournaments"),
         {
           name: details.name,
           city: details.city,
@@ -65,10 +65,43 @@ export default function AddTS({ navigation }) {
             phone: details.organizerPhone,
             email: details.organizerEmail,
           },
-          startDate: details.startDate,
-          endDate: details.endDate,
+          startDate: details.startDate.toLocaleDateString(),
+          endDate: details.endDate.toLocaleDateString(),
           ballType: details.ballType,
           matchType: details.matchType,
+          status: "Ongoing",
+          mostRuns: {
+            playerName: "Player Name",
+            runs: 0,
+            teamName: "Team Name",
+          },
+          mostWickets: {
+            playerName: "Player Name",
+            wickets: 0,
+            teamName: "Team Name",
+          },
+          sixes: 0,
+          fours: 0,
+          highestScore: {
+            playerName: "Player Name",
+            score: 0,
+            teamName: "Team Name",
+          },
+          bestBowling: {
+            playerName: "Player Name",
+            best: "0-0",
+            teamName: "Team Name",
+          },
+          mostSixes: {
+            playerName: "Player Name",
+            sixes: 0,
+            teamName: "Team Name",
+          },
+          mostFours: {
+            playerName: "Player Name",
+            fours: 0,
+            teamName: "Team Name",
+          },
         }
       );
       const publicTournamentRef = doc(db, "Tournaments", tournamentRef.id);
@@ -80,31 +113,39 @@ export default function AddTS({ navigation }) {
           phone: details.organizerPhone,
           email: details.organizerEmail,
         },
-        startDate: details.startDate,
-        endDate: details.endDate,
+        startDate: details.startDate.toLocaleDateString(),
+        endDate: details.endDate.toLocaleDateString(),
         ballType: details.ballType,
         matchType: details.matchType,
         status: "Ongoing",
         mostRuns: { playerName: "Player Name", runs: 0, teamName: "Team Name" },
-    mostWickets: {
-      playerName: "Player Name",
-      wickets: 0,
-      teamName: "Team Name",
-    },
-    sixes: 0,
-    fours: 0,
-    highestScore: {
-      playerName: "Player Name",
-      score: 0,
-      teamName: "Team Name",
-    },
-    bestBowling: {
-      playerName: "Player Name",
-      best: "0-0",
-      teamName: "Team Name",
-    },
-    mostSixes: { playerName: "Player Name", sixes: 0, teamName: "Team Name" },
-    mostFours: { playerName: "Player Name", fours: 0, teamName: "Team Name" },
+        mostWickets: {
+          playerName: "Player Name",
+          wickets: 0,
+          teamName: "Team Name",
+        },
+        sixes: 0,
+        fours: 0,
+        highestScore: {
+          playerName: "Player Name",
+          score: 0,
+          teamName: "Team Name",
+        },
+        bestBowling: {
+          playerName: "Player Name",
+          best: "0-0",
+          teamName: "Team Name",
+        },
+        mostSixes: {
+          playerName: "Player Name",
+          sixes: 0,
+          teamName: "Team Name",
+        },
+        mostFours: {
+          playerName: "Player Name",
+          fours: 0,
+          teamName: "Team Name",
+        },
       });
       console.log("Tournament created with ID: ", tournamentRef.id);
       navigation.navigate("Tournament Details", { id: tournamentRef.id });
