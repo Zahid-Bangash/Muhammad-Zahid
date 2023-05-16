@@ -85,6 +85,26 @@ export default function AddTS({ navigation }) {
         ballType: details.ballType,
         matchType: details.matchType,
         status: "Ongoing",
+        mostRuns: { playerName: "Player Name", runs: 0, teamName: "Team Name" },
+    mostWickets: {
+      playerName: "Player Name",
+      wickets: 0,
+      teamName: "Team Name",
+    },
+    sixes: 0,
+    fours: 0,
+    highestScore: {
+      playerName: "Player Name",
+      score: 0,
+      teamName: "Team Name",
+    },
+    bestBowling: {
+      playerName: "Player Name",
+      best: "0-0",
+      teamName: "Team Name",
+    },
+    mostSixes: { playerName: "Player Name", sixes: 0, teamName: "Team Name" },
+    mostFours: { playerName: "Player Name", fours: 0, teamName: "Team Name" },
       });
       console.log("Tournament created with ID: ", tournamentRef.id);
       navigation.navigate("Tournament Details", { id: tournamentRef.id });

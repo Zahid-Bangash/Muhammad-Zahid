@@ -47,7 +47,7 @@ export default function MatchCard({ name, place, captain, onPress, onDelete }) {
                 textTransform: "capitalize",
                 marginRight: 10,
               }}
-            >{`Captain: ${captain}`}</Text>
+            >{`C: ${captain}`}</Text>
           </View>
         </View>
         <TouchableOpacity

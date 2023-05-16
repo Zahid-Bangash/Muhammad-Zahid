@@ -7,17 +7,66 @@ import {
   Image,
   ScrollView,
   Dimensions,
+  Modal,
 } from "react-native";
+import Entypo from "@expo/vector-icons/Entypo";
 import Swiper from "react-native-swiper";
 import { Context } from "../components/ContextProvider";
+
+import { addDoc, collection, getDocs, setDoc, doc } from "firebase/firestore";
+import { auth, db } from "../config/firebase-config";
 
 import AppButton from "../components/AppButton";
 import TeamCard from "../components/cards/TeamCard";
 import MyMatchCard from "../components/MyMatchCard";
+import AppTextInput from "../components/AppTextInput";
 
-export default function TournamnetDetails({ navigation }) {
-  const { TournamentData } = useContext(Context);
+export default function TournamnetDetails({ navigation, route }) {
+  const { TournamentData, tournamentTeams, teams } = useContext(Context);
+  const { id } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
+  const [showAddTeamModal, setshowAddTeamModal] = useState(false);
+  const [showSearchModal, setshowSearchModal] = useState(false);
+  const [name, setname] = useState("");
+  const [search, setsearch] = useState([]);
+
+  const searchByName = async () => {
+    const searchRef = collection(db, "Teams");
+    const snapshot = await getDocs(searchRef);
+    const searchResults = snapshot.docs.filter((doc) =>
+      doc.data()["name"].toLowerCase().includes(name.toLowerCase())
+    );
+    const searchData = searchResults.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    const result = searchData.filter(
+      (teamSearch) => !teams.some((team) => team.id === teamSearch.id)
+    );
+    setsearch(result);
+  };
+
+  const addTeamToTournament = async (team) => {
+    try {
+      const teamRef = collection(db, "Tournaments", id, "Teams");
+      const docRef = await addDoc(teamRef, team);
+      console.log("Team added to tournamnet", docRef.id);
+    } catch (error) {
+      console.error("Error adding team: ", error);
+    }
+  };
+
+  const deleteTeam = async (teamId) => {
+    const updatedTeams = teams.filter((team) => team.id !== teamId);
+    // setTeams(updatedTeams);
+    await deleteDoc(doc(db, "users", auth.currentUser.uid, "Teams", teamId));
+  };
+
+  useEffect(() => {
+    if (name.length > 0) {
+      searchByName();
+    } else setsearch([]);
+  }, [name]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("blur", () => {
@@ -248,14 +297,13 @@ export default function TournamnetDetails({ navigation }) {
       </View>
       <View style={[styles.slide, { paddingBottom: "12.5%" }]}>
         <ScrollView contentContainerStyle={{ padding: 10 }}>
-          <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
-          <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
-          <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
-          <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
-          <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
-          <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
-          <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
-          <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
+          {tournamentTeams.length > 0 ? (
+            <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
+          ) : (
+            <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+              No Team Added
+            </Text>
+          )}
         </ScrollView>
         <AppButton
           style={{
@@ -265,9 +313,165 @@ export default function TournamnetDetails({ navigation }) {
             borderRadius: 0,
             height: "8%",
           }}
+          onPress={() => setshowAddTeamModal(true)}
         >
           Add Team
         </AppButton>
+        {/* Team Modal  */}
+        <Modal
+          visible={showAddTeamModal}
+          animationType="slide"
+          transparent
+          onRequestClose={() => setshowAddTeamModal(false)}
+        >
+          <View
+            style={{
+              position: "absolute",
+              backgroundColor: "#07FFF0",
+              transform: [{ translateX: 28 }, { translateY: 80 }],
+              width: "85%",
+              height: "85%",
+              alignItems: "center",
+              borderRadius: 20,
+              paddingVertical: 50,
+            }}
+          >
+            <TouchableOpacity onPress={() => setshowSearchModal(true)}>
+              <Text
+                style={{
+                  fontSize: 24,
+                  color: "#3e5430",
+                  fontWeight: "bold",
+                }}
+              >
+                Search Team
+              </Text>
+            </TouchableOpacity>
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: "bold",
+              }}
+            >
+              OR
+            </Text>
+            <Text
+              style={{
+                fontSize: 24,
+                marginBottom: 20,
+                color: "#ba6d13",
+                fontWeight: "bold",
+              }}
+            >
+              Select from your teams
+            </Text>
+            <ScrollView
+              style={{ width: "100%" }}
+              contentContainerStyle={{ alignItems: "center" }}
+            >
+              {teams.map((team) => (
+                <TouchableOpacity
+                  key={team.id}
+                  onPress={() => addTeamToTournament(team)}
+                  style={{
+                    backgroundColor: "pink",
+                    width: "90%",
+                    height: 50,
+                    marginBottom: 5,
+                    paddingHorizontal: 10,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                    {team.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              style={{ position: "absolute", top: 5, right: 5 }}
+              onPress={() => setshowAddTeamModal(false)}
+            >
+              <Entypo name="circle-with-cross" size={45} color="red" />
+            </TouchableOpacity>
+          </View>
+        </Modal>
+        {/* Search Modal  */}
+        <Modal
+          visible={showSearchModal}
+          animationType="slide"
+          transparent
+          onRequestClose={() => setsearchModal(false)}
+        >
+          <View
+            style={{
+              position: "absolute",
+              backgroundColor: "#07FFF0",
+              transform: [{ translateX: 28 }, { translateY: 80 }],
+              width: "85%",
+              height: "85%",
+              alignItems: "center",
+              borderRadius: 20,
+              paddingVertical: 50,
+            }}
+          >
+            <AppTextInput
+              placeholder="Seach Team by Name"
+              style={{ marginBottom: 20 }}
+              value={name}
+              onChangeText={(val) => setname(val)}
+            />
+            <Text
+              style={{
+                fontSize: 20,
+                marginBottom: 20,
+                color: "#ba6d13",
+                fontWeight: "bold",
+              }}
+            >
+              Select Team from your search
+            </Text>
+            <ScrollView
+              style={{ width: "100%" }}
+              contentContainerStyle={{ alignItems: "center" }}
+            >
+              {search.length > 0 ? (
+                search.map((team) => (
+                  <TouchableOpacity
+                    key={team.id}
+                    onPress={() => addTeamToTournament(team)}
+                    style={{
+                      backgroundColor: "pink",
+                      width: "90%",
+                      height: 50,
+                      marginBottom: 5,
+                      paddingHorizontal: 10,
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                      {team.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+                  No Team Found
+                </Text>
+              )}
+            </ScrollView>
+            <TouchableOpacity
+              style={{ position: "absolute", top: 5, right: 5 }}
+              onPress={() => {
+                setshowSearchModal(false);
+                setname("");
+                setsearch([]);
+              }}
+            >
+              <Entypo name="circle-with-cross" size={45} color="red" />
+            </TouchableOpacity>
+          </View>
+        </Modal>
       </View>
       <View style={[styles.slide, { paddingBottom: "12.5%" }]}>
         <ScrollView contentContainerStyle={{ padding: 10 }}>

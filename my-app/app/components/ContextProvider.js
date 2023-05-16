@@ -206,14 +206,14 @@ const ContextProvider = ({ children }) => {
     ballType: "Ball Type",
     matchTye: "Match Type",
     status: "Ongoing",
-    mostRuns: { playerName: "Player Name", runs: 20, teamName: "Team Name" },
+    mostRuns: { playerName: "Player Name", runs: 0, teamName: "Team Name" },
     mostWickets: {
       playerName: "Player Name",
-      wickets: 5,
+      wickets: 0,
       teamName: "Team Name",
     },
-    sixes: 5,
-    fours: 2,
+    sixes: 0,
+    fours: 0,
     highestScore: {
       playerName: "Player Name",
       score: 0,
@@ -227,6 +227,7 @@ const ContextProvider = ({ children }) => {
     mostSixes: { playerName: "Player Name", sixes: 0, teamName: "Team Name" },
     mostFours: { playerName: "Player Name", fours: 0, teamName: "Team Name" },
   });
+  const [tournamentTeams, settournamentTeams] = useState([]);
 
   useEffect(() => {
     const getAllMatches = async () => {
@@ -405,6 +406,7 @@ const ContextProvider = ({ children }) => {
         allMatches,
         players,
         TournamentData,
+        tournamentTeams,
       }}
     >
       {children}
