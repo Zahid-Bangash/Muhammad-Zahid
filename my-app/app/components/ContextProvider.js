@@ -402,33 +402,14 @@ const ContextProvider = ({ children }) => {
         userId,
         "Tournaments"
       );
-
       onSnapshot(tournamentsCollectionRef, async (tournamentSnapshot) => {
         const tournaments = [];
-
-        for (const tournamentDoc of tournamentSnapshot.docs) {
-          const id = tournamentDoc.id;
-          const data = tournamentDoc.data();
-          const teamsCollection = collection(
-            tournamentsCollectionRef,
-            id,
-            "Teams"
-          );
-
-          const teamSnapshot = await getDocs(teamsCollection);
-          const teams = teamSnapshot.docs.map((teamDoc) => ({
-            id: teamDoc.id,
-            ...teamDoc.data(),
-          }));
-
-          tournaments.push({ id: id, ...data, teams: teams });
-        }
-
+        tournamentSnapshot.forEach((doc) => {
+          tournaments.push({ id: doc.id, ...doc.data() });
+        });
         setmyTournaments(tournaments);
-        console.log(tournaments[0].teams.length);
       });
     };
-
     fetchData();
   }, []);
 

@@ -71,22 +71,27 @@ export default function CustomDrawer(props) {
         <View style={{ backgroundColor: "white" }}>
           <DrawerItemList {...props} />
         </View>
-      </DrawerContentScrollView>
-      <TouchableOpacity
-        style={{ backgroundColor: "white", position: "absolute", bottom: 0 }}
-        onPress={() => {
-          signOut(auth);
-        }}
-      >
-        <View
-          style={{ flexDirection: "row", alignItems: "center", marginLeft: 16 }}
+        <TouchableOpacity
+          style={{ backgroundColor: "white" }}
+          onPress={() => {
+            signOut(auth);
+          }}
         >
-          <Ionicons name="log-out-outline" size={30} color="red" />
-          <Text style={{ color: "red", fontWeight: "bold", marginLeft: 27 }}>
-            Log out
-          </Text>
-        </View>
-      </TouchableOpacity>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginLeft: 16,
+              marginTop: 8,
+            }}
+          >
+            <Ionicons name="log-out-outline" size={30} color="red" />
+            <Text style={{ color: "red", fontWeight: "bold", marginLeft: 27 }}>
+              Log out
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </DrawerContentScrollView>
     </Screen>
   );
 }

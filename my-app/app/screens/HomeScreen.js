@@ -18,6 +18,7 @@ import NewsCard from "../components/cards/NewsCard";
 import AppButton from "../components/AppButton";
 
 export default function HomeScreen({ navigation }) {
+  console.log(Dimensions.get('screen'))
   const { news, allMatches, players } = useContext(Context);
   return (
     <Screen>

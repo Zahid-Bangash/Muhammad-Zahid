@@ -13,7 +13,14 @@ import Entypo from "@expo/vector-icons/Entypo";
 import Swiper from "react-native-swiper";
 import { Context } from "../components/ContextProvider";
 
-import { addDoc, collection, getDocs, setDoc, doc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  setDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { auth, db } from "../config/firebase-config";
 
 import AppButton from "../components/AppButton";
@@ -24,12 +31,17 @@ import AppTextInput from "../components/AppTextInput";
 export default function TournamnetDetails({ navigation, route }) {
   const { TournamentData, teams, myTournaments, setmyTournaments } =
     useContext(Context);
-  const { id, tournamentTeams } = route.params;
+  const { id } = route.params;
+  const tournamentIndex = myTournaments.findIndex(
+    (tournament) => tournament.id === id
+  );
+  const currentTournament = { ...myTournaments[tournamentIndex] };
   const [swiperIndex, setSwiperIndex] = useState(0);
   const [showAddTeamModal, setshowAddTeamModal] = useState(false);
   const [showSearchModal, setshowSearchModal] = useState(false);
   const [name, setname] = useState("");
   const [search, setsearch] = useState([]);
+  const [searchStatus, setsearchStatus] = useState("");
 
   const searchByName = async () => {
     const searchRef = collection(db, "Teams");
@@ -44,49 +56,79 @@ export default function TournamnetDetails({ navigation, route }) {
     const result = searchData.filter(
       (teamSearch) => !teams.some((team) => team.id === teamSearch.id)
     );
-    setsearch(result);
+    if (result.length > 0) {
+      setsearch(result);
+      setsearchStatus("");
+    } else {
+      setsearchStatus("No Team Found");
+    }
   };
 
   const addTeamToTournament = async (team) => {
     try {
-      const teamRefPublic = collection(db, "Tournaments", id, "Teams");
-      const docRefPublic = await addDoc(teamRefPublic, team);
-      const teamRef = doc(
-        db,
-        "users",
-        auth.currentUser.uid,
-        "Tournaments",
-        id,
-        "Teams",
-        docRefPublic.id
+      currentTournament.teams.push(team);
+      const teamRefPublic = doc(db, "Tournaments", id);
+      const docRefPublic = await updateDoc(
+        teamRefPublic,
+        { teams: currentTournament.teams },
+        { merge: true }
       );
-      await setDoc(teamRef, team);
-      const tournamentIndex = myTournaments.findIndex(
-        (tournament) => tournament.id === id
+      const teamRef = doc(db, "users", auth.currentUser.uid, "Tournaments", id);
+      await updateDoc(
+        teamRef,
+        { teams: currentTournament.teams },
+        { merge: true }
       );
-      const tournamentToUpdate = { ...myTournaments[tournamentIndex] };
-      tournamentToUpdate.teams.push(team);
-      setmyTournaments((prevTournaments) => {
-        const updatedTournaments = [...prevTournaments];
-        updatedTournaments[tournamentIndex] = tournamentToUpdate;
-        return updatedTournaments;
-      });
       alert("Team added");
-      console.log("Team added to tournamnet", docRefPublic.id);
+      console.log("Team added to tournamnet");
     } catch (error) {
       console.error("Error adding team: ", error);
     }
   };
 
-  const deleteTeam = async (teamId) => {
-    const updatedTeams = teams.filter((team) => team.id !== teamId);
-    await deleteDoc(doc(db, "users", auth.currentUser.uid, "Teams", teamId));
+  const deleteTeam = (teamId) => {
+    Alert.alert("Confirm", "Are you sure you want to remove the team?", [
+      {
+        text: "No",
+        onPress: () => {},
+      },
+      {
+        text: "Yes",
+        onPress: async () => {
+          try {
+            const updatedTeams = currentTournament.teams.filter(
+              (team) => team.id !== teamId
+            );
+            const teamRefPublic = doc(db, "Tournaments", id);
+            const docRefPublic = await updateDoc(
+              teamRefPublic,
+              { teams: updatedTeams },
+              { merge: true }
+            );
+            const teamRef = doc(
+              db,
+              "users",
+              auth.currentUser.uid,
+              "Tournaments",
+              id
+            );
+            await updateDoc(teamRef, { teams: updatedTeams }, { merge: true });
+            console.log("Team Removed");
+          } catch (error) {
+            console.error("Error adding team: ", error);
+          }
+        },
+      },
+    ]);
   };
 
   useEffect(() => {
     if (name.length > 0) {
       searchByName();
-    } else setsearch([]);
+    } else {
+      setsearch([]);
+      setsearchStatus("");
+    }
   }, [name]);
 
   useEffect(() => {
@@ -181,13 +223,13 @@ export default function TournamnetDetails({ navigation, route }) {
           }}
         >
           <Text style={{ fontWeight: "bold", fontSize: 16 }}>
-            {TournamentData.name}
+            {currentTournament.name}
           </Text>
           <Text style={{ fontWeight: "bold", fontSize: 16, color: "grey" }}>
-            {`Organized by : ${TournamentData.organizer.name}`}
+            {`Organized by : ${currentTournament.organizer.name}`}
           </Text>
           <Text style={{ fontWeight: "bold", fontSize: 16, color: "grey" }}>
-            {`Dates: ${TournamentData.startDate} - ${TournamentData.endDate}`}
+            {`Dates: ${currentTournament.startDate} - ${currentTournament.endDate}`}
           </Text>
         </View>
         <AppButton
@@ -229,14 +271,14 @@ export default function TournamnetDetails({ navigation, route }) {
             <Text
               style={{ fontWeight: "bold", fontSize: 70, marginVertical: -7 }}
             >
-              {TournamentData.mostRuns.runs}
+              {currentTournament.mostRuns.runs}
             </Text>
             <View style={{ justifyContent: "center", alignItems: "center" }}>
               <Text style={{ fontWeight: "bold", color: "grey" }}>
-                {TournamentData.mostRuns.playerName}
+                {currentTournament.mostRuns.playerName}
               </Text>
               <Text style={{ color: "grey", fontSize: 12 }}>
-                {TournamentData.mostRuns.teamName}
+                {currentTournament.mostRuns.teamName}
               </Text>
             </View>
           </View>
@@ -253,14 +295,14 @@ export default function TournamnetDetails({ navigation, route }) {
             <Text
               style={{ fontWeight: "bold", fontSize: 70, marginVertical: -7 }}
             >
-              {TournamentData.mostWickets.wickets}
+              {currentTournament.mostWickets.wickets}
             </Text>
             <View style={{ justifyContent: "center", alignItems: "center" }}>
               <Text style={{ fontWeight: "bold", color: "grey" }}>
-                {TournamentData.mostWickets.playerName}
+                {currentTournament.mostWickets.playerName}
               </Text>
               <Text style={{ color: "grey", fontSize: 12 }}>
-                {TournamentData.mostWickets.teamName}
+                {currentTournament.mostWickets.teamName}
               </Text>
             </View>
           </View>
@@ -300,7 +342,7 @@ export default function TournamnetDetails({ navigation, route }) {
           >
             <Text style={{ fontWeight: "bold", color: "grey" }}>Sixes</Text>
             <Text style={{ fontWeight: "bold", fontSize: 70 }}>
-              {TournamentData.sixes}
+              {currentTournament.sixes}
             </Text>
           </View>
           <View
@@ -312,20 +354,21 @@ export default function TournamnetDetails({ navigation, route }) {
           >
             <Text style={{ fontWeight: "bold", color: "grey" }}>Fours</Text>
             <Text style={{ fontWeight: "bold", fontSize: 70 }}>
-              {TournamentData.fours}
+              {currentTournament.fours}
             </Text>
           </View>
         </View>
       </View>
       <View style={[styles.slide, { paddingBottom: "12.5%" }]}>
         <ScrollView contentContainerStyle={{ padding: 10 }}>
-          {tournamentTeams.length > 0 ? (
-            tournamentTeams.map((team) => (
+          {currentTournament.teams.length > 0 ? (
+            currentTournament.teams.map((team) => (
               <TeamCard
                 key={team.id}
                 name={team.name}
                 place={team.place}
                 captain="Usama"
+                onPress={() => deleteTeam(team.id)}
               />
             ))
           ) : (
@@ -395,24 +438,30 @@ export default function TournamnetDetails({ navigation, route }) {
               style={{ width: "100%" }}
               contentContainerStyle={{ alignItems: "center" }}
             >
-              {teams.map((team) => (
-                <TouchableOpacity
-                  key={team.id}
-                  onPress={() => addTeamToTournament(team)}
-                  style={{
-                    backgroundColor: "pink",
-                    width: "90%",
-                    height: 50,
-                    marginBottom: 5,
-                    paddingHorizontal: 10,
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
-                    {team.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              {teams.length > 0 ? (
+                teams.map((team) => (
+                  <TouchableOpacity
+                    key={team.id}
+                    onPress={() => addTeamToTournament(team)}
+                    style={{
+                      backgroundColor: "pink",
+                      width: "90%",
+                      height: 50,
+                      marginBottom: 5,
+                      paddingHorizontal: 10,
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                      {team.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+                  You haven't any team
+                </Text>
+              )}
             </ScrollView>
             <TouchableOpacity
               style={{ position: "absolute", top: 5, right: 5 }}
@@ -479,7 +528,7 @@ export default function TournamnetDetails({ navigation, route }) {
                 ))
               ) : (
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>
-                  No Team Found
+                  {searchStatus}
                 </Text>
               )}
             </ScrollView>

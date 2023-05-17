@@ -8,7 +8,18 @@ import { MyTeams, TeamDetails, AddTeam, AddPlayer } from "../screens";
 const Stack = createNativeStackNavigator();
 
 const MyTeamsNavigator = ({ navigation }) => (
-  <Stack.Navigator initialRouteName="Teams">
+  <Stack.Navigator
+    initialRouteName="Teams"
+    screenOptions={{
+      headerStyle: {
+        backgroundColor: "#a10517",
+      },
+      headerTitleStyle: {
+        color: "white",
+      },
+      headerTintColor: "white",
+    }}
+  >
     <Stack.Screen
       name="Teams"
       component={MyTeams}
@@ -20,7 +31,7 @@ const MyTeamsNavigator = ({ navigation }) => (
               navigation.goBack();
             }}
           >
-            <Ionicons name="arrow-back" size={25} />
+            <Ionicons name="arrow-back" size={25} color="white" />
           </TouchableOpacity>
         ),
       }}

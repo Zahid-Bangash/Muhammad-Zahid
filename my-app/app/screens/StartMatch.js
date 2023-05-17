@@ -55,6 +55,7 @@ export default function StartMatch({ route, navigation }) {
 
   const [name, setname] = useState("");
   const [search, setsearch] = useState([]);
+  const [searchStatus, setsearchStatus] = useState("");
 
   const handleSelectTeam = (team) => {
     if (teamBoBeSelected === "A" && team2 && team2.id === team.id) {
@@ -130,7 +131,12 @@ export default function StartMatch({ route, navigation }) {
     const result = searchData.filter(
       (teamSearch) => !teams.some((team) => team.id === teamSearch.id)
     );
-    setsearch(result);
+    if (result.length > 0) {
+      setsearch(result);
+      setsearchStatus("");
+    } else {
+      setsearchStatus("No Team Found");
+    }
   };
 
   const handleCreateMatch = () => {
@@ -240,7 +246,10 @@ export default function StartMatch({ route, navigation }) {
   useEffect(() => {
     if (name.length > 0) {
       searchByName();
-    } else setsearch([]);
+    } else {
+      setsearch([]);
+      setsearchStatus("");
+    }
   }, [name]);
 
   return (
@@ -310,18 +319,15 @@ export default function StartMatch({ route, navigation }) {
       <Modal
         visible={modalVisible}
         animationType="slide"
-        transparent
         onRequestClose={() => setModalVisible(false)}
       >
         <View
           style={{
             position: "absolute",
             backgroundColor: "#07FFF0",
-            transform: [{ translateX: 28 }, { translateY: 80 }],
-            width: "85%",
-            height: "85%",
+            width: "100%",
+            height: "100%",
             alignItems: "center",
-            borderRadius: 20,
             paddingVertical: 50,
           }}
         >
@@ -358,24 +364,30 @@ export default function StartMatch({ route, navigation }) {
             style={{ width: "100%" }}
             contentContainerStyle={{ alignItems: "center" }}
           >
-            {teams.map((team) => (
-              <TouchableOpacity
-                key={team.id}
-                onPress={() => handleSelectTeam(team)}
-                style={{
-                  backgroundColor: "pink",
-                  width: "90%",
-                  height: 50,
-                  marginBottom: 5,
-                  paddingHorizontal: 10,
-                  justifyContent: "center",
-                }}
-              >
-                <Text style={{ fontSize: 18, marginBottom: 10 }}>
-                  {team.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {teams.length > 0 ? (
+              teams.map((team) => (
+                <TouchableOpacity
+                  key={team.id}
+                  onPress={() => handleSelectTeam(team)}
+                  style={{
+                    backgroundColor: "pink",
+                    width: "90%",
+                    height: 50,
+                    marginBottom: 5,
+                    paddingHorizontal: 10,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                    {team.name}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+                You haven't any team
+              </Text>
+            )}
           </ScrollView>
           <TouchableOpacity
             style={{ position: "absolute", top: 5, right: 5 }}
@@ -389,18 +401,15 @@ export default function StartMatch({ route, navigation }) {
       <Modal
         visible={searchModal}
         animationType="slide"
-        transparent
         onRequestClose={() => setsearchModal(false)}
       >
         <View
           style={{
             position: "absolute",
             backgroundColor: "#07FFF0",
-            transform: [{ translateX: 28 }, { translateY: 80 }],
-            width: "85%",
-            height: "85%",
+            width: "100%",
+            height: "100%",
             alignItems: "center",
-            borderRadius: 20,
             paddingVertical: 50,
           }}
         >
@@ -424,7 +433,7 @@ export default function StartMatch({ route, navigation }) {
             style={{ width: "100%" }}
             contentContainerStyle={{ alignItems: "center" }}
           >
-            {search.length > 0 &&
+            {search.length > 0 ? (
               search.map((team) => (
                 <TouchableOpacity
                   key={team.id}
@@ -442,7 +451,12 @@ export default function StartMatch({ route, navigation }) {
                     {team.name}
                   </Text>
                 </TouchableOpacity>
-              ))}
+              ))
+            ) : (
+              <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+                {searchStatus}
+              </Text>
+            )}
           </ScrollView>
           <TouchableOpacity
             style={{ position: "absolute", top: 5, right: 5 }}
@@ -459,19 +473,16 @@ export default function StartMatch({ route, navigation }) {
       {/* Squad Modal */}
       <Modal
         visible={squadModal}
-        animationType="fade"
-        transparent
+        animationType="slide"
         onRequestClose={() => setsquadModal(false)}
       >
         <View
           style={{
             position: "absolute",
             backgroundColor: "#c0c589",
-            transform: [{ translateX: 28 }, { translateY: 80 }],
-            width: "85%",
-            height: "85%",
+            width: "100%",
+            height: "100%",
             alignItems: "center",
-            borderRadius: 20,
             paddingTop: 50,
           }}
         >

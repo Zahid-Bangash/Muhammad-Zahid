@@ -7,7 +7,7 @@ import MyMatchCard from "../components/MyMatchCard";
 export default function MyMatches({ navigation }) {
   const { myMatches } = useContext(Context);
   return (
-    <View style={{ alignItems: "center",justifyContent:'center',flex:1 }}>
+    <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
       {myMatches.length > 0 ? (
         myMatches.map((match) => (
           <ScrollView key={match.id} contentContainerStyle={styles.container}>

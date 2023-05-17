@@ -102,6 +102,7 @@ export default function AddTS({ navigation }) {
             fours: 0,
             teamName: "Team Name",
           },
+          teams: [],
         }
       );
       const publicTournamentRef = doc(db, "Tournaments", tournamentRef.id);
@@ -146,6 +147,7 @@ export default function AddTS({ navigation }) {
           fours: 0,
           teamName: "Team Name",
         },
+        teams: [],
       });
       console.log("Tournament created with ID: ", tournamentRef.id);
       navigation.navigate("Tournament Details", { id: tournamentRef.id });
@@ -235,7 +237,6 @@ export default function AddTS({ navigation }) {
         onSelected={(val) => setdetails({ ...details, ballType: val })}
         radioBackground="green"
         containerStyle={{ flexDirection: "row" }}
-        // style={{with:'100%'}}
       >
         <RadioButtonItem
           label="LEATHER"

@@ -25,7 +25,6 @@ export default function MyTournaments({ navigation }) {
                   screen: "Tournament Details",
                   params: {
                     id: tournament.id,
-                    tournamentTeams: tournament.teams,
                   },
                 })
               }
