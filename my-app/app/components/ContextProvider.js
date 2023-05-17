@@ -227,7 +227,6 @@ const ContextProvider = ({ children }) => {
     mostSixes: { playerName: "Player Name", sixes: 0, teamName: "Team Name" },
     mostFours: { playerName: "Player Name", fours: 0, teamName: "Team Name" },
   });
-  const [myTournamentTeams, setmyTournamentTeams] = useState([]);
   const [myTournaments, setmyTournaments] = useState([]);
 
   useEffect(() => {
@@ -403,9 +402,11 @@ const ContextProvider = ({ children }) => {
         userId,
         "Tournaments"
       );
-      onSnapshot(tournamentsCollectionRef, (tournamentSnapshot) => {
+
+      onSnapshot(tournamentsCollectionRef, async (tournamentSnapshot) => {
         const tournaments = [];
-        tournamentSnapshot.forEach(async (tournamentDoc) => {
+
+        for (const tournamentDoc of tournamentSnapshot.docs) {
           const id = tournamentDoc.id;
           const data = tournamentDoc.data();
           const teamsCollection = collection(
@@ -413,45 +414,22 @@ const ContextProvider = ({ children }) => {
             id,
             "Teams"
           );
-          const teams = [];
-          onSnapshot(teamsCollection, (teamSnapshot) => {
-            teamSnapshot.forEach((teamDoc) => {
-              teams.push({ id: teamDoc.id, ...teamDoc.data() });
-            });
-          });
+
+          const teamSnapshot = await getDocs(teamsCollection);
+          const teams = teamSnapshot.docs.map((teamDoc) => ({
+            id: teamDoc.id,
+            ...teamDoc.data(),
+          }));
+
           tournaments.push({ id: id, ...data, teams: teams });
-        });
+        }
+
         setmyTournaments(tournaments);
+        console.log(tournaments[0].teams.length);
       });
     };
+
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    const userId = auth.currentUser && auth.currentUser.uid;
-    const tournamentsCollectionRef = collection(
-      db,
-      "users",
-      userId,
-      "Tournaments"
-    );
-
-    onSnapshot(tournamentsCollectionRef, (tournamentSnapshot) => {
-      const teams = [];
-      tournamentSnapshot.forEach((tournamentDoc) => {
-        const teamsCollection = collection(
-          tournamentsCollectionRef,
-          tournamentDoc.id,
-          "Teams"
-        );
-        onSnapshot(teamsCollection, (teamsSnapshot) => {
-          teamsSnapshot.forEach((teamDoc) => {
-            teams.push({ id: teamDoc.id, ...teamDoc.data() });
-          });
-        });
-      });
-      setmyTournamentTeams(teams);
-    });
   }, []);
 
   return (
@@ -469,7 +447,7 @@ const ContextProvider = ({ children }) => {
         players,
         TournamentData,
         myTournaments,
-        myTournamentTeams,
+        setmyTournaments,
       }}
     >
       {children}

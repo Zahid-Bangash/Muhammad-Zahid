@@ -40,22 +40,25 @@ export default function MyTeams({ navigation }) {
           <Ionicons name="add" size={45} color="green" />
         </TouchableOpacity>
       </View>
-      <ScrollView>
-        {teams.map((team) => (
-          <TeamCard
-            key={team.id}
-            name={team.name}
-            place={team.place}
-            // captain={team.captain.name}
-            onDelete={() => deleteTeam(team.id)}
-            onPress={() =>
-              navigation.navigate("Team Details", {
-                teamId: team.id,
-              })
-            }
-          />
-        ))}
-      </ScrollView>
+      {teams.length > 0 ? (
+        teams.map((team) => (
+          <ScrollView key={team.id}>
+            <TeamCard
+              name={team.name}
+              place={team.place}
+              // captain={team.captain.name}
+              onDelete={() => deleteTeam(team.id)}
+              onPress={() =>
+                navigation.navigate("Team Details", {
+                  teamId: team.id,
+                })
+              }
+            />
+          </ScrollView>
+        ))
+      ) : (
+        <Text style={{ fontWeight: "bold", fontSize: 17 }}>No Team Added</Text>
+      )}
     </View>
   );
 }

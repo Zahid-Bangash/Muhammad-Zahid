@@ -100,6 +100,7 @@ export default function MatchDetails({ route, navigation }) {
 
     return unsubscribe;
   }, [navigation]);
+  
   useEffect(() => {
     const matchDocRef = doc(db, "Matches", matchId);
     const firstInningsQuery = query(

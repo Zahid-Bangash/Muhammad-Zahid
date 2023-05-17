@@ -22,8 +22,9 @@ import MyMatchCard from "../components/MyMatchCard";
 import AppTextInput from "../components/AppTextInput";
 
 export default function TournamnetDetails({ navigation, route }) {
-  const { TournamentData, myTournamentTeams, teams } = useContext(Context);
-  const { id } = route.params;
+  const { TournamentData, teams, myTournaments, setmyTournaments } =
+    useContext(Context);
+  const { id, tournamentTeams } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
   const [showAddTeamModal, setshowAddTeamModal] = useState(false);
   const [showSearchModal, setshowSearchModal] = useState(false);
@@ -48,9 +49,30 @@ export default function TournamnetDetails({ navigation, route }) {
 
   const addTeamToTournament = async (team) => {
     try {
-      const teamRef = collection(db, "Tournaments", id, "Teams");
-      const docRef = await addDoc(teamRef, team);
-      console.log("Team added to tournamnet", docRef.id);
+      const teamRefPublic = collection(db, "Tournaments", id, "Teams");
+      const docRefPublic = await addDoc(teamRefPublic, team);
+      const teamRef = doc(
+        db,
+        "users",
+        auth.currentUser.uid,
+        "Tournaments",
+        id,
+        "Teams",
+        docRefPublic.id
+      );
+      await setDoc(teamRef, team);
+      const tournamentIndex = myTournaments.findIndex(
+        (tournament) => tournament.id === id
+      );
+      const tournamentToUpdate = { ...myTournaments[tournamentIndex] };
+      tournamentToUpdate.teams.push(team);
+      setmyTournaments((prevTournaments) => {
+        const updatedTournaments = [...prevTournaments];
+        updatedTournaments[tournamentIndex] = tournamentToUpdate;
+        return updatedTournaments;
+      });
+      alert("Team added");
+      console.log("Team added to tournamnet", docRefPublic.id);
     } catch (error) {
       console.error("Error adding team: ", error);
     }
@@ -58,7 +80,6 @@ export default function TournamnetDetails({ navigation, route }) {
 
   const deleteTeam = async (teamId) => {
     const updatedTeams = teams.filter((team) => team.id !== teamId);
-    // setTeams(updatedTeams);
     await deleteDoc(doc(db, "users", auth.currentUser.uid, "Teams", teamId));
   };
 
@@ -70,6 +91,7 @@ export default function TournamnetDetails({ navigation, route }) {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("blur", () => {
+      console.log("went back tournament");
       navigation.reset({
         index: 0,
         routes: [{ name: "Create Tournament" }],
@@ -297,13 +319,20 @@ export default function TournamnetDetails({ navigation, route }) {
       </View>
       <View style={[styles.slide, { paddingBottom: "12.5%" }]}>
         <ScrollView contentContainerStyle={{ padding: 10 }}>
-          {/* {myTournamentTeams.length > 0 ? (
-            <TeamCard name="Usama 11" place="Hazro" captain="Usama" />
+          {tournamentTeams.length > 0 ? (
+            tournamentTeams.map((team) => (
+              <TeamCard
+                key={team.id}
+                name={team.name}
+                place={team.place}
+                captain="Usama"
+              />
+            ))
           ) : (
             <Text style={{ fontWeight: "bold", fontSize: 17 }}>
               No Team Added
             </Text>
-          )} */}
+          )}
         </ScrollView>
         <AppButton
           style={{

@@ -53,7 +53,7 @@ const AppNavigator = () => (
           }}
         />
         <Drawer.Screen
-          name="Add Tournament/series"
+          name="Add Tournament"
           component={TournamentNavigator}
           options={{
             drawerIcon: ({ size, color }) => (

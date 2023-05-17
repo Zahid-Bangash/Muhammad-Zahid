@@ -4,34 +4,45 @@ import { Context } from "../components/ContextProvider";
 
 import TournamentCard from "../components/cards/TournamentCard";
 
-export default function MyTournaments() {
+export default function MyTournaments({ navigation }) {
   const { myTournaments } = useContext(Context);
   return (
-      <ScrollView contentContainerStyle={styles.container}>
-        {myTournaments.length > 0 ? (
-          myTournaments.map((tournament) => (
+    <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
+      {myTournaments.length > 0 ? (
+        <ScrollView contentContainerStyle={styles.container}>
+          {myTournaments.map((tournament) => (
             <TournamentCard
-            style={{marginLeft:0,marginBottom:10,}}
               key={tournament.id}
+              style={{ marginLeft: 0, marginBottom: 10 }}
               name={tournament.name}
               teams={12}
               status={tournament.status}
               image={require("../assets/t1.jpg")}
               startDate={tournament.startDate}
               endDate={tournament.endDate}
+              onPress={() =>
+                navigation.navigate("Add Tournament", {
+                  screen: "Tournament Details",
+                  params: {
+                    id: tournament.id,
+                    tournamentTeams: tournament.teams,
+                  },
+                })
+              }
             />
-          ))
-        ) : (
-          <Text style={{ fontWeight: "bold", fontSize: 17 }}>No Team</Text>
-        )}
-      </ScrollView>
+          ))}
+        </ScrollView>
+      ) : (
+        <Text style={{ fontWeight: "bold", fontSize: 17 }}>No Tournaments</Text>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    minHeight:'100%',
+    minHeight: "100%",
     alignItems: "center",
-    paddingTop:15,
+    padding: 15,
   },
 });
