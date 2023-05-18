@@ -8,6 +8,7 @@ import {
   ScrollView,
   Dimensions,
   Modal,
+  Alert,
 } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import Swiper from "react-native-swiper";
@@ -29,8 +30,7 @@ import MyMatchCard from "../components/MyMatchCard";
 import AppTextInput from "../components/AppTextInput";
 
 export default function TournamnetDetails({ navigation, route }) {
-  const { TournamentData, teams, myTournaments, setmyTournaments } =
-    useContext(Context);
+  const { teams, myTournaments, setmyTournaments } = useContext(Context);
   const { id } = route.params;
   const tournamentIndex = myTournaments.findIndex(
     (tournament) => tournament.id === id
@@ -56,16 +56,24 @@ export default function TournamnetDetails({ navigation, route }) {
     const result = searchData.filter(
       (teamSearch) => !teams.some((team) => team.id === teamSearch.id)
     );
-    if (result.length > 0) {
-      setsearch(result);
+    const resultFinal = searchData.filter(
+      (teamSearch) =>
+        !currentTournament.teams.some((team) => team.id === teamSearch.id)
+    );
+    if (resultFinal.length > 0) {
+      setsearch(resultFinal);
       setsearchStatus("");
     } else {
-      setsearchStatus("No Team Found");
+      setsearchStatus("No Team to be added");
     }
   };
 
   const addTeamToTournament = async (team) => {
     try {
+      if (currentTournament.teams.some((team) => team.id === team)) {
+        alert("Team is already added");
+        return;
+      }
       currentTournament.teams.push(team);
       const teamRefPublic = doc(db, "Tournaments", id);
       const docRefPublic = await updateDoc(
@@ -129,7 +137,7 @@ export default function TournamnetDetails({ navigation, route }) {
       setsearch([]);
       setsearchStatus("");
     }
-  }, [name]);
+  }, [name, currentTournament.teams]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("blur", () => {
@@ -368,7 +376,7 @@ export default function TournamnetDetails({ navigation, route }) {
                 name={team.name}
                 place={team.place}
                 captain="Usama"
-                onPress={() => deleteTeam(team.id)}
+                onDelete={() => deleteTeam(team.id)}
               />
             ))
           ) : (
@@ -684,7 +692,7 @@ export default function TournamnetDetails({ navigation, route }) {
               />
               <View style={{ width: "100%", alignItems: "center" }}>
                 <Text style={{ fontSize: 40, fontWeight: "bold" }}>
-                  {TournamentData.mostRuns.runs}
+                  {currentTournament.mostRuns.runs}
                 </Text>
                 <Text style={{ fontWeight: "bold", color: "grey" }}>
                   Most Runs
@@ -698,7 +706,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     textTransform: "capitalize",
                   }}
                 >
-                  {TournamentData.mostRuns.playerName}
+                  {currentTournament.mostRuns.playerName}
                 </Text>
                 <Text
                   style={{
@@ -707,7 +715,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     color: "grey",
                   }}
                 >
-                  {TournamentData.mostRuns.teamName}
+                  {currentTournament.mostRuns.teamName}
                 </Text>
               </View>
             </View>
@@ -734,7 +742,7 @@ export default function TournamnetDetails({ navigation, route }) {
               />
               <View style={{ width: "100%", alignItems: "center" }}>
                 <Text style={{ fontSize: 40, fontWeight: "bold" }}>
-                  {TournamentData.mostWickets.wickets}
+                  {currentTournament.mostWickets.wickets}
                 </Text>
                 <Text style={{ fontWeight: "bold", color: "grey" }}>
                   Most Wickets
@@ -748,7 +756,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     textTransform: "capitalize",
                   }}
                 >
-                  {TournamentData.mostWickets.playerName}
+                  {currentTournament.mostWickets.playerName}
                 </Text>
                 <Text
                   style={{
@@ -757,7 +765,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     color: "grey",
                   }}
                 >
-                  {TournamentData.mostWickets.teamName}
+                  {currentTournament.mostWickets.teamName}
                 </Text>
               </View>
             </View>
@@ -793,7 +801,7 @@ export default function TournamnetDetails({ navigation, route }) {
               />
               <View style={{ width: "100%", alignItems: "center" }}>
                 <Text style={{ fontSize: 40, fontWeight: "bold" }}>
-                  {TournamentData.highestScore.score}
+                  {currentTournament.highestScore.score}
                 </Text>
                 <Text style={{ fontWeight: "bold", color: "grey" }}>
                   Highest Score
@@ -807,7 +815,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     textTransform: "capitalize",
                   }}
                 >
-                  {TournamentData.highestScore.playerName}
+                  {currentTournament.highestScore.playerName}
                 </Text>
                 <Text
                   style={{
@@ -816,7 +824,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     color: "grey",
                   }}
                 >
-                  {TournamentData.highestScore.teamName}
+                  {currentTournament.highestScore.teamName}
                 </Text>
               </View>
             </View>
@@ -843,7 +851,7 @@ export default function TournamnetDetails({ navigation, route }) {
               />
               <View style={{ width: "100%", alignItems: "center" }}>
                 <Text style={{ fontSize: 40, fontWeight: "bold" }}>
-                  {TournamentData.bestBowling.best}
+                  {currentTournament.bestBowling.best}
                 </Text>
                 <Text style={{ fontWeight: "bold", color: "grey" }}>
                   Best Bowling
@@ -857,7 +865,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     textTransform: "capitalize",
                   }}
                 >
-                  {TournamentData.highestScore.playerName}
+                  {currentTournament.highestScore.playerName}
                 </Text>
                 <Text
                   style={{
@@ -866,7 +874,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     color: "grey",
                   }}
                 >
-                  {TournamentData.highestScore.teamName}
+                  {currentTournament.highestScore.teamName}
                 </Text>
               </View>
             </View>
@@ -901,7 +909,7 @@ export default function TournamnetDetails({ navigation, route }) {
               />
               <View style={{ width: "100%", alignItems: "center" }}>
                 <Text style={{ fontSize: 40, fontWeight: "bold" }}>
-                  {TournamentData.mostSixes.sixes}
+                  {currentTournament.mostSixes.sixes}
                 </Text>
                 <Text style={{ fontWeight: "bold", color: "grey" }}>
                   Most Sixes
@@ -915,7 +923,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     textTransform: "capitalize",
                   }}
                 >
-                  {TournamentData.mostSixes.playerName}
+                  {currentTournament.mostSixes.playerName}
                 </Text>
                 <Text
                   style={{
@@ -924,7 +932,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     color: "grey",
                   }}
                 >
-                  {TournamentData.mostSixes.teamName}
+                  {currentTournament.mostSixes.teamName}
                 </Text>
               </View>
             </View>
@@ -951,7 +959,7 @@ export default function TournamnetDetails({ navigation, route }) {
               />
               <View style={{ width: "100%", alignItems: "center" }}>
                 <Text style={{ fontSize: 40, fontWeight: "bold" }}>
-                  {TournamentData.mostFours.fours}
+                  {currentTournament.mostFours.fours}
                 </Text>
                 <Text style={{ fontWeight: "bold", color: "grey" }}>
                   Most Fours
@@ -965,7 +973,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     textTransform: "capitalize",
                   }}
                 >
-                  {TournamentData.mostFours.playerName}
+                  {currentTournament.mostFours.playerName}
                 </Text>
                 <Text
                   style={{
@@ -974,7 +982,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     color: "grey",
                   }}
                 >
-                  {TournamentData.mostFours.teamName}
+                  {currentTournament.mostFours.teamName}
                 </Text>
               </View>
             </View>

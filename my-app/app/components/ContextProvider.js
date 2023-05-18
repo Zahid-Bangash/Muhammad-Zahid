@@ -197,36 +197,6 @@ const ContextProvider = ({ children }) => {
   const [allMatches, setallMatches] = useState([]);
   const [myMatches, setmyMatches] = useState([]);
   const [players, setplayers] = useState([]);
-  const [TournamentData, setTournamentData] = useState({
-    name: "Name",
-    city: "City",
-    organizer: { name: "Organizer", phone: "Phone", email: "Email" },
-    startDate: "01/01/23",
-    endDate: "15/01/23",
-    ballType: "Ball Type",
-    matchTye: "Match Type",
-    status: "Ongoing",
-    mostRuns: { playerName: "Player Name", runs: 0, teamName: "Team Name" },
-    mostWickets: {
-      playerName: "Player Name",
-      wickets: 0,
-      teamName: "Team Name",
-    },
-    sixes: 0,
-    fours: 0,
-    highestScore: {
-      playerName: "Player Name",
-      score: 0,
-      teamName: "Team Name",
-    },
-    bestBowling: {
-      playerName: "Player Name",
-      best: "0-0",
-      teamName: "Team Name",
-    },
-    mostSixes: { playerName: "Player Name", sixes: 0, teamName: "Team Name" },
-    mostFours: { playerName: "Player Name", fours: 0, teamName: "Team Name" },
-  });
   const [myTournaments, setmyTournaments] = useState([]);
 
   useEffect(() => {
@@ -426,7 +396,6 @@ const ContextProvider = ({ children }) => {
         myMatches,
         allMatches,
         players,
-        TournamentData,
         myTournaments,
         setmyTournaments,
       }}

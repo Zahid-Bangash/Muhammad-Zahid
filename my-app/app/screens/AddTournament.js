@@ -103,6 +103,7 @@ export default function AddTS({ navigation }) {
             teamName: "Team Name",
           },
           teams: [],
+          matches:[],
         }
       );
       const publicTournamentRef = doc(db, "Tournaments", tournamentRef.id);
