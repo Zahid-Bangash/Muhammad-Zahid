@@ -23,6 +23,8 @@ import MyTeamsNavigator from "../navigation/MyTeamsNavigator";
 import ScoringModal from "../components/ScoringModal";
 
 export default function StartMatch({ route, navigation }) {
+  const { tid = "1", param2 = "2" } = route.params ? route.params : {};
+  console.log(tid);
   const { teams } = useContext(Context);
   const [matchDetails, setmatchDetails] = useState({
     venue: "",

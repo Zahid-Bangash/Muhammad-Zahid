@@ -7,7 +7,9 @@ import {
   StyleSheet,
   Image,
   Dimensions,
+  TouchableOpacity,
 } from "react-native";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
@@ -20,10 +22,20 @@ export default function TournamentCard({
   startDate,
   endDate,
   style,
+  showDelete,
+  onDelete,
 }) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={[styles.container, style]}>
+        {/* {showDelete && ( */}
+        {/* <TouchableOpacity
+          style={{ position: "absolute", top: 5, right: 5 }}
+          onPress={onDelete}
+        >
+          <AntDesign name="delete" size={25} color="red" />
+        </TouchableOpacity> */}
+        {/* )} */}
         <Text style={{ position: "absolute", top: 5, right: 12, color: "red" }}>
           {status}
         </Text>

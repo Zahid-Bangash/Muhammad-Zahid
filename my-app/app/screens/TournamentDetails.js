@@ -36,6 +36,9 @@ export default function TournamnetDetails({ navigation, route }) {
     (tournament) => tournament.id === id
   );
   const currentTournament = { ...myTournaments[tournamentIndex] };
+  const myTeams = teams.filter(
+    (myteam) => !currentTournament.teams.some((team) => team.id === myteam.id)
+  );
   const [swiperIndex, setSwiperIndex] = useState(0);
   const [showAddTeamModal, setshowAddTeamModal] = useState(false);
   const [showSearchModal, setshowSearchModal] = useState(false);
@@ -56,12 +59,9 @@ export default function TournamnetDetails({ navigation, route }) {
     const result = searchData.filter(
       (teamSearch) => !teams.some((team) => team.id === teamSearch.id)
     );
-    const resultFinal = searchData.filter(
-      (teamSearch) =>
-        !currentTournament.teams.some((team) => team.id === teamSearch.id)
-    );
-    if (resultFinal.length > 0) {
-      setsearch(resultFinal);
+
+    if (result.length > 0) {
+      setsearch(result);
       setsearchStatus("");
     } else {
       setsearchStatus("No Team to be added");
@@ -70,10 +70,6 @@ export default function TournamnetDetails({ navigation, route }) {
 
   const addTeamToTournament = async (team) => {
     try {
-      if (currentTournament.teams.some((team) => team.id === team)) {
-        alert("Team is already added");
-        return;
-      }
       currentTournament.teams.push(team);
       const teamRefPublic = doc(db, "Tournaments", id);
       const docRefPublic = await updateDoc(
@@ -131,13 +127,25 @@ export default function TournamnetDetails({ navigation, route }) {
   };
 
   useEffect(() => {
+    if (search.length > 0) {
+      if (search.length === 1) setsearchStatus("No Team to be added");
+      setsearch(
+        search.filter(
+          (teamSearch) =>
+            !currentTournament.teams.some((team) => team.id === teamSearch.id)
+        )
+      );
+    }
+  }, [currentTournament.teams]);
+
+  useEffect(() => {
     if (name.length > 0) {
       searchByName();
     } else {
       setsearch([]);
       setsearchStatus("");
     }
-  }, [name, currentTournament.teams]);
+  }, [name]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("blur", () => {
@@ -446,8 +454,8 @@ export default function TournamnetDetails({ navigation, route }) {
               style={{ width: "100%" }}
               contentContainerStyle={{ alignItems: "center" }}
             >
-              {teams.length > 0 ? (
-                teams.map((team) => (
+              {myTeams.length > 0 ? (
+                myTeams.map((team) => (
                   <TouchableOpacity
                     key={team.id}
                     onPress={() => addTeamToTournament(team)}
@@ -467,7 +475,7 @@ export default function TournamnetDetails({ navigation, route }) {
                 ))
               ) : (
                 <Text style={{ fontWeight: "bold", fontSize: 17 }}>
-                  You haven't any team
+                  No team to be added
                 </Text>
               )}
             </ScrollView>
@@ -554,92 +562,33 @@ export default function TournamnetDetails({ navigation, route }) {
         </Modal>
       </View>
       <View style={[styles.slide, { paddingBottom: "12.5%" }]}>
+        {/* {currentTournament.matches.length>0?} */}
         <ScrollView contentContainerStyle={{ padding: 10 }}>
-          <MyMatchCard
-            style={{
-              width: Dimensions.get("screen").width * 0.9,
-            }}
-            team1="zahid"
-            team2="usama"
-            status="completed"
-            result="zahid won by 9 runs"
-            matchFormat="T20"
-            date="14/05/23"
-            firstInningsBalls={32}
-            secondInningsBalls={22}
-            firstInningsRuns={71}
-            secondInningsRuns={62}
-            firstInningsWickets={2}
-            secondInningsWickets={3}
-          />
-          <MyMatchCard
-            style={{
-              width: Dimensions.get("screen").width * 0.9,
-            }}
-            team1="zahid"
-            team2="usama"
-            status="completed"
-            result="zahid won by 9 runs"
-            matchFormat="T20"
-            date="14/05/23"
-            firstInningsBalls={32}
-            secondInningsBalls={22}
-            firstInningsRuns={71}
-            secondInningsRuns={62}
-            firstInningsWickets={2}
-            secondInningsWickets={3}
-          />
-          <MyMatchCard
-            style={{
-              width: Dimensions.get("screen").width * 0.9,
-            }}
-            team1="zahid"
-            team2="usama"
-            status="completed"
-            result="zahid won by 9 runs"
-            matchFormat="T20"
-            date="14/05/23"
-            firstInningsBalls={32}
-            secondInningsBalls={22}
-            firstInningsRuns={71}
-            secondInningsRuns={62}
-            firstInningsWickets={2}
-            secondInningsWickets={3}
-          />
-          <MyMatchCard
-            style={{
-              width: Dimensions.get("screen").width * 0.9,
-            }}
-            team1="zahid"
-            team2="usama"
-            status="completed"
-            result="zahid won by 9 runs"
-            matchFormat="T20"
-            date="14/05/23"
-            firstInningsBalls={32}
-            secondInningsBalls={22}
-            firstInningsRuns={71}
-            secondInningsRuns={62}
-            firstInningsWickets={2}
-            secondInningsWickets={3}
-          />
-          <MyMatchCard
-            style={{
-              width: Dimensions.get("screen").width * 0.9,
-            }}
-            team1="zahid"
-            team2="usama"
-            status="completed"
-            result="zahid won by 9 runs"
-            matchFormat="T20"
-            date="14/05/23"
-            firstInningsBalls={32}
-            secondInningsBalls={22}
-            firstInningsRuns={71}
-            secondInningsRuns={62}
-            firstInningsWickets={2}
-            secondInningsWickets={3}
-          />
+          {currentTournament.matches.length > 0 ? (
+            currentTournament.matches.map((team) => (
+              <MyMatchCard
+                style={{
+                  width: Dimensions.get("screen").width * 0.9,
+                }}
+                team1="zahid"
+                team2="usama"
+                status="completed"
+                result="zahid won by 9 runs"
+                matchFormat="T20"
+                date="14/05/23"
+                firstInningsBalls={32}
+                secondInningsBalls={22}
+                firstInningsRuns={71}
+                secondInningsRuns={62}
+                firstInningsWickets={2}
+                secondInningsWickets={3}
+              />
+            ))
+          ) : (
+            <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+              No Match Played
+            </Text>
+          )}
         </ScrollView>
         <AppButton
           style={{
@@ -649,6 +598,12 @@ export default function TournamnetDetails({ navigation, route }) {
             borderRadius: 0,
             height: "8%",
           }}
+          onPress={() =>
+            navigation.navigate("Start a Match", {
+              screen: "Create Match",
+              params: { tid: 2222 },
+            })
+          }
         >
           Start Match
         </AppButton>
