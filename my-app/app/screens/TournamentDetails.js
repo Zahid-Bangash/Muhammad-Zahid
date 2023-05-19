@@ -820,7 +820,7 @@ export default function TournamnetDetails({ navigation, route }) {
               />
               <View style={{ width: "100%", alignItems: "center" }}>
                 <Text style={{ fontSize: 40, fontWeight: "bold" }}>
-                  {currentTournament.bestBowling.best}
+                  {currentTournament.bestBowling.best.wickets}-{currentTournament.bestBowling.best.runs}
                 </Text>
                 <Text style={{ fontWeight: "bold", color: "grey" }}>
                   Best Bowling

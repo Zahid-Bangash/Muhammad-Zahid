@@ -89,7 +89,7 @@ export default function AddTS({ navigation }) {
           },
           bestBowling: {
             playerName: "Player Name",
-            best: "0-0",
+            best: {wickets:0,runs:0},
             teamName: "Team Name",
           },
           mostSixes: {

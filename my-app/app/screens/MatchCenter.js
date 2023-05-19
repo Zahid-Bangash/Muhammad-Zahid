@@ -568,6 +568,7 @@ export default function MatchCenter({ route, navigation }) {
           {
             text: "Yes",
             onPress: () => {
+              if (tournamentId !== "") updateTournament();
               updatePlayerStats();
               navigation.navigate("Match Details", { matchId: matchId });
             },
@@ -661,6 +662,7 @@ export default function MatchCenter({ route, navigation }) {
         const tournamentMatchRef = doc(
           db,
           "users",
+          auth.currentUser.uid,
           "Tournaments",
           tournamentId,
           "Matches",
@@ -682,53 +684,158 @@ export default function MatchCenter({ route, navigation }) {
     }
   };
 
-  const updateTournament = () => {
+  const updateTournament = async () => {
     const updatedTournamentData = { ...tournamentData };
-    firstInnings.allBatsmen.forEach((batsman)=>{
-      updatedTournamentData.fours+=batsman.fours;
-      updatedTournamentData.sixes+=batsman.sixes;
-      if(batsman.runsScored>updatedTournamentData.highestScore.score) {
-        updatedTournamentData.highestScore.score=batsman.runsScored;
-        updatedTournamentData.highestScore.playerName=batsman.name;
-        updatedTournamentData.highestScore.teamName=firstInnings.battingTeam;
+    let highestScore = { playerName: "", score: 0, teamName: "" };
+    let mostWickets = { playerName: "", wickets: 0, teamName: "" };
+    let mostFours = { playerName: "", fours: 0, teamName: "" };
+    let mostSixes = { playerName: "", sixes: 0, teamName: "" };
+    let bestBowling = {
+      playerName: "",
+      best: { wickets: 0, runs: 0 },
+      teamName: "",
+    };
+    firstInnings.allBatsmen.forEach((batsman) => {
+      updatedTournamentData.fours += batsman.fours;
+      updatedTournamentData.sixes += batsman.sixes;
+      if (batsman.runsScored > highestScore.score) {
+        highestScore = {
+          playerName: batsman.name,
+          score: batsman.runsScored,
+          teamName: firstInnings.battingTeam,
+        };
       }
-      if(batsman.fours>updatedTournamentData.mostFours.fours) {
-        updatedTournamentData.mostFours.fours=batsman.fours;
-        updatedTournamentData.mostFours.playerName=batsman.name;
-        updatedTournamentData.mostFours.teamName=firstInnings.battingTeam;
+      if (batsman.fours > mostFours.fours) {
+        mostFours = {
+          playerName: batsman.name,
+          fours: batsman.fours,
+          teamName: firstInnings.battingTeam,
+        };
       }
-      if(batsman.sixes>updatedTournamentData.mostSixes.sixes) {
-        updatedTournamentData.mostSixes.sixes=batsman.sixes;
-        updatedTournamentData.mostSixes.playerName=batsman.name;
-        updatedTournamentData.mostSixes.teamName=firstInnings.battingTeam;
+      if (batsman.sixes > mostSixes.sixes) {
+        mostSixes = {
+          playerName: batsman.name,
+          sixes: batsman.sixes,
+          teamName: firstInnings.battingTeam,
+        };
       }
-    })
-    secondInnings.allBatsmen.forEach((batsman)=>{
-      updatedTournamentData.fours+=batsman.fours;
-      updatedTournamentData.sixes+=batsman.sixes;
-      if(batsman.runsScored>updatedTournamentData.highestScore.score) {
-        updatedTournamentData.highestScore.score=batsman.runsScored;
-        updatedTournamentData.highestScore.playerName=batsman.name;
-        updatedTournamentData.highestScore.teamName=secondInnings.battingTeam;
+    });
+    secondInnings.allBatsmen.forEach((batsman) => {
+      updatedTournamentData.fours += batsman.fours;
+      updatedTournamentData.sixes += batsman.sixes;
+      if (batsman.runsScored > highestScore.score) {
+        highestScore = {
+          playerName: batsman.name,
+          score: batsman.runsScored,
+          teamName: secondInnings.battingTeam,
+        };
       }
-      if(batsman.fours>updatedTournamentData.mostFours.fours) {
-        updatedTournamentData.mostFours.fours=batsman.fours;
-        updatedTournamentData.mostFours.playerName=batsman.name;
-        updatedTournamentData.mostFours.teamName=secondInnings.battingTeam;
+      if (batsman.fours > mostFours.fours) {
+        mostFours = {
+          playerName: batsman.name,
+          fours: batsman.fours,
+          teamName: secondInnings.battingTeam,
+        };
       }
-      if(batsman.sixes>updatedTournamentData.mostSixes.sixes) {
-        updatedTournamentData.mostSixes.sixes=batsman.sixes;
-        updatedTournamentData.mostSixes.playerName=batsman.name;
-        updatedTournamentData.mostSixes.teamName=secondInnings.battingTeam;
+      if (batsman.sixes > mostSixes.sixes) {
+        mostSixes = {
+          playerName: batsman.name,
+          sixes: batsman.sixes,
+          teamName: secondInnings.battingTeam,
+        };
       }
-    })
-    firstInnings.bowlers.forEach((bowler)=>{
-      if(bowler.wicketsTaken>updatedTournamentData.mostWickets.wickets) {
-        updatedTournamentData.mostWickets.wickets=bowler.wicketsTaken;
-        updatedTournamentData.mostWickets.playerName=bowler.name;
-        updatedTournamentData.mostWickets.teamName=firstInnings.bowlingTeam;
+    });
+    updatedTournamentData.highestScore =
+      highestScore.score > updatedTournamentData.highestScore.score
+        ? highestScore
+        : updatedTournamentData.highestScore;
+    updatedTournamentData.mostFours =
+      mostFours.fours > updatedTournamentData.mostFours.fours
+        ? mostFours
+        : updatedTournamentData.mostFours;
+    updatedTournamentData.mostSixes =
+      mostSixes.sixes > updatedTournamentData.mostSixes.sixes
+        ? mostSixes
+        : updatedTournamentData.mostSixes;
+
+    firstInnings.bowlers.forEach((bowler) => {
+      if (bowler.wicketsTaken > updatedTournamentData.mostWickets.wickets) {
+        mostWickets = {
+          playerName: bowler.name,
+          best: {
+            wickets: bowler.wickets,
+            runs: bowler.runsGiven,
+          },
+          teamName: firstInnings.bowlingTeam,
+        };
       }
-    })
+      bestBowling =
+        bestBowling.best.wickets === bowler.wicketsTaken &&
+        bestBowling.best.runs >= bowler.runsGiven
+          ? {
+              playerName: bowler.name,
+              best: { wickets: bowler.wicketsTaken, runs: bowler.runsGiven },
+              teamName: firstInnings.bowlingTeam,
+            }
+          : bestBowling.best.wickets < bowler.wicketsTaken
+          ? {
+              playerName: bowler.name,
+              best: { wickets: bowler.wicketsTaken, runs: bowler.runsGiven },
+              teamName: firstInnings.bowlingTeam,
+            }
+          : bestBowling;
+    });
+    secondInnings.bowlers.forEach((bowler) => {
+      if (bowler.wicketsTaken > mostWickets.wickets) {
+        mostWickets = {
+          playerName: bowler.name,
+          best: {
+            wickets: bowler.wickets,
+            runs: bowler.runsGiven,
+          },
+          teamName: secondInnings.bowlingTeam,
+        };
+      }
+      bestBowling =
+        bestBowling.best.wickets === bowler.wicketsTaken &&
+        bestBowling.best.runs >= bowler.runsGiven
+          ? {
+              playerName: bowler.name,
+              best: { wickets: bowler.wicketsTaken, runs: bowler.runsGiven },
+              teamName: secondInnings.bowlingTeam,
+            }
+          : bestBowling.best.wickets < bowler.wicketsTaken
+          ? {
+              playerName: bowler.name,
+              best: { wickets: bowler.wicketsTaken, runs: bowler.runsGiven },
+              teamName: secondInnings.bowlingTeam,
+            }
+          : bestBowling;
+    });
+    updatedTournamentData.bestBowling =
+      updatedTournamentData.bestBowling.best.wickets ===
+        bestBowling.best.wickets &&
+      updatedTournamentData.bestBowling.best.runs >= bestBowling.best.runs
+        ? bestBowling
+        : updatedTournamentData.bestBowling.best.wickets < bestBowling.wickets
+        ? bestBowling
+        : updatedTournamentData.bestBowling;
+    updatedTournamentData.mostWickets =
+      mostWickets.wickets > updatedTournamentData.mostWickets.wickets
+        ? mostWickets
+        : updatedTournamentData.mostWickets;
+    const tournamentRef = doc(
+      db,
+      "users",
+      auth.currentUser.uid,
+      "Tournaments",
+      tournamentId
+    );
+    const publicTournamentRef = doc(db, "Tournaments", tournamentId);
+    await updateDoc(tournamentRef, updatedTournamentData, { merge: true });
+    await updateDoc(publicTournamentRef, updatedTournamentData, {
+      merge: true,
+    });
   };
 
   const EndInnings = () => {
@@ -774,8 +881,11 @@ export default function MatchCenter({ route, navigation }) {
         },
         {
           text: "Yes",
-          onPress: () =>
-            navigation.navigate("Match Details", { matchId: matchId }),
+          onPress: () => {
+            if (tournamentId !== "") updateTournament();
+            updatePlayerStats();
+            navigation.navigate("Match Details", { matchId: matchId });
+          },
         },
       ]);
     }
