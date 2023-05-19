@@ -23,16 +23,16 @@ import MyTeamsNavigator from "../navigation/MyTeamsNavigator";
 import ScoringModal from "../components/ScoringModal";
 
 export default function StartMatch({ route, navigation }) {
-  const { tid = "1", param2 = "2" } = route.params ? route.params : {};
-  console.log(tid);
+  const { tournament = null } = route.params ? route.params : {};
   const { teams } = useContext(Context);
+  const allTeams = tournament === null ? teams : tournament.teams;
   const [matchDetails, setmatchDetails] = useState({
     venue: "",
     date: new Date(),
     time: new Date(),
     overs: 0,
-    ballType: "",
-    matchFormat: "",
+    ballType: tournament !== null ? tournament.ballType : "",
+    matchFormat: tournament !== null ? tournament.matchType : "",
   });
   const [team1, setTeam1] = useState(null);
   const [team2, setTeam2] = useState(null);
@@ -198,7 +198,7 @@ export default function StartMatch({ route, navigation }) {
           },
           totalOvers: matchDetails.overs,
           target: 0,
-          status: "live",
+          status: "Live",
           result: "",
           battingTeam: battingTeam,
           bowlingTeam: bowlingTeam,
@@ -222,11 +222,75 @@ export default function StartMatch({ route, navigation }) {
         },
         totalOvers: matchDetails.overs,
         target: 0,
-        status: "InProgress",
+        status: "Live",
         result: "",
         battingTeam: battingTeam,
         bowlingTeam: bowlingTeam,
       });
+
+      if (tournament) {
+        const tournamentMatchRef = doc(
+          db,
+          "users",
+          auth.currentUser.uid,
+          "Tournaments",
+          tournament.id,
+          "Matches",
+          matchRef.id
+        );
+        const PublicTournamentMatchRef = doc(
+          db,
+          "Tournaments",
+          tournament.id,
+          "Matches",
+          matchRef.id
+        );
+        await setDoc(tournamentMatchRef, {
+          title: `${team1.name} Vs ${team2.name}`,
+          teams: {
+            team1: { name: team1.name, squad: team1Squad },
+            team2: { name: team2.name, squad: team2Squad },
+          },
+          venue: matchDetails.venue,
+          date: matchDetails.date.toLocaleDateString(),
+          time: matchDetails.time.toLocaleTimeString(),
+          ballType: matchDetails.ballType,
+          matchFormat: matchDetails.matchFormat,
+          tossResult: {
+            winnerTeam: tossWinner.name,
+            decision: decision,
+          },
+          totalOvers: matchDetails.overs,
+          target: 0,
+          status: "Live",
+          result: "",
+          battingTeam: battingTeam,
+          bowlingTeam: bowlingTeam,
+        });
+        await setDoc(PublicTournamentMatchRef, {
+          title: `${team1.name} Vs ${team2.name}`,
+          teams: {
+            team1: { name: team1.name, squad: team1Squad },
+            team2: { name: team2.name, squad: team2Squad },
+          },
+          venue: matchDetails.venue,
+          date: matchDetails.date.toLocaleDateString(),
+          time: matchDetails.time.toLocaleTimeString(),
+          ballType: matchDetails.ballType,
+          matchFormat: matchDetails.matchFormat,
+          tossResult: {
+            winnerTeam: tossWinner.name,
+            decision: decision,
+          },
+          totalOvers: matchDetails.overs,
+          target: 0,
+          status: "Live",
+          result: "",
+          battingTeam: battingTeam,
+          bowlingTeam: bowlingTeam,
+        });
+      }
+
       console.log("Match created with ID: ", matchRef.id);
       navigation.navigate("Start Innings", {
         battingTeam: battingTeam,
@@ -333,25 +397,29 @@ export default function StartMatch({ route, navigation }) {
             paddingVertical: 50,
           }}
         >
-          <TouchableOpacity onPress={() => setsearchModal(true)}>
-            <Text
-              style={{
-                fontSize: 24,
-                color: "#3e5430",
-                fontWeight: "bold",
-              }}
-            >
-              Search Team
-            </Text>
-          </TouchableOpacity>
-          <Text
-            style={{
-              fontSize: 24,
-              fontWeight: "bold",
-            }}
-          >
-            OR
-          </Text>
+          {tournament === null && (
+            <>
+              <TouchableOpacity onPress={() => setsearchModal(true)}>
+                <Text
+                  style={{
+                    fontSize: 24,
+                    color: "#3e5430",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Search Team
+                </Text>
+              </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: 24,
+                  fontWeight: "bold",
+                }}
+              >
+                OR
+              </Text>
+            </>
+          )}
           <Text
             style={{
               fontSize: 24,
@@ -366,8 +434,8 @@ export default function StartMatch({ route, navigation }) {
             style={{ width: "100%" }}
             contentContainerStyle={{ alignItems: "center" }}
           >
-            {teams.length > 0 ? (
-              teams.map((team) => (
+            {allTeams.length > 0 ? (
+              allTeams.map((team) => (
                 <TouchableOpacity
                   key={team.id}
                   onPress={() => handleSelectTeam(team)}
@@ -600,160 +668,166 @@ export default function StartMatch({ route, navigation }) {
         }
         style={{ marginTop: 10 }}
       />
-      <Text style={{ fontWeight: "bold", margin: 10 }}>Ball Type</Text>
-      <RadioButtonGroup
-        selected={matchDetails.ballType}
-        onSelected={(val) =>
-          setmatchDetails({ ...matchDetails, ballType: val })
-        }
-        radioBackground="green"
-        containerStyle={{ flexDirection: "row" }}
-      >
-        <RadioButtonItem
-          label="LEATHER"
-          value="leather"
-          style={{ marginHorizontal: 10 }}
-        />
-        <RadioButtonItem
-          label="TENNIS"
-          value="tennis"
-          style={{ marginHorizontal: 10 }}
-        />
-        <RadioButtonItem
-          label="OTHER"
-          value="other"
-          style={{ marginHorizontal: 10 }}
-        />
-      </RadioButtonGroup>
-      <Text style={{ fontWeight: "bold", marginTop: 10 }}>Match Format</Text>
-      <View
-        style={{
-          flexDirection: "row",
-          marginTop: 10,
-          width: "100%",
-          alignItems: "center",
-          justifyContent: "space-around",
-        }}
-      >
-        <TouchableWithoutFeedback
-          onPress={() =>
-            setmatchDetails({ ...matchDetails, matchFormat: "T10" })
-          }
-        >
+      {tournament === null && (
+        <>
+          <Text style={{ fontWeight: "bold", margin: 10 }}>Ball Type</Text>
+          <RadioButtonGroup
+            selected={matchDetails.ballType}
+            onSelected={(val) =>
+              setmatchDetails({ ...matchDetails, ballType: val })
+            }
+            radioBackground="green"
+            containerStyle={{ flexDirection: "row" }}
+          >
+            <RadioButtonItem
+              label="LEATHER"
+              value="leather"
+              style={{ marginHorizontal: 10 }}
+            />
+            <RadioButtonItem
+              label="TENNIS"
+              value="tennis"
+              style={{ marginHorizontal: 10 }}
+            />
+            <RadioButtonItem
+              label="OTHER"
+              value="other"
+              style={{ marginHorizontal: 10 }}
+            />
+          </RadioButtonGroup>
+          <Text style={{ fontWeight: "bold", marginTop: 10 }}>
+            Match Format
+          </Text>
           <View
             style={{
-              backgroundColor:
-                matchDetails.matchFormat === "T10" ? "green" : "#e0dede",
-              borderWidth: 0.5,
-              width: "20%",
+              flexDirection: "row",
+              marginTop: 10,
+              width: "100%",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "space-around",
             }}
           >
-            <Text style={{ fontSize: 17 }}>T10</Text>
+            <TouchableWithoutFeedback
+              onPress={() =>
+                setmatchDetails({ ...matchDetails, matchFormat: "T10" })
+              }
+            >
+              <View
+                style={{
+                  backgroundColor:
+                    matchDetails.matchFormat === "T10" ? "green" : "#e0dede",
+                  borderWidth: 0.5,
+                  width: "20%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontSize: 17 }}>T10</Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback
+              onPress={() =>
+                setmatchDetails({ ...matchDetails, matchFormat: "T20" })
+              }
+            >
+              <View
+                style={{
+                  backgroundColor:
+                    matchDetails.matchFormat === "T20" ? "green" : "#e0dede",
+                  borderWidth: 0.5,
+                  width: "20%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontSize: 17 }}>T20</Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback
+              onPress={() =>
+                setmatchDetails({ ...matchDetails, matchFormat: "ODI" })
+              }
+            >
+              <View
+                style={{
+                  backgroundColor:
+                    matchDetails.matchFormat === "ODI" ? "green" : "#e0dede",
+                  borderWidth: 0.5,
+                  width: "20%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontSize: 17 }}>ODI</Text>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback
-          onPress={() =>
-            setmatchDetails({ ...matchDetails, matchFormat: "T20" })
-          }
-        >
           <View
             style={{
-              backgroundColor:
-                matchDetails.matchFormat === "T20" ? "green" : "#e0dede",
-              borderWidth: 0.5,
-              width: "20%",
+              flexDirection: "row",
+              marginTop: 10,
+              width: "100%",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "space-around",
             }}
           >
-            <Text style={{ fontSize: 17 }}>T20</Text>
+            <TouchableWithoutFeedback
+              onPress={() =>
+                setmatchDetails({ ...matchDetails, matchFormat: "100" })
+              }
+            >
+              <View
+                style={{
+                  backgroundColor:
+                    matchDetails.matchFormat === "100" ? "green" : "#e0dede",
+                  borderWidth: 0.5,
+                  width: "20%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontSize: 17 }}>100</Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback
+              onPress={() =>
+                setmatchDetails({ ...matchDetails, matchFormat: "Test" })
+              }
+            >
+              <View
+                style={{
+                  backgroundColor:
+                    matchDetails.matchFormat === "Test" ? "green" : "#e0dede",
+                  borderWidth: 0.5,
+                  width: "20%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontSize: 17 }}>Test</Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback
+              onPress={() =>
+                setmatchDetails({ ...matchDetails, matchFormat: "Club" })
+              }
+            >
+              <View
+                style={{
+                  backgroundColor:
+                    matchDetails.matchFormat === "Club" ? "green" : "#e0dede",
+                  borderWidth: 0.5,
+                  width: "20%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontSize: 17 }}>Club</Text>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback
-          onPress={() =>
-            setmatchDetails({ ...matchDetails, matchFormat: "ODI" })
-          }
-        >
-          <View
-            style={{
-              backgroundColor:
-                matchDetails.matchFormat === "ODI" ? "green" : "#e0dede",
-              borderWidth: 0.5,
-              width: "20%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ fontSize: 17 }}>ODI</Text>
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          marginTop: 10,
-          width: "100%",
-          alignItems: "center",
-          justifyContent: "space-around",
-        }}
-      >
-        <TouchableWithoutFeedback
-          onPress={() =>
-            setmatchDetails({ ...matchDetails, matchFormat: "100" })
-          }
-        >
-          <View
-            style={{
-              backgroundColor:
-                matchDetails.matchFormat === "100" ? "green" : "#e0dede",
-              borderWidth: 0.5,
-              width: "20%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ fontSize: 17 }}>100</Text>
-          </View>
-        </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback
-          onPress={() =>
-            setmatchDetails({ ...matchDetails, matchFormat: "Test" })
-          }
-        >
-          <View
-            style={{
-              backgroundColor:
-                matchDetails.matchFormat === "Test" ? "green" : "#e0dede",
-              borderWidth: 0.5,
-              width: "20%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ fontSize: 17 }}>Test</Text>
-          </View>
-        </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback
-          onPress={() =>
-            setmatchDetails({ ...matchDetails, matchFormat: "Club" })
-          }
-        >
-          <View
-            style={{
-              backgroundColor:
-                matchDetails.matchFormat === "Club" ? "green" : "#e0dede",
-              borderWidth: 0.5,
-              width: "20%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ fontSize: 17 }}>Club</Text>
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
+        </>
+      )}
       {/* Toss Modal */}
       <Modal visible={tossModalVisible} transparent animationType="fade">
         <View
@@ -948,6 +1022,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "#e0dede",
     padding: 20,
   },

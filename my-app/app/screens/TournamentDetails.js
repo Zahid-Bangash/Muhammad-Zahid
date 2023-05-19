@@ -255,6 +255,16 @@ export default function TournamnetDetails({ navigation, route }) {
             height: "8%",
             marginVertical: "3%",
           }}
+          onPress={() => {
+            if (currentTournament.teams.length < 2) {
+              alert("Tournament must have two teams to start a match");
+              return;
+            }
+            navigation.navigate("Start a Match", {
+              screen: "Create Match",
+              params: { tournament: currentTournament },
+            });
+          }}
         >
           Start Match
         </AppButton>
@@ -598,12 +608,16 @@ export default function TournamnetDetails({ navigation, route }) {
             borderRadius: 0,
             height: "8%",
           }}
-          onPress={() =>
+          onPress={() => {
+            if (currentTournament.teams.length < 2) {
+              alert("Tournament must have two teams to start a match");
+              return;
+            }
             navigation.navigate("Start a Match", {
               screen: "Create Match",
-              params: { tid: 2222 },
-            })
-          }
+              params: { tournament: currentTournament },
+            });
+          }}
         >
           Start Match
         </AppButton>
