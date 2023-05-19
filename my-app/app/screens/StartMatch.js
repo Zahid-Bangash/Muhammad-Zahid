@@ -298,6 +298,7 @@ export default function StartMatch({ route, navigation }) {
         squad1: team1Squad,
         squad2: team2Squad,
         matchId: matchRef.id,
+        tournamentId: tournament ? tournament.id : "",
       });
       setTossModalVisible(false);
       setTossWinner(null);

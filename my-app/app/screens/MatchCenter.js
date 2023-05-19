@@ -30,7 +30,7 @@ import ScoringModal from "../components/ScoringModal";
 import AppButton from "../components/AppButton";
 
 export default function MatchCenter({ route, navigation }) {
-  const { matchId, inningsId } = route.params;
+  const { matchId, inningsId, tournamentId } = route.params;
   const [swiperIndex, setSwiperIndex] = useState(0);
   const [moreModal, setmoreModal] = useState(false);
   //new over
@@ -218,6 +218,8 @@ export default function MatchCenter({ route, navigation }) {
     bowlers: [],
     isCompleted: false,
   });
+
+  const [tournamentData, settournamentData] = useState({});
 
   const [inningsData, setInningsData] = useState(intitialInningsData);
   let availableBowlers = inningsData.bowlingSquad;
@@ -608,6 +610,35 @@ export default function MatchCenter({ route, navigation }) {
       const publicInningsDocRef = doc(publicInningsRef, inningsId);
       await updateDoc(inningsDocRef, updatedData, { merge: true });
       await updateDoc(publicInningsDocRef, updatedData, { merge: true });
+      if (tournamentId !== "") {
+        const tournamentInningsRef = collection(
+          db,
+          "users",
+          auth.currentUser.uid,
+          "Tournaments",
+          tournamentId,
+          "Matches",
+          matchId,
+          "innings"
+        );
+        const publicTournamentInningsRef = collection(
+          db,
+          "Tournaments",
+          tournamentId,
+          "Matches",
+          matchId,
+          "innings"
+        );
+        const tournamentInningsDocRef = doc(tournamentInningsRef, inningsId);
+        const publicTournamentInningsDocRef = doc(
+          publicTournamentInningsRef,
+          inningsId
+        );
+        await updateDoc(tournamentInningsDocRef, updatedData, { merge: true });
+        await updateDoc(publicTournamentInningsDocRef, updatedData, {
+          merge: true,
+        });
+      }
       console.log("Innings data updated successfully!");
     } catch (error) {
       console.error("Error updating innings data:", error);
@@ -626,10 +657,78 @@ export default function MatchCenter({ route, navigation }) {
       const publicMatchRef = doc(db, "Matches", matchId);
       await updateDoc(matchRef, updatedData, { merge: true });
       await updateDoc(publicMatchRef, updatedData, { merge: true });
+      if (tournamentId !== "") {
+        const tournamentMatchRef = doc(
+          db,
+          "users",
+          "Tournaments",
+          tournamentId,
+          "Matches",
+          matchId
+        );
+        const publicTournamentMatchRef = doc(
+          db,
+          "Tournaments",
+          tournamentId,
+          "Matches",
+          matchId
+        );
+        await updateDoc(tournamentMatchRef, updatedData, { merge: true });
+        await updateDoc(publicTournamentMatchRef, updatedData, { merge: true });
+      }
       console.log("Match data updated successfully!");
     } catch (error) {
       console.error("Error updating Match data:", error);
     }
+  };
+
+  const updateTournament = () => {
+    const updatedTournamentData = { ...tournamentData };
+    firstInnings.allBatsmen.forEach((batsman)=>{
+      updatedTournamentData.fours+=batsman.fours;
+      updatedTournamentData.sixes+=batsman.sixes;
+      if(batsman.runsScored>updatedTournamentData.highestScore.score) {
+        updatedTournamentData.highestScore.score=batsman.runsScored;
+        updatedTournamentData.highestScore.playerName=batsman.name;
+        updatedTournamentData.highestScore.teamName=firstInnings.battingTeam;
+      }
+      if(batsman.fours>updatedTournamentData.mostFours.fours) {
+        updatedTournamentData.mostFours.fours=batsman.fours;
+        updatedTournamentData.mostFours.playerName=batsman.name;
+        updatedTournamentData.mostFours.teamName=firstInnings.battingTeam;
+      }
+      if(batsman.sixes>updatedTournamentData.mostSixes.sixes) {
+        updatedTournamentData.mostSixes.sixes=batsman.sixes;
+        updatedTournamentData.mostSixes.playerName=batsman.name;
+        updatedTournamentData.mostSixes.teamName=firstInnings.battingTeam;
+      }
+    })
+    secondInnings.allBatsmen.forEach((batsman)=>{
+      updatedTournamentData.fours+=batsman.fours;
+      updatedTournamentData.sixes+=batsman.sixes;
+      if(batsman.runsScored>updatedTournamentData.highestScore.score) {
+        updatedTournamentData.highestScore.score=batsman.runsScored;
+        updatedTournamentData.highestScore.playerName=batsman.name;
+        updatedTournamentData.highestScore.teamName=secondInnings.battingTeam;
+      }
+      if(batsman.fours>updatedTournamentData.mostFours.fours) {
+        updatedTournamentData.mostFours.fours=batsman.fours;
+        updatedTournamentData.mostFours.playerName=batsman.name;
+        updatedTournamentData.mostFours.teamName=secondInnings.battingTeam;
+      }
+      if(batsman.sixes>updatedTournamentData.mostSixes.sixes) {
+        updatedTournamentData.mostSixes.sixes=batsman.sixes;
+        updatedTournamentData.mostSixes.playerName=batsman.name;
+        updatedTournamentData.mostSixes.teamName=secondInnings.battingTeam;
+      }
+    })
+    firstInnings.bowlers.forEach((bowler)=>{
+      if(bowler.wicketsTaken>updatedTournamentData.mostWickets.wickets) {
+        updatedTournamentData.mostWickets.wickets=bowler.wicketsTaken;
+        updatedTournamentData.mostWickets.playerName=bowler.name;
+        updatedTournamentData.mostWickets.teamName=firstInnings.bowlingTeam;
+      }
+    })
   };
 
   const EndInnings = () => {
@@ -1859,6 +1958,16 @@ export default function MatchCenter({ route, navigation }) {
       firstInningsUnsubscribe();
       secondInningsUnsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    if (tournamentId !== "") {
+      const tournamentRef = doc(db, "Tournaments", tournamentId);
+      onSnapshot(tournamentRef, (doc) => {
+        const data = doc.data();
+        settournamentData(data);
+      });
+    }
   }, []);
 
   const renderPagination = () => (

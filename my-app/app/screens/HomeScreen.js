@@ -124,11 +124,6 @@ export default function HomeScreen({ navigation }) {
             image={require("../assets/t1.jpg")}
             startDate="03 Nov, 2022"
             endDate="03 Dec, 2022"
-            onPress={() =>
-              navigation.navigate("Add Tournament/series", {
-                screen: "Tournament Details",
-              })
-            }
           />
           <TournamentCard
             name="Night tournament - Hazro"

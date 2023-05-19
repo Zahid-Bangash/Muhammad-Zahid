@@ -14,7 +14,8 @@ import { auth, db } from "../config/firebase-config";
 import { collection, addDoc, doc, updateDoc, setDoc } from "firebase/firestore";
 
 export default function StartInnings({ route, navigation }) {
-  const { battingTeam, bowlingTeam, squad1, squad2, matchId } = route.params;
+  const { battingTeam, bowlingTeam, squad1, squad2, matchId, tournamentId } =
+    route.params;
   const [battingSquad, setbattingSquad] = useState(
     squad1.type === "batting" ? squad1.players : squad2.players
   );
@@ -28,8 +29,8 @@ export default function StartInnings({ route, navigation }) {
   const [batsmenModal, setbatsmenModal] = useState(false);
   const [bowlersModal, setbowlersModal] = useState(false);
   const [toBeSelected, settoBeSelected] = useState("striker");
-
   const [inningsNo, setinningsNo] = useState(1);
+
   const startFirstInnings = async () => {
     if (!striker) {
       alert("Select Striker");
@@ -239,6 +240,224 @@ export default function StartInnings({ route, navigation }) {
           ],
           isCompleted: false,
         });
+        if (tournamentId !== "") {
+          const tournamentMatchRef = doc(
+            db,
+            "users",
+            auth.currentUser.uid,
+            "Tournaments",
+            tournamentId,
+            "Matches",
+            matchId
+          );
+          const PublicTournamentMatchRef = doc(
+            db,
+            "Tournaments",
+            tournamentId,
+            "Matches",
+            matchId
+          );
+          const tournamentInningsRef = doc(
+            tournamentMatchRef,
+            "innings",
+            docRef.id
+          );
+          const PublicTournamentInningsRef = doc(
+            PublicTournamentMatchRef,
+            "innings",
+            docRef.id
+          );
+          setDoc(tournamentInningsRef, {
+            inningsNo: 1,
+            battingTeam: battingTeam,
+            bowlingTeam: bowlingTeam,
+            totalRuns: 0,
+            wicketsDown: 0,
+            oversDelivered: 0,
+            ballsDelivered: 0,
+            runRate: 0,
+            extras: 0,
+            projectedScore: 0,
+            partnership: { runs: 0, balls: 0 },
+            currentOver: [],
+            battingSquad: battingSquad,
+            bowlingSquad: bowlers,
+            allBatsmen: [
+              {
+                name: striker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: striker.id,
+              },
+              {
+                name: nonStriker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: nonStriker.id,
+              },
+            ],
+            currentBatsmen: [
+              {
+                name: striker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: striker.id,
+              },
+              {
+                name: nonStriker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: nonStriker.id,
+              },
+            ],
+            outBatsmen: [],
+            remainingBatsmen: remainingBatsmen,
+            currentBowler: {
+              name: bowler.name,
+              balls: 0,
+              overs: 0,
+              runsGiven: 0,
+              wicketsTaken: 0,
+              maidenOvers: 0,
+              eco: 0,
+              id: bowler.id,
+              dots: 0,
+              wides: 0,
+              noBalls: 0,
+            },
+            bowlers: [
+              {
+                name: bowler.name,
+                balls: 0,
+                overs: 0,
+                runsGiven: 0,
+                wicketsTaken: 0,
+                maidenOvers: 0,
+                eco: 0,
+                id: bowler.id,
+                dots: 0,
+                wides: 0,
+                noBalls: 0,
+              },
+            ],
+            isCompleted: false,
+          });
+          setDoc(PublicTournamentInningsRef, {
+            inningsNo: 1,
+            battingTeam: battingTeam,
+            bowlingTeam: bowlingTeam,
+            totalRuns: 0,
+            wicketsDown: 0,
+            oversDelivered: 0,
+            ballsDelivered: 0,
+            runRate: 0,
+            extras: 0,
+            projectedScore: 0,
+            partnership: { runs: 0, balls: 0 },
+            currentOver: [],
+            battingSquad: battingSquad,
+            bowlingSquad: bowlers,
+            allBatsmen: [
+              {
+                name: striker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: striker.id,
+              },
+              {
+                name: nonStriker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: nonStriker.id,
+              },
+            ],
+            currentBatsmen: [
+              {
+                name: striker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: striker.id,
+              },
+              {
+                name: nonStriker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: nonStriker.id,
+              },
+            ],
+            outBatsmen: [],
+            remainingBatsmen: remainingBatsmen,
+            currentBowler: {
+              name: bowler.name,
+              balls: 0,
+              overs: 0,
+              runsGiven: 0,
+              wicketsTaken: 0,
+              maidenOvers: 0,
+              eco: 0,
+              id: bowler.id,
+              dots: 0,
+              wides: 0,
+              noBalls: 0,
+            },
+            bowlers: [
+              {
+                name: bowler.name,
+                balls: 0,
+                overs: 0,
+                runsGiven: 0,
+                wicketsTaken: 0,
+                maidenOvers: 0,
+                eco: 0,
+                id: bowler.id,
+                dots: 0,
+                wides: 0,
+                noBalls: 0,
+              },
+            ],
+            isCompleted: false,
+          });
+        }
         console.log("First Innings started with ID: ", docRef.id);
         setinningsNo(2);
         setstriker(null);
@@ -251,6 +470,7 @@ export default function StartInnings({ route, navigation }) {
         navigation.navigate("Match Center", {
           matchId: matchId,
           inningsId: docRef.id,
+          tournamentId: tournamentId !== "" ? tournamentId : "",
         });
       })
       .catch((error) => {
@@ -466,10 +686,230 @@ export default function StartInnings({ route, navigation }) {
           ],
           isCompleted: false,
         });
+        if (tournamentId !== "") {
+          const tournamentMatchRef = doc(
+            db,
+            "users",
+            auth.currentUser.uid,
+            "Tournaments",
+            tournamentId,
+            "Matches",
+            matchId
+          );
+          const PublicTournamentMatchRef = doc(
+            db,
+            "Tournaments",
+            tournamentId,
+            "Matches",
+            matchId
+          );
+          const tournamentInningsRef = doc(
+            tournamentMatchRef,
+            "innings",
+            docRef.id
+          );
+          const PublicTournamentInningsRef = doc(
+            PublicTournamentMatchRef,
+            "innings",
+            docRef.id
+          );
+          setDoc(tournamentInningsRef, {
+            inningsNo: 2,
+            battingTeam: bowlingTeam,
+            bowlingTeam: battingTeam,
+            totalRuns: 0,
+            wicketsDown: 0,
+            oversDelivered: 0,
+            ballsDelivered: 0,
+            runRate: 0,
+            extras: 0,
+            projectedScore: 0,
+            partnership: { runs: 0, balls: 0 },
+            currentOver: [],
+            battingSquad: battingSquad,
+            bowlingSquad: bowlers,
+            allBatsmen: [
+              {
+                name: striker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: striker.id,
+              },
+              {
+                name: nonStriker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: nonStriker.id,
+              },
+            ],
+            currentBatsmen: [
+              {
+                name: striker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: striker.id,
+              },
+              {
+                name: nonStriker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: nonStriker.id,
+              },
+            ],
+            outBatsmen: [],
+            remainingBatsmen: remainingBatsmen,
+            currentBowler: {
+              name: bowler.name,
+              balls: 0,
+              overs: 0,
+              runsGiven: 0,
+              wicketsTaken: 0,
+              maidenOvers: 0,
+              eco: 0,
+              id: bowler.id,
+              dots: 0,
+              wides: 0,
+              noBalls: 0,
+            },
+            bowlers: [
+              {
+                name: bowler.name,
+                balls: 0,
+                overs: 0,
+                runsGiven: 0,
+                wicketsTaken: 0,
+                maidenOvers: 0,
+                eco: 0,
+                id: bowler.id,
+                dots: 0,
+                wides: 0,
+                noBalls: 0,
+              },
+            ],
+            isCompleted: false,
+          });
+          setDoc(PublicTournamentInningsRef, {
+            inningsNo: 2,
+            battingTeam: bowlingTeam,
+            bowlingTeam: battingTeam,
+            totalRuns: 0,
+            wicketsDown: 0,
+            oversDelivered: 0,
+            ballsDelivered: 0,
+            runRate: 0,
+            extras: 0,
+            projectedScore: 0,
+            partnership: { runs: 0, balls: 0 },
+            currentOver: [],
+            battingSquad: battingSquad,
+            bowlingSquad: bowlers,
+            allBatsmen: [
+              {
+                name: striker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: striker.id,
+              },
+              {
+                name: nonStriker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: nonStriker.id,
+              },
+            ],
+            currentBatsmen: [
+              {
+                name: striker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: striker.id,
+              },
+              {
+                name: nonStriker.name,
+                runsScored: 0,
+                ballsFaced: 0,
+                fours: 0,
+                sixes: 0,
+                strikeRate: 0,
+                dismissalType: null,
+                status: "not out",
+                id: nonStriker.id,
+              },
+            ],
+            outBatsmen: [],
+            remainingBatsmen: remainingBatsmen,
+            currentBowler: {
+              name: bowler.name,
+              balls: 0,
+              overs: 0,
+              runsGiven: 0,
+              wicketsTaken: 0,
+              maidenOvers: 0,
+              eco: 0,
+              id: bowler.id,
+              dots: 0,
+              wides: 0,
+              noBalls: 0,
+            },
+            bowlers: [
+              {
+                name: bowler.name,
+                balls: 0,
+                overs: 0,
+                runsGiven: 0,
+                wicketsTaken: 0,
+                maidenOvers: 0,
+                eco: 0,
+                id: bowler.id,
+                dots: 0,
+                wides: 0,
+                noBalls: 0,
+              },
+            ],
+            isCompleted: false,
+          });
+        }
+
         console.log("Second Innings started with ID: ", docRef.id);
         navigation.navigate("Match Center", {
           matchId: matchId,
           inningsId: docRef.id,
+          tournamentId: tournamentId !== "" ? tournamentId : "",
         });
       })
       .catch((error) => {
