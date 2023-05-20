@@ -759,13 +759,10 @@ export default function MatchCenter({ route, navigation }) {
         : updatedTournamentData.mostSixes;
 
     firstInnings.bowlers.forEach((bowler) => {
-      if (bowler.wicketsTaken > updatedTournamentData.mostWickets.wickets) {
+      if (bowler.wicketsTaken > mostWickets.wickets) {
         mostWickets = {
           playerName: bowler.name,
-          best: {
-            wickets: bowler.wickets,
-            runs: bowler.runsGiven,
-          },
+          wickets:bowler.wicketsTaken,
           teamName: firstInnings.bowlingTeam,
         };
       }
@@ -789,10 +786,7 @@ export default function MatchCenter({ route, navigation }) {
       if (bowler.wicketsTaken > mostWickets.wickets) {
         mostWickets = {
           playerName: bowler.name,
-          best: {
-            wickets: bowler.wickets,
-            runs: bowler.runsGiven,
-          },
+          best: bowler.wicketsTaken,
           teamName: secondInnings.bowlingTeam,
         };
       }
@@ -810,16 +804,22 @@ export default function MatchCenter({ route, navigation }) {
               best: { wickets: bowler.wicketsTaken, runs: bowler.runsGiven },
               teamName: secondInnings.bowlingTeam,
             }
-          : bestBowling;
+          :{
+            playerName: bestBowling.playerName,
+            best: { wickets: bestBowling.best.wickets, runs: bestBowling.best.runs },
+            teamName: bestBowling.teamName,
+          }
     });
+    console.log(bestBowling);
     updatedTournamentData.bestBowling =
       updatedTournamentData.bestBowling.best.wickets ===
         bestBowling.best.wickets &&
       updatedTournamentData.bestBowling.best.runs >= bestBowling.best.runs
         ? bestBowling
-        : updatedTournamentData.bestBowling.best.wickets < bestBowling.wickets
+        : updatedTournamentData.bestBowling.best.wickets < bestBowling.best.wickets
         ? bestBowling
         : updatedTournamentData.bestBowling;
+
     updatedTournamentData.mostWickets =
       mostWickets.wickets > updatedTournamentData.mostWickets.wickets
         ? mostWickets
