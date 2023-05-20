@@ -40,7 +40,7 @@ export default function MyTeams({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
       <AppButton
         style={{
           position: "absolute",
@@ -54,9 +54,10 @@ export default function MyTeams({ navigation }) {
         Add Team
       </AppButton>
       {teams.length > 0 ? (
-        teams.map((team) => (
-          <ScrollView key={team.id}>
+        <ScrollView contentContainerStyle={styles.container}>
+          {teams.map((team) => (
             <TeamCard
+              key={team.id}
               name={team.name}
               place={team.place}
               // captain={team.captain.name}
@@ -67,8 +68,8 @@ export default function MyTeams({ navigation }) {
                 })
               }
             />
-          </ScrollView>
-        ))
+          ))}
+        </ScrollView>
       ) : (
         <Text style={{ fontWeight: "bold", fontSize: 17 }}>No Team Added</Text>
       )}
@@ -78,11 +79,9 @@ export default function MyTeams({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    minHeight: "100%",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#e0dede",
-    paddingTop: 10,
-    paddingBottom: 40,
+    padding: 15,
+    paddingBottom: "12.5%",
   },
 });

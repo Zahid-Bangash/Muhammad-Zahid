@@ -9,6 +9,7 @@ import {
   query,
   where,
   orderBy,
+  updateDoc,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import { auth, db, storage } from "../config/firebase-config";
@@ -374,8 +375,43 @@ const ContextProvider = ({ children }) => {
       );
       onSnapshot(tournamentsCollectionRef, async (tournamentSnapshot) => {
         const tournaments = [];
-        tournamentSnapshot.forEach((doc) => {
-          tournaments.push({ id: doc.id, ...doc.data() });
+        tournamentSnapshot.forEach(async (doc) => {
+          const tournamentData = doc.data();
+          const tournamentId = doc.id;
+
+          const matchesCollectionRef = collection(
+            tournamentsCollectionRef,
+            tournamentId,
+            "Matches"
+          );
+          const matchesSnapshot = await getDocs(matchesCollectionRef);
+          const matches = [];
+          matchesSnapshot.forEach(async (matchDoc) => {
+            const matchData = matchDoc.data();
+            const matchId = matchDoc.id;
+            const inningsCollectionRef = collection(
+              matchesCollectionRef,
+              matchId,
+              "innings"
+            );
+            const inningsSnapshot = await getDocs(inningsCollectionRef);
+            const innings = [];
+            inningsSnapshot.forEach((inningDoc) => {
+              const inningData = inningDoc.data();
+              innings.push(inningData);
+            });
+            const innings1 = innings.find((inning) => inning.inningsNo === 1);
+            const innings2 = innings.find((inning) => inning.inningsNo === 2);
+            matches.push({
+              id: matchId,
+              ...matchData,
+              innings1: innings1,
+              innings2: innings2,
+            });
+          });
+          const updatedTournamentData = { ...tournamentData, matches: matches };
+          await updateDoc(doc.ref, updatedTournamentData, { merge: true });
+          tournaments.push({ id: tournamentId, ...updatedTournamentData });
         });
         setmyTournaments(tournaments);
       });

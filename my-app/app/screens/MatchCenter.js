@@ -762,7 +762,7 @@ export default function MatchCenter({ route, navigation }) {
       if (bowler.wicketsTaken > mostWickets.wickets) {
         mostWickets = {
           playerName: bowler.name,
-          wickets:bowler.wicketsTaken,
+          wickets: bowler.wicketsTaken,
           teamName: firstInnings.bowlingTeam,
         };
       }
@@ -781,8 +781,10 @@ export default function MatchCenter({ route, navigation }) {
               teamName: firstInnings.bowlingTeam,
             }
           : bestBowling;
+      console.log(bestBowling);
     });
     secondInnings.bowlers.forEach((bowler) => {
+      console.log(bowler);
       if (bowler.wicketsTaken > mostWickets.wickets) {
         mostWickets = {
           playerName: bowler.name,
@@ -804,11 +806,8 @@ export default function MatchCenter({ route, navigation }) {
               best: { wickets: bowler.wicketsTaken, runs: bowler.runsGiven },
               teamName: secondInnings.bowlingTeam,
             }
-          :{
-            playerName: bestBowling.playerName,
-            best: { wickets: bestBowling.best.wickets, runs: bestBowling.best.runs },
-            teamName: bestBowling.teamName,
-          }
+          : bestBowling;
+      console.log(bestBowling);
     });
     console.log(bestBowling);
     updatedTournamentData.bestBowling =
@@ -816,7 +815,8 @@ export default function MatchCenter({ route, navigation }) {
         bestBowling.best.wickets &&
       updatedTournamentData.bestBowling.best.runs >= bestBowling.best.runs
         ? bestBowling
-        : updatedTournamentData.bestBowling.best.wickets < bestBowling.best.wickets
+        : updatedTournamentData.bestBowling.best.wickets <
+          bestBowling.best.wickets
         ? bestBowling
         : updatedTournamentData.bestBowling;
 

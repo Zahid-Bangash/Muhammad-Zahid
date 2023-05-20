@@ -9,9 +9,10 @@ export default function MyMatches({ navigation }) {
   return (
     <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
       {myMatches.length > 0 ? (
-        myMatches.map((match) => (
-          <ScrollView key={match.id} contentContainerStyle={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
+          {myMatches.map((match) => (
             <MyMatchCard
+              key={match.id}
               team1={match.battingTeam}
               team2={match.bowlingTeam}
               status={match.status}
@@ -43,8 +44,8 @@ export default function MyMatches({ navigation }) {
                 })
               }
             />
-          </ScrollView>
-        ))
+          ))}
+        </ScrollView>
       ) : (
         <Text style={{ fontWeight: "bold", fontSize: 17 }}>No Match</Text>
       )}

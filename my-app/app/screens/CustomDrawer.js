@@ -58,12 +58,15 @@ export default function CustomDrawer(props) {
               />
             )}
           </TouchableWithoutFeedback>
-          <View style={{ marginLeft: 10 }}>
+          <View style={{ marginLeft: 5 }}>
             <Text style={{ fontSize: 15, fontWeight: "bold" }}>
               {userData.Name}
             </Text>
             <Text style={{ fontSize: 15 }}>{userData.PhoneNumber}</Text>
-            <Text style={{ fontSize: 15, textTransform: "capitalize" }}>
+            <Text
+              numberOfLines={2}
+              style={{ fontSize: 12, textTransform: "capitalize" }}
+            >
               {userData.Email}
             </Text>
           </View>

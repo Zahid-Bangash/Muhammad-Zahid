@@ -572,11 +572,11 @@ export default function TournamnetDetails({ navigation, route }) {
         </Modal>
       </View>
       <View style={[styles.slide, { paddingBottom: "12.5%" }]}>
-        {/* {currentTournament.matches.length>0?} */}
         <ScrollView contentContainerStyle={{ padding: 10 }}>
           {currentTournament.matches.length > 0 ? (
-            currentTournament.matches.map((team) => (
+            currentTournament.matches.map((match) => (
               <MyMatchCard
+                key={match.id}
                 style={{
                   width: Dimensions.get("screen").width * 0.9,
                 }}
@@ -820,7 +820,8 @@ export default function TournamnetDetails({ navigation, route }) {
               />
               <View style={{ width: "100%", alignItems: "center" }}>
                 <Text style={{ fontSize: 40, fontWeight: "bold" }}>
-                  {currentTournament.bestBowling.best.wickets}-{currentTournament.bestBowling.best.runs}
+                  {currentTournament.bestBowling.best.wickets}-
+                  {currentTournament.bestBowling.best.runs}
                 </Text>
                 <Text style={{ fontWeight: "bold", color: "grey" }}>
                   Best Bowling
