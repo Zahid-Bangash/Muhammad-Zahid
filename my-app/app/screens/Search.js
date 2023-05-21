@@ -151,12 +151,18 @@ export default function Search() {
                   return (
                     <PlayerCardForAddPlayer
                       key={item.id}
-                      name={item.name}
-                      location={item.location}
+                      name={item.Name}
+                      location={item.Location}
                     />
                   );
                 } else if (selected === "Teams") {
-                  return <TeamCard key={item.id} />;
+                  return (
+                    <TeamCard
+                      key={item.id}
+                      name={item.name}
+                      place={item.place}
+                    />
+                  );
                 } else if (selected === "Matches") {
                   return <MyMatchCard key={item.id} />;
                 } else if (selected === "Tournaments") {
