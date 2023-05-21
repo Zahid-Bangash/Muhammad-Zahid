@@ -59,9 +59,13 @@ export default function TournamnetDetails({ navigation, route }) {
     const result = searchData.filter(
       (teamSearch) => !teams.some((team) => team.id === teamSearch.id)
     );
+    const resultFinal = result.filter(
+      (teamSearch) =>
+        !currentTournament.teams.some((team) => team.id === teamSearch.id)
+    );
 
-    if (result.length > 0) {
-      setsearch(result);
+    if (resultFinal.length > 0) {
+      setsearch(resultFinal);
       setsearchStatus("");
     } else {
       setsearchStatus("No Team to be added");
@@ -71,6 +75,14 @@ export default function TournamnetDetails({ navigation, route }) {
   const addTeamToTournament = async (team) => {
     try {
       currentTournament.teams.push(team);
+      setmyTournaments((prevTournaments) => {
+        return prevTournaments.map((tournament) => {
+          if (tournament.id === id) {
+            return { ...tournament, teams: currentTournament.teams };
+          }
+          return tournament;
+        });
+      });
       const teamRefPublic = doc(db, "Tournaments", id);
       const docRefPublic = await updateDoc(
         teamRefPublic,
@@ -83,7 +95,6 @@ export default function TournamnetDetails({ navigation, route }) {
         { teams: currentTournament.teams },
         { merge: true }
       );
-      alert("Team added");
       console.log("Team added to tournamnet");
     } catch (error) {
       console.error("Error adding team: ", error);
@@ -407,9 +418,10 @@ export default function TournamnetDetails({ navigation, route }) {
           style={{
             position: "absolute",
             bottom: 0,
-            width: "95%",
+            width: "99%",
             borderRadius: 0,
             height: "8%",
+            marginVertical: 0,
           }}
           onPress={() => setshowAddTeamModal(true)}
         >
@@ -580,18 +592,40 @@ export default function TournamnetDetails({ navigation, route }) {
                 style={{
                   width: Dimensions.get("screen").width * 0.9,
                 }}
-                team1="zahid"
-                team2="usama"
-                status="completed"
-                result="zahid won by 9 runs"
-                matchFormat="T20"
-                date="14/05/23"
-                firstInningsBalls={32}
-                secondInningsBalls={22}
-                firstInningsRuns={71}
-                secondInningsRuns={62}
-                firstInningsWickets={2}
-                secondInningsWickets={3}
+                team1={match.battingTeam}
+                team2={match.bowlingTeam}
+                status={match.status}
+                result={match.result}
+                matchFormat={match.matchFormat}
+                date={match.date}
+                firstInningsBalls={
+                  match.innings1 !== undefined
+                    ? match.innings1.ballsDelivered
+                    : 0
+                }
+                secondInningsBalls={
+                  match.innings2 !== undefined
+                    ? match.innings2.ballsDelivered
+                    : 0
+                }
+                firstInningsRuns={
+                  match.innings1 !== undefined ? match.innings1.totalRuns : 0
+                }
+                secondInningsRuns={
+                  match.innings2 !== undefined ? match.innings2.totalRuns : 0
+                }
+                firstInningsWickets={
+                  match.innings1 !== undefined ? match.innings1.wicketsDown : 0
+                }
+                secondInningsWickets={
+                  match.innings2 !== undefined ? match.innings2.wicketsDown : 0
+                }
+                onPress={() =>
+                  navigation.navigate("Start a Match", {
+                    screen: "Match Details",
+                    params: { matchId: match.id },
+                  })
+                }
               />
             ))
           ) : (
@@ -604,9 +638,10 @@ export default function TournamnetDetails({ navigation, route }) {
           style={{
             position: "absolute",
             bottom: 0,
-            width: "95%",
+            width: "99%",
             borderRadius: 0,
             height: "8%",
+            marginVertical: 0,
           }}
           onPress={() => {
             if (currentTournament.teams.length < 2) {

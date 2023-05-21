@@ -60,9 +60,10 @@ export default function MyTournaments({ navigation }) {
         style={{
           position: "absolute",
           bottom: 0,
-          width: "95%",
+          width: "100%",
           borderRadius: 0,
           height: "8%",
+          marginVertical: 0,
         }}
         onPress={() => setshowDeleteIcon(!showDeleteIcon)}
       >

@@ -40,19 +40,7 @@ export default function MyTeams({ navigation }) {
   };
 
   return (
-    <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
-      <AppButton
-        style={{
-          position: "absolute",
-          bottom: 0,
-          width: "95%",
-          borderRadius: 0,
-          height: "8%",
-        }}
-        onPress={() => navigation.navigate("Add Your Team")}
-      >
-        Add Team
-      </AppButton>
+    <View style={{ alignItems: "center", justifyContent: "center", flex: 1, }}>
       {teams.length > 0 ? (
         <ScrollView contentContainerStyle={styles.container}>
           {teams.map((team) => (
@@ -73,6 +61,19 @@ export default function MyTeams({ navigation }) {
       ) : (
         <Text style={{ fontWeight: "bold", fontSize: 17 }}>No Team Added</Text>
       )}
+      <AppButton
+        style={{
+          position: "absolute",
+          bottom: 0,
+          width: "100%",
+          borderRadius: 0,
+          height: "8%",
+          marginVertical:0,
+        }}
+        onPress={() => navigation.navigate("Add Your Team")}
+      >
+        Add Team
+      </AppButton>
     </View>
   );
 }

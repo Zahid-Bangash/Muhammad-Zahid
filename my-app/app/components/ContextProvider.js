@@ -200,6 +200,8 @@ const ContextProvider = ({ children }) => {
   const [players, setplayers] = useState([]);
   const [myTournaments, setmyTournaments] = useState([]);
 
+  const userId = auth.currentUser && auth.currentUser.uid;
+
   useEffect(() => {
     const getAllMatches = async () => {
       const allMatchesRef = collection(db, "Matches");
@@ -246,7 +248,6 @@ const ContextProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const userId = auth.currentUser && auth.currentUser.uid;
     const fetchData = async () => {
       const teamsCollectionRef = collection(db, "users", userId, "Teams");
       const teamsSnapshot = await getDocs(teamsCollectionRef);
@@ -365,7 +366,6 @@ const ContextProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const userId = auth.currentUser && auth.currentUser.uid;
     const fetchData = () => {
       const tournamentsCollectionRef = collection(
         db,
@@ -378,7 +378,6 @@ const ContextProvider = ({ children }) => {
         tournamentSnapshot.forEach(async (doc) => {
           const tournamentData = doc.data();
           const tournamentId = doc.id;
-
           const matchesCollectionRef = collection(
             tournamentsCollectionRef,
             tournamentId,
@@ -410,7 +409,7 @@ const ContextProvider = ({ children }) => {
             });
           });
           const updatedTournamentData = { ...tournamentData, matches: matches };
-          await updateDoc(doc.ref, updatedTournamentData, { merge: true });
+          // await updateDoc(doc.ref, updatedTournamentData, { merge: true });
           tournaments.push({ id: tournamentId, ...updatedTournamentData });
         });
         setmyTournaments(tournaments);
@@ -418,7 +417,6 @@ const ContextProvider = ({ children }) => {
     };
     fetchData();
   }, []);
-
   return (
     <Context.Provider
       value={{

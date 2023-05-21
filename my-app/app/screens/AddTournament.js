@@ -12,7 +12,7 @@ import AppButton from "../components/AppButton";
 import CustomTextInput from "../components/CustomTextInput";
 
 export default function AddTS({ navigation }) {
-  const { userData } = useContext(Context);
+  const { userData, } = useContext(Context);
   const [showStartDatePicker, setshowStartDatePicker] = useState(false);
   const [showEndDatePicker, setshowEndDatePicker] = useState(false);
   const [details, setdetails] = useState({
@@ -26,11 +26,13 @@ export default function AddTS({ navigation }) {
     ballType: "",
     matchType: "",
   });
+
   const handleStartDateChange = (event, selectedDate) => {
     setshowStartDatePicker(false);
     const currentDate = selectedDate || date;
     setdetails({ ...details, startDate: currentDate });
   };
+
   const handleEndDateChange = (event, selectedDate) => {
     setshowEndDatePicker(false);
     const currentDate = selectedDate || date;
@@ -55,59 +57,7 @@ export default function AddTS({ navigation }) {
       return;
     }
     try {
-      const tournamentRef = await addDoc(
-        collection(db, "users", auth.currentUser.uid, "Tournaments"),
-        {
-          name: details.name,
-          city: details.city,
-          organizer: {
-            name: details.organizer,
-            phone: details.organizerPhone,
-            email: details.organizerEmail,
-          },
-          startDate: details.startDate.toLocaleDateString(),
-          endDate: details.endDate.toLocaleDateString(),
-          ballType: details.ballType,
-          matchType: details.matchType,
-          status: "Ongoing",
-          mostRuns: {
-            playerName: "Player Name",
-            runs: 0,
-            teamName: "Team Name",
-          },
-          mostWickets: {
-            playerName: "Player Name",
-            wickets: 0,
-            teamName: "Team Name",
-          },
-          sixes: 0,
-          fours: 0,
-          highestScore: {
-            playerName: "Player Name",
-            score: 0,
-            teamName: "Team Name",
-          },
-          bestBowling: {
-            playerName: "Player Name",
-            best: {wickets:0,runs:0},
-            teamName: "Team Name",
-          },
-          mostSixes: {
-            playerName: "Player Name",
-            sixes: 0,
-            teamName: "Team Name",
-          },
-          mostFours: {
-            playerName: "Player Name",
-            fours: 0,
-            teamName: "Team Name",
-          },
-          teams: [],
-          matches:[],
-        }
-      );
-      const publicTournamentRef = doc(db, "Tournaments", tournamentRef.id);
-      await setDoc(publicTournamentRef, {
+      const newTournament = {
         name: details.name,
         city: details.city,
         organizer: {
@@ -149,7 +99,14 @@ export default function AddTS({ navigation }) {
           teamName: "Team Name",
         },
         teams: [],
-      });
+        matches: [],
+      };
+      const tournamentRef = await addDoc(
+        collection(db, "users", auth.currentUser.uid, "Tournaments"),
+        newTournament
+      );
+      const publicTournamentRef = doc(db, "Tournaments", tournamentRef.id);
+      await setDoc(publicTournamentRef, newTournament);
       console.log("Tournament created with ID: ", tournamentRef.id);
       navigation.navigate("Tournament Details", { id: tournamentRef.id });
     } catch (err) {

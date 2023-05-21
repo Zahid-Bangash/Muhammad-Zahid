@@ -9,7 +9,10 @@ export default function MyMatches({ navigation }) {
   return (
     <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
       {myMatches.length > 0 ? (
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          style={{ width: "100%" }}
+        >
           {myMatches.map((match) => (
             <MyMatchCard
               key={match.id}
@@ -20,16 +23,16 @@ export default function MyMatches({ navigation }) {
               matchFormat={match.matchFormat}
               date={match.date}
               firstInningsBalls={
-                match.innings1.length > 0 ? match.innings1[0].ballsDelivered : 0
+                match.innings1? match.innings1.ballsDelivered : 0
               }
               secondInningsBalls={
                 match.innings2.length > 0 ? match.innings2[0].ballsDelivered : 0
               }
               firstInningsRuns={
-                match.innings1.length > 0 ? match.innings1[0].totalRuns : 0
+                match.innings1 ? match.innings1.totalRuns : 0
               }
               secondInningsRuns={
-                match.innings2.length > 0 ? match.innings2[0].totalRuns : 0
+                match.innings2 ? match.innings2.totalRuns : 0
               }
               firstInningsWickets={
                 match.innings1.length > 0 ? match.innings1[0].wicketsDown : 0
