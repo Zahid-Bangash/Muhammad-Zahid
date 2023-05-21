@@ -92,10 +92,7 @@ export default function AddPlayer({ route }) {
               addPlayerToTeam(user);
             }}
           >
-            <PlayerCardForAddPlayer
-              name={user.Name}
-              contact={user.PhoneNumber}
-            />
+            <PlayerCardForAddPlayer name={user.Name} location={user.Location} />
           </TouchableOpacity>
         ))}
     </View>

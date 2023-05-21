@@ -1,22 +1,21 @@
 import React from "react";
-import { View, Text, StyleSheet,TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 
-export default function Player({ name,contact,onPress }) {
+export default function Player({ name, location, onPress, uri }) {
   return (
     <View style={styles.container}>
-      <View
+      <Image
+        source={uri ? { uri: uri } : require("../assets/player1.jpg")}
         style={{
           width: 60,
           height: 60,
-          borderWidth: 1,
-          borderColor: "#07FFF0",
           borderRadius: 30,
           marginHorizontal: 20,
         }}
-      ></View>
+      />
       <View>
-      <Text style={{ fontWeight: "bold", fontSize: 16 }}>{name}</Text>
-      <Text style={{fontSize:15}}>{contact}</Text>
+        <Text style={{ fontWeight: "bold", fontSize: 16 }}>{name}</Text>
+        <Text style={{ fontSize: 15 }}>{location}</Text>
       </View>
     </View>
   );
@@ -32,6 +31,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignSelf: "center",
     elevation: 5,
-    marginBottom:5,
+    marginBottom: 5,
   },
 });

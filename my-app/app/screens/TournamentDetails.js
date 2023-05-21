@@ -74,6 +74,10 @@ export default function TournamnetDetails({ navigation, route }) {
 
   const addTeamToTournament = async (team) => {
     try {
+      if (team.players.length < 2) {
+        alert("Team should have at leat two players");
+        return;
+      }
       currentTournament.teams.push(team);
       setmyTournaments((prevTournaments) => {
         return prevTournaments.map((tournament) => {
@@ -114,6 +118,14 @@ export default function TournamnetDetails({ navigation, route }) {
             const updatedTeams = currentTournament.teams.filter(
               (team) => team.id !== teamId
             );
+            setmyTournaments((prevTournaments) => {
+              return prevTournaments.map((tournament) => {
+                if (tournament.id === id) {
+                  return { ...tournament, teams: updatedTeams };
+                }
+                return tournament;
+              });
+            });
             const teamRefPublic = doc(db, "Tournaments", id);
             const docRefPublic = await updateDoc(
               teamRefPublic,
@@ -268,7 +280,7 @@ export default function TournamnetDetails({ navigation, route }) {
           }}
           onPress={() => {
             if (currentTournament.teams.length < 2) {
-              alert("Tournament must have two teams to start a match");
+              alert("Tournament must have minimum two teams to start a match");
               return;
             }
             navigation.navigate("Start a Match", {

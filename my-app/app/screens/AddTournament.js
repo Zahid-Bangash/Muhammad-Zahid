@@ -12,7 +12,7 @@ import AppButton from "../components/AppButton";
 import CustomTextInput from "../components/CustomTextInput";
 
 export default function AddTS({ navigation }) {
-  const { userData, } = useContext(Context);
+  const { userData, myTournaments, setmyTournaments } = useContext(Context);
   const [showStartDatePicker, setshowStartDatePicker] = useState(false);
   const [showEndDatePicker, setshowEndDatePicker] = useState(false);
   const [details, setdetails] = useState({
@@ -107,6 +107,58 @@ export default function AddTS({ navigation }) {
       );
       const publicTournamentRef = doc(db, "Tournaments", tournamentRef.id);
       await setDoc(publicTournamentRef, newTournament);
+      setmyTournaments([
+        ...myTournaments,
+        {
+          id: tournamentRef.id,
+          name: details.name,
+          city: details.city,
+          organizer: {
+            name: details.organizer,
+            phone: details.organizerPhone,
+            email: details.organizerEmail,
+          },
+          startDate: details.startDate.toLocaleDateString(),
+          endDate: details.endDate.toLocaleDateString(),
+          ballType: details.ballType,
+          matchType: details.matchType,
+          status: "Ongoing",
+          mostRuns: {
+            playerName: "Player Name",
+            runs: 0,
+            teamName: "Team Name",
+          },
+          mostWickets: {
+            playerName: "Player Name",
+            wickets: 0,
+            teamName: "Team Name",
+          },
+          sixes: 0,
+          fours: 0,
+          highestScore: {
+            playerName: "Player Name",
+            score: 0,
+            teamName: "Team Name",
+          },
+          bestBowling: {
+            playerName: "Player Name",
+            best: "0-0",
+            teamName: "Team Name",
+          },
+          mostSixes: {
+            playerName: "Player Name",
+            sixes: 0,
+            teamName: "Team Name",
+          },
+          mostFours: {
+            playerName: "Player Name",
+            fours: 0,
+            teamName: "Team Name",
+          },
+          teams: [],
+          matches: [],
+        },
+      ]);
       console.log("Tournament created with ID: ", tournamentRef.id);
       navigation.navigate("Tournament Details", { id: tournamentRef.id });
     } catch (err) {

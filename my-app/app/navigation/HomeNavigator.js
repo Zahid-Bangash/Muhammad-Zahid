@@ -14,7 +14,17 @@ import {
 const Stack = createNativeStackNavigator();
 
 const HomeNavigator = () => (
-  <Stack.Navigator>
+  <Stack.Navigator
+    screenOptions={{
+      headerStyle: {
+        backgroundColor: "#a10517",
+      },
+      headerTitleStyle: {
+        color: "white",
+      },
+      headerTintColor: "white",
+    }}
+  >
     <Stack.Screen
       name="DashBoard"
       component={HomeScreen}

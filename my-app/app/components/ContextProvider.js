@@ -200,54 +200,123 @@ const ContextProvider = ({ children }) => {
   const [players, setplayers] = useState([]);
   const [myTournaments, setmyTournaments] = useState([]);
 
-  const userId = auth.currentUser && auth.currentUser.uid;
-
   useEffect(() => {
-    const getAllMatches = async () => {
-      const allMatchesRef = collection(db, "Matches");
+    const userId = auth.currentUser && auth.currentUser.uid;
 
-      onSnapshot(allMatchesRef, (allmatchesSnapshot) => {
-        const matches = [];
+    const fetchTournamentData = async () => {
+      const tournamentsCollectionRef = collection(
+        db,
+        "users",
+        userId,
+        "Tournaments"
+      );
 
-        allmatchesSnapshot.forEach(async (matchDoc) => {
-          const matchData = matchDoc.data();
-          const matchId = matchDoc.id;
-          let innings1 = [],
-            innings2 = [];
-          const inningsQuery1 = query(
-            collection(db, "Matches", matchId, "innings"),
-            where("inningsNo", "==", 1)
+      onSnapshot(tournamentsCollectionRef, async (tournamentSnapshot) => {
+        const tournaments = [];
+
+        for (const doc of tournamentSnapshot.docs) {
+          const tournamentData = doc.data();
+          const tournamentId = doc.id;
+
+          const matchesCollectionRef = collection(
+            tournamentsCollectionRef,
+            tournamentId,
+            "Matches"
           );
-          const inningsSnapshot1 = await getDocs(inningsQuery1);
-          if (!inningsSnapshot1.empty) {
-            innings1 = inningsSnapshot1.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-          }
-          const inningsQuery2 = query(
-            collection(db, "Matches", matchId, "innings"),
-            where("inningsNo", "==", 2)
-          );
-          const inningsSnapshot2 = await getDocs(inningsQuery2);
-          if (!inningsSnapshot2.empty) {
-            innings2 = inningsSnapshot2.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-          }
 
-          matches.push({ id: matchId, ...matchData, innings1, innings2 });
-        });
+          onSnapshot(matchesCollectionRef, async (matchesSnapshot) => {
+            const matches = [];
 
-        setallMatches(matches);
+            for (const matchDoc of matchesSnapshot.docs) {
+              const matchData = matchDoc.data();
+              const matchId = matchDoc.id;
+
+              const inningsCollectionRef = collection(
+                matchesCollectionRef,
+                matchId,
+                "innings"
+              );
+
+              const inningsSnapshot = await getDocs(inningsCollectionRef);
+              const innings = [];
+
+              inningsSnapshot.forEach((inningDoc) => {
+                const inningData = inningDoc.data();
+                innings.push(inningData);
+              });
+
+              const innings1 = innings.find((inning) => inning.inningsNo === 1);
+              const innings2 = innings.find((inning) => inning.inningsNo === 2);
+
+              const matchWithInnings = {
+                id: matchId,
+                ...matchData,
+                innings1: innings1,
+                innings2: innings2,
+              };
+
+              matches.push(matchWithInnings);
+            }
+
+            const tournamentWithMatches = {
+              id: tournamentId,
+              ...tournamentData,
+              matches: matches,
+            };
+
+            tournaments.push(tournamentWithMatches);
+            setmyTournaments(tournaments);
+          });
+        }
       });
     };
 
-    getAllMatches();
-  }, []);
+    const fetchUsers = async () => {
+      const usersRef = collection(db, "users");
+      const usersSnapshot = await getDocs(usersRef);
 
-  useEffect(() => {
+      const usersData = [];
+
+      usersSnapshot.forEach(async (doc) => {
+        const userData = doc.data();
+        const userId = doc.id;
+        let dp = "";
+        const imageRef = ref(storage, `ProfileImages/dp${userId}`);
+        try {
+          const url = await getDownloadURL(imageRef);
+          if (url) dp = url;
+        } catch (error) {
+          console.log(
+            `Error getting profile image for user ${userId}: ${error}`
+          );
+        }
+
+        usersData.push({ id: userId, image: dp, ...userData });
+      });
+
+      setplayers(usersData);
+    };
+
+    fetch("https://www.espncricinfo.com/rss/content/story/feeds/0.xml")
+      .then((response) => response.text())
+      .then((responseText) => {
+        parseString(responseText, (err, result) => {
+          if (err) {
+            console.error(err);
+          } else {
+            const newsData = result.rss.channel[0].item.map((item) => ({
+              title: item.title[0],
+              link: item.link[0],
+              description: item.description[0],
+              pubDate: item.pubDate[0],
+              coverImage: item.coverImages[0] ? item.coverImages[0] : "",
+            }));
+            setNews(newsData);
+          }
+        });
+      })
+      .catch((error) => console.error(error));
+
     const fetchData = async () => {
       const teamsCollectionRef = collection(db, "users", userId, "Teams");
       const teamsSnapshot = await getDocs(teamsCollectionRef);
@@ -268,33 +337,38 @@ const ContextProvider = ({ children }) => {
         setUserData(data);
       });
     };
+
     const getMatchesWithInnings = async () => {
       const matchesCollectionRef = collection(db, "users", userId, "Matches");
 
-      onSnapshot(matchesCollectionRef, (matchesSnapshot) => {
+      onSnapshot(matchesCollectionRef, async (matchesSnapshot) => {
         const matches = [];
 
-        matchesSnapshot.forEach(async (matchDoc) => {
+        for (const matchDoc of matchesSnapshot.docs) {
           const matchData = matchDoc.data();
           const matchId = matchDoc.id;
-          let innings1 = [],
-            innings2 = [];
+          let innings1 = [];
+          let innings2 = [];
+
           const inningsQuery1 = query(
             collection(db, "users", userId, "Matches", matchId, "innings"),
             where("inningsNo", "==", 1)
           );
           const inningsSnapshot1 = await getDocs(inningsQuery1);
+
           if (!inningsSnapshot1.empty) {
             innings1 = inningsSnapshot1.docs.map((doc) => ({
               id: doc.id,
               ...doc.data(),
             }));
           }
+
           const inningsQuery2 = query(
             collection(db, "users", userId, "Matches", matchId, "innings"),
             where("inningsNo", "==", 2)
           );
           const inningsSnapshot2 = await getDocs(inningsQuery2);
+
           if (!inningsSnapshot2.empty) {
             innings2 = inningsSnapshot2.docs.map((doc) => ({
               id: doc.id,
@@ -303,120 +377,61 @@ const ContextProvider = ({ children }) => {
           }
 
           matches.push({ id: matchId, ...matchData, innings1, innings2 });
-        });
+        }
 
         setmyMatches(matches);
       });
     };
+
+    const getAllMatches = async () => {
+      const allMatchesRef = collection(db, "Matches");
+      const allMatchesSnapshot = await getDocs(allMatchesRef);
+
+      const matches = [];
+
+      allMatchesSnapshot.forEach(async (matchDoc) => {
+        const matchData = matchDoc.data();
+        const matchId = matchDoc.id;
+        let innings1 = [],
+          innings2 = [];
+
+        const inningsQuery1 = query(
+          collection(db, "Matches", matchId, "innings"),
+          where("inningsNo", "==", 1)
+        );
+        const inningsSnapshot1 = await getDocs(inningsQuery1);
+        if (!inningsSnapshot1.empty) {
+          innings1 = inningsSnapshot1.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+        }
+
+        const inningsQuery2 = query(
+          collection(db, "Matches", matchId, "innings"),
+          where("inningsNo", "==", 2)
+        );
+        const inningsSnapshot2 = await getDocs(inningsQuery2);
+        if (!inningsSnapshot2.empty) {
+          innings2 = inningsSnapshot2.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+        }
+
+        matches.push({ id: matchId, ...matchData, innings1, innings2 });
+      });
+
+      setallMatches(matches);
+    };
+
+    fetchTournamentData();
+    fetchUsers();
     fetchData();
     getMatchesWithInnings();
+    getAllMatches();
   }, []);
 
-  useEffect(() => {
-    fetch("https://www.espncricinfo.com/rss/content/story/feeds/0.xml")
-      .then((response) => response.text())
-      .then((responseText) => {
-        parseString(responseText, (err, result) => {
-          if (err) {
-            console.error(err);
-          } else {
-            const newsData = result.rss.channel[0].item.map((item) => ({
-              title: item.title[0],
-              link: item.link[0],
-              description: item.description[0],
-              pubDate: item.pubDate[0],
-              coverImage: item.coverImages[0] ? item.coverImages[0] : "",
-            }));
-            setNews(newsData);
-          }
-        });
-      })
-      .catch((error) => console.error(error));
-  }, []);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const usersRef = collection(db, "users");
-
-      onSnapshot(usersRef, (usersSnapshot) => {
-        const usersData = [];
-
-        usersSnapshot.forEach(async (doc) => {
-          const userData = doc.data();
-          const userId = doc.id;
-          let dp = "";
-          const imageRef = ref(storage, `ProfileImages/dp${userId}`);
-          try {
-            const url = await getDownloadURL(imageRef);
-            if (url) dp = url;
-          } catch (error) {
-            console.log(
-              `Error getting profile image for user ${userId}: ${error}`
-            );
-          }
-
-          usersData.push({ id: userId, image: dp, ...userData });
-        });
-
-        setplayers(usersData);
-      });
-    };
-
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = () => {
-      const tournamentsCollectionRef = collection(
-        db,
-        "users",
-        userId,
-        "Tournaments"
-      );
-      onSnapshot(tournamentsCollectionRef, async (tournamentSnapshot) => {
-        const tournaments = [];
-        tournamentSnapshot.forEach(async (doc) => {
-          const tournamentData = doc.data();
-          const tournamentId = doc.id;
-          const matchesCollectionRef = collection(
-            tournamentsCollectionRef,
-            tournamentId,
-            "Matches"
-          );
-          const matchesSnapshot = await getDocs(matchesCollectionRef);
-          const matches = [];
-          matchesSnapshot.forEach(async (matchDoc) => {
-            const matchData = matchDoc.data();
-            const matchId = matchDoc.id;
-            const inningsCollectionRef = collection(
-              matchesCollectionRef,
-              matchId,
-              "innings"
-            );
-            const inningsSnapshot = await getDocs(inningsCollectionRef);
-            const innings = [];
-            inningsSnapshot.forEach((inningDoc) => {
-              const inningData = inningDoc.data();
-              innings.push(inningData);
-            });
-            const innings1 = innings.find((inning) => inning.inningsNo === 1);
-            const innings2 = innings.find((inning) => inning.inningsNo === 2);
-            matches.push({
-              id: matchId,
-              ...matchData,
-              innings1: innings1,
-              innings2: innings2,
-            });
-          });
-          const updatedTournamentData = { ...tournamentData, matches: matches };
-          // await updateDoc(doc.ref, updatedTournamentData, { merge: true });
-          tournaments.push({ id: tournamentId, ...updatedTournamentData });
-        });
-        setmyTournaments(tournaments);
-      });
-    };
-    fetchData();
-  }, []);
   return (
     <Context.Provider
       value={{
@@ -428,6 +443,8 @@ const ContextProvider = ({ children }) => {
         setprofileImageUri,
         news,
         myMatches,
+        setmyMatches,
+        setallMatches,
         allMatches,
         players,
         myTournaments,

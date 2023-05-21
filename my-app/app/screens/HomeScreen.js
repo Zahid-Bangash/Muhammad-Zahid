@@ -19,6 +19,7 @@ import AppButton from "../components/AppButton";
 
 export default function HomeScreen({ navigation }) {
   const { news, allMatches, players } = useContext(Context);
+
   return (
     <Screen>
       <Header

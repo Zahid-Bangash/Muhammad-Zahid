@@ -19,10 +19,11 @@ export default function PlayerCard({
   runs,
   wickets,
   type,
+  style,
 }) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
-      <View style={styles.container}>
+      <View style={[styles.container, style]}>
         <View style={{ flexDirection: "row" }}>
           <Image
             source={image}
@@ -107,8 +108,8 @@ export default function PlayerCard({
 
 const styles = StyleSheet.create({
   container: {
-    width: Dimensions.get('screen').width*0.90,
-    height: Dimensions.get('screen').height*0.20,
+    width: Dimensions.get("screen").width * 0.9,
+    height: Dimensions.get("screen").height * 0.2,
     backgroundColor: "#000",
     borderRadius: 20,
     marginLeft: 20,
