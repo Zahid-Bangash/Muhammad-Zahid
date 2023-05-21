@@ -123,9 +123,10 @@ export default function HomeScreen({ navigation }) {
               .slice(0, 6)
               .map((tournament) => (
                 <TournamentCard
+                  key={tournament.id}
                   name="zahid bangash tournament- hangu"
                   teams={12}
-                  status="Ongoing"
+                  status={tournament.status}
                   image={require("../assets/t1.jpg")}
                   startDate="03 Nov, 2022"
                   endDate="03 Dec, 2022"
