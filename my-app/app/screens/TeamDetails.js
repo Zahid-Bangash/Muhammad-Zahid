@@ -1,11 +1,15 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Modal,
+  Dimensions,
+  TouchableWithoutFeedback,
 } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
 import { Context } from "../components/ContextProvider";
 import {
   collection,
@@ -23,7 +27,8 @@ import PlayerCardForTeamDetails from "../components/PlayerCardForTeamDetails";
 
 export default function TeamDetails({ route, navigation }) {
   const { teams, setTeams } = useContext(Context);
-  const { teamId } = route.params;
+  const { teamId, modalVisible } = route.params;
+  console.log(modalVisible);
   let team = teams.find((team) => team.id === teamId);
 
   const deletePlayer = async (index) => {
@@ -48,6 +53,36 @@ export default function TeamDetails({ route, navigation }) {
   };
   return (
     <View style={styles.container}>
+      <Modal visible={modalVisible} animationType="slide" transparent>
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: Dimensions.get("screen").width * 0.6,
+            height: Dimensions.get("screen").height * 0.3,
+            backgroundColor: "#b7afa6",
+          }}
+        >
+          <TouchableWithoutFeedback>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginTop: 10,
+                marginLeft: 20,
+              }}
+            >
+              <AntDesign name="delete" size={25} color="black" />
+              <Text
+                style={{ fontWeight: "bold", fontSize: 17, marginLeft: 20 }}
+              >
+                Delete Team
+              </Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </Modal>
       <Text style={{ fontWeight: "bold", fontSize: 30, textAlign: "center" }}>
         {team.name}
       </Text>

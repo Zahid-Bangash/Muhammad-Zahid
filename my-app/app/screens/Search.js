@@ -37,6 +37,7 @@ export default function Search() {
     );
     const result = searchResults.map((doc) => ({ id: doc.id, ...doc.data() }));
     setsearchData(result);
+    
     setfilterVisible(true);
   };
 
@@ -64,8 +65,8 @@ export default function Search() {
         <>
           <ScrollView
             horizontal
-            style={{ height: Dimensions.get("screen").height * 0.075 }}
-            contentContainerStyle={{
+            style={{
+              height: Dimensions.get("screen").height * 0.085,
               marginTop: 10,
             }}
           >
@@ -142,8 +143,12 @@ export default function Search() {
             </AppButton>
           </ScrollView>
           <ScrollView
-            style={{ marginTop: 15, paddingBottom: 300, width: "100%" }}
-            contentContainerStyle={{ alignItems: "center" }}
+            style={{ width: "100%" }}
+            contentContainerStyle={{
+              alignItems: "center",
+              paddingBottom: Dimensions.get("screen").height * 0.2,
+              marginTop: 10,
+            }}
           >
             {searchData.length > 0 ? (
               searchData.map((item) => {

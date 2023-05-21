@@ -199,10 +199,73 @@ const ContextProvider = ({ children }) => {
   const [myMatches, setmyMatches] = useState([]);
   const [players, setplayers] = useState([]);
   const [myTournaments, setmyTournaments] = useState([]);
+  const [allTournaments, setallTournaments] = useState([]);
 
   useEffect(() => {
     const userId = auth.currentUser && auth.currentUser.uid;
 
+    const fetchAllTournamentData = async () => {
+      const tournamentsCollectionRef = collection(db, "Tournaments");
+
+      onSnapshot(tournamentsCollectionRef, async (tournamentSnapshot) => {
+        const tournaments = [];
+
+        for (const doc of tournamentSnapshot.docs) {
+          const tournamentData = doc.data();
+          const tournamentId = doc.id;
+
+          const matchesCollectionRef = collection(
+            tournamentsCollectionRef,
+            tournamentId,
+            "Matches"
+          );
+
+          onSnapshot(matchesCollectionRef, async (matchesSnapshot) => {
+            const matches = [];
+
+            for (const matchDoc of matchesSnapshot.docs) {
+              const matchData = matchDoc.data();
+              const matchId = matchDoc.id;
+
+              const inningsCollectionRef = collection(
+                matchesCollectionRef,
+                matchId,
+                "innings"
+              );
+
+              const inningsSnapshot = await getDocs(inningsCollectionRef);
+              const innings = [];
+
+              inningsSnapshot.forEach((inningDoc) => {
+                const inningData = inningDoc.data();
+                innings.push(inningData);
+              });
+
+              const innings1 = innings.find((inning) => inning.inningsNo === 1);
+              const innings2 = innings.find((inning) => inning.inningsNo === 2);
+
+              const matchWithInnings = {
+                id: matchId,
+                ...matchData,
+                innings1: innings1,
+                innings2: innings2,
+              };
+
+              matches.push(matchWithInnings);
+            }
+
+            const tournamentWithMatches = {
+              id: tournamentId,
+              ...tournamentData,
+              matches: matches,
+            };
+
+            tournaments.push(tournamentWithMatches);
+            setallTournaments(tournaments);
+          });
+        }
+      });
+    };
     const fetchTournamentData = async () => {
       const tournamentsCollectionRef = collection(
         db,
@@ -430,6 +493,7 @@ const ContextProvider = ({ children }) => {
     fetchData();
     getMatchesWithInnings();
     getAllMatches();
+    fetchAllTournamentData();
   }, []);
 
   return (
@@ -449,6 +513,8 @@ const ContextProvider = ({ children }) => {
         players,
         myTournaments,
         setmyTournaments,
+        allTournaments,
+        setallTournaments,
       }}
     >
       {children}

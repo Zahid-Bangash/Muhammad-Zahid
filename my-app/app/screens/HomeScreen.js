@@ -18,7 +18,7 @@ import NewsCard from "../components/cards/NewsCard";
 import AppButton from "../components/AppButton";
 
 export default function HomeScreen({ navigation }) {
-  const { news, allMatches, players } = useContext(Context);
+  const { news, allMatches, players, allTournaments } = useContext(Context);
 
   return (
     <Screen>
@@ -118,54 +118,29 @@ export default function HomeScreen({ navigation }) {
             height: Dimensions.get("screen").height * 0.213,
           }}
         >
-          <TournamentCard
-            name="zahid bangash tournament- hangu"
-            teams={12}
-            status="Ongoing"
-            image={require("../assets/t1.jpg")}
-            startDate="03 Nov, 2022"
-            endDate="03 Dec, 2022"
-          />
-          <TournamentCard
-            name="Night tournament - Hazro"
-            teams={20}
-            status="Ongoing"
-            image={require("../assets/t2.jpg")}
-            date="03 Nov, 2022 to 30 Nov, 2022"
-            onPress={() => navigation.navigate("Tournament Details")}
-          />
-          <TournamentCard
-            name="Peshawar Super league - Peshawar"
-            teams={8}
-            status="Ongoing"
-            image={require("../assets/t3.jpg")}
-            date="08 Oct, 2022 to 29 Nov, 2022"
-            onPress={() => navigation.navigate("Tournament Details")}
-          />
-          <TournamentCard
-            name="Tournament Name- City"
-            teams={19}
-            status="Ongoing"
-            image={require("../assets/t1.jpg")}
-            date="20 Nv, 2022 to 20 Dec, 2022"
-            onPress={() => navigation.navigate("Tournament Details")}
-          />
-          <TournamentCard
-            name="Karachi T10 League- Karachi"
-            teams={14}
-            status="Ongoing"
-            image={require("../assets/t2.jpg")}
-            date="20 Nv, 2022 to 20 Dec, 2022"
-            onPress={() => navigation.navigate("Tournament Details")}
-          />
-          <TournamentCard
-            name="zahid bangash tournament- hangu"
-            teams={6}
-            status="Ongoing"
-            image={require("../assets/t3.jpg")}
-            date="20 Nv, 2022 to 20 Dec, 2022"
-            onPress={() => navigation.navigate("Tournament Details")}
-          />
+          {allTournaments.length > 0 ? (
+            allTournaments
+              .slice(0, 6)
+              .map((tournament) => (
+                <TournamentCard
+                  name="zahid bangash tournament- hangu"
+                  teams={12}
+                  status="Ongoing"
+                  image={require("../assets/t1.jpg")}
+                  startDate="03 Nov, 2022"
+                  endDate="03 Dec, 2022"
+                />
+              ))
+          ) : (
+            <TournamentCard
+              name="zahid bangash tournament- hangu"
+              teams={12}
+              status="Ongoing"
+              image={require("../assets/t1.jpg")}
+              startDate="03 Nov, 2022"
+              endDate="03 Dec, 2022"
+            />
+          )}
         </ScrollView>
         <Text style={{ fontWeight: "bold", fontSize: 20, margin: 20 }}>
           Clubs
