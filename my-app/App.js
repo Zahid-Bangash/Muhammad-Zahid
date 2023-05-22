@@ -18,7 +18,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <StatusBar backgroundColor="#743a04" />
+      <StatusBar backgroundColor="black" />
       {currentUser ? <AppNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );

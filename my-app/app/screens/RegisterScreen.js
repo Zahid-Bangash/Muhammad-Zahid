@@ -296,7 +296,7 @@ export default function RegisterScreen({ navigation }) {
           />
           <AppButton
             onPress={handleSignUp}
-            style={{ marginTop: 30, backgroundColor: "#07FFF0", width: "82%" }}
+            style={{ marginTop: 30, backgroundColor: "#1b8d9d", width: "82%" }}
           >
             REGISTER
           </AppButton>

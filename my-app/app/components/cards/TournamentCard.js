@@ -9,12 +9,12 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import AntDesign from "@expo/vector-icons/AntDesign";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function TournamentCard({
   name,
+  city,
   teams,
   status,
   onPress,
@@ -22,20 +22,10 @@ export default function TournamentCard({
   startDate,
   endDate,
   style,
-  showDelete,
-  onDelete,
 }) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={[styles.container, style]}>
-        {/* {showDelete && ( */}
-        {/* <TouchableOpacity
-          style={{ position: "absolute", top: 5, right: 5 }}
-          onPress={onDelete}
-        >
-          <AntDesign name="delete" size={25} color="red" />
-        </TouchableOpacity> */}
-        {/* )} */}
         <Text style={{ position: "absolute", top: 5, right: 12, color: "red" }}>
           {status}
         </Text>
@@ -46,7 +36,7 @@ export default function TournamentCard({
           />
           <View style={{ marginLeft: 10 }}>
             <Text style={{ fontWeight: "bold", textAlign: "center" }}>
-              {name}
+              {name} - {city}
             </Text>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <MaterialIcons name="groups" size={22} color="#FE7F0A" />

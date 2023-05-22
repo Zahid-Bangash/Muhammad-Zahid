@@ -35,7 +35,8 @@ export default function MyTournaments({ navigation }) {
               key={tournament.id}
               style={{ marginLeft: 0, marginBottom: 10 }}
               name={tournament.name}
-              teams={12}
+              city={tournament.city}
+              teams={tournament.teams.length}
               status={tournament.status}
               image={require("../assets/t1.jpg")}
               startDate={tournament.startDate}
@@ -48,8 +49,6 @@ export default function MyTournaments({ navigation }) {
                   },
                 })
               }
-              showDelete={showDeleteIcon}
-              onDelete={() => deleteTournament(tournament.id)}
             />
           ))}
         </ScrollView>

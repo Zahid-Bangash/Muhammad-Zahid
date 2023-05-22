@@ -7,6 +7,7 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from "react-native";
 import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -391,7 +392,7 @@ export default function StartMatch({ route, navigation }) {
         <View
           style={{
             position: "absolute",
-            backgroundColor: "#07FFF0",
+            backgroundColor: "#e0dede",
             width: "100%",
             height: "100%",
             alignItems: "center",
@@ -400,21 +401,21 @@ export default function StartMatch({ route, navigation }) {
         >
           {tournament === null && (
             <>
-              <TouchableOpacity onPress={() => setsearchModal(true)}>
-                <Text
-                  style={{
-                    fontSize: 24,
-                    color: "#3e5430",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Search Team
-                </Text>
-              </TouchableOpacity>
+              <AppButton
+                style={{
+                  backgroundColor: "#c96407",
+                  borderRadius: 0,
+                  marginTop: 20,
+                }}
+                onPress={() => setsearchModal(true)}
+              >
+                Search Team
+              </AppButton>
               <Text
                 style={{
                   fontSize: 24,
                   fontWeight: "bold",
+                  color: "black",
                 }}
               >
                 OR
@@ -425,7 +426,7 @@ export default function StartMatch({ route, navigation }) {
             style={{
               fontSize: 24,
               marginBottom: 20,
-              color: "#ba6d13",
+              color: "black",
               fontWeight: "bold",
             }}
           >
@@ -439,9 +440,15 @@ export default function StartMatch({ route, navigation }) {
               allTeams.map((team) => (
                 <TouchableOpacity
                   key={team.id}
-                  onPress={() => handleSelectTeam(team)}
+                  onPress={() => {
+                    if (team.players.length < 2) {
+                      alert("Team must have two players");
+                      return;
+                    }
+                    handleSelectTeam(team);
+                  }}
                   style={{
-                    backgroundColor: "pink",
+                    backgroundColor: "#676869",
                     width: "90%",
                     height: 50,
                     marginBottom: 5,
@@ -449,7 +456,9 @@ export default function StartMatch({ route, navigation }) {
                     justifyContent: "center",
                   }}
                 >
-                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                  <Text
+                    style={{ fontSize: 18, marginBottom: 10, color: "white" }}
+                  >
                     {team.name}
                   </Text>
                 </TouchableOpacity>
@@ -464,7 +473,7 @@ export default function StartMatch({ route, navigation }) {
             style={{ position: "absolute", top: 5, right: 5 }}
             onPress={() => setModalVisible(false)}
           >
-            <Entypo name="circle-with-cross" size={45} color="red" />
+            <Entypo name="circle-with-cross" size={45} color="brown" />
           </TouchableOpacity>
         </View>
       </Modal>
@@ -477,7 +486,7 @@ export default function StartMatch({ route, navigation }) {
         <View
           style={{
             position: "absolute",
-            backgroundColor: "#07FFF0",
+            backgroundColor: "#e0dede",
             width: "100%",
             height: "100%",
             alignItems: "center",
@@ -494,7 +503,7 @@ export default function StartMatch({ route, navigation }) {
             style={{
               fontSize: 20,
               marginBottom: 20,
-              color: "#ba6d13",
+              color: "black",
               fontWeight: "bold",
             }}
           >
@@ -508,9 +517,15 @@ export default function StartMatch({ route, navigation }) {
               search.map((team) => (
                 <TouchableOpacity
                   key={team.id}
-                  onPress={() => handleSelectTeam(team)}
+                  onPress={() => {
+                    if (team.players.length < 2) {
+                      alert("Team must have two players");
+                      return;
+                    }
+                    handleSelectTeam(team);
+                  }}
                   style={{
-                    backgroundColor: "pink",
+                    backgroundColor: "#676869",
                     width: "90%",
                     height: 50,
                     marginBottom: 5,
@@ -518,7 +533,9 @@ export default function StartMatch({ route, navigation }) {
                     justifyContent: "center",
                   }}
                 >
-                  <Text style={{ fontSize: 18, marginBottom: 10 }}>
+                  <Text
+                    style={{ fontSize: 18, marginBottom: 10, color: "white" }}
+                  >
                     {team.name}
                   </Text>
                 </TouchableOpacity>
@@ -537,7 +554,7 @@ export default function StartMatch({ route, navigation }) {
               setsearch([]);
             }}
           >
-            <Entypo name="circle-with-cross" size={45} color="red" />
+            <Entypo name="circle-with-cross" size={45} color="brown" />
           </TouchableOpacity>
         </View>
       </Modal>
@@ -550,7 +567,7 @@ export default function StartMatch({ route, navigation }) {
         <View
           style={{
             position: "absolute",
-            backgroundColor: "#c0c589",
+            backgroundColor: "#e0dede",
             width: "100%",
             height: "100%",
             alignItems: "center",
@@ -561,7 +578,7 @@ export default function StartMatch({ route, navigation }) {
             style={{
               fontSize: 24,
               marginBottom: 20,
-              color: "#88309a",
+              color: "black",
               fontWeight: "bold",
             }}
           >
@@ -576,7 +593,7 @@ export default function StartMatch({ route, navigation }) {
                 <View
                   key={player.id}
                   style={{
-                    backgroundColor: "#b8dde0",
+                    backgroundColor: "#676869",
                     marginBottom: 5,
                     alignItems: "center",
                     paddingHorizontal: 10,
@@ -585,16 +602,23 @@ export default function StartMatch({ route, navigation }) {
                     height: 50,
                   }}
                 >
-                  <Text style={{ fontSize: 18, marginBottom: 10, flex: 1 }}>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      marginBottom: 10,
+                      flex: 1,
+                      color: "white",
+                    }}
+                  >
                     {player.name}
                   </Text>
                   {squad.players.includes(player) ? (
                     <TouchableOpacity onPress={() => handleSquadUpdate(player)}>
-                      <Entypo name="minus" size={35} color="red" />
+                      <Entypo name="minus" size={35} color="white" />
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity onPress={() => handleSquadUpdate(player)}>
-                      <Entypo name="plus" size={35} color="green" />
+                      <Entypo name="plus" size={35} color="white" />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -604,7 +628,7 @@ export default function StartMatch({ route, navigation }) {
             style={{ position: "absolute", top: 5, right: 5 }}
             onPress={() => setsquadModal(false)}
           >
-            <Entypo name="circle-with-cross" size={45} color="red" />
+            <Entypo name="circle-with-cross" size={45} color="brown" />
           </TouchableOpacity>
         </View>
       </Modal>
@@ -834,7 +858,7 @@ export default function StartMatch({ route, navigation }) {
         <View
           style={{
             position: "absolute",
-            backgroundColor: "#FE7F0A",
+            backgroundColor: "#6ba575",
             transform: [{ translateX: 35 }, { translateY: 170 }],
             width: "80%",
             height: "60%",
@@ -852,7 +876,7 @@ export default function StartMatch({ route, navigation }) {
               setselected(null);
             }}
           >
-            <Entypo name="circle-with-cross" size={45} color="#b10a19" />
+            <Entypo name="circle-with-cross" size={45} color="brown" />
           </TouchableOpacity>
           <Text style={{ fontWeight: "bold", fontSize: 18, color: "white" }}>
             Who won the toss?
@@ -880,15 +904,10 @@ export default function StartMatch({ route, navigation }) {
                   width: "45%",
                 }}
               >
-                <View
-                  style={{
-                    width: 60,
-                    height: 60,
-                    borderWidth: 1,
-                    borderColor: "#07FFF0",
-                    borderRadius: 30,
-                  }}
-                ></View>
+                <Image
+                  source={require("../assets/team1.jpg")}
+                  style={{ width: 60, height: 60, borderRadius: 30 }}
+                />
                 <Text>{team1 && team1.name}</Text>
               </View>
             </TouchableWithoutFeedback>
@@ -907,15 +926,10 @@ export default function StartMatch({ route, navigation }) {
                   width: "45%",
                 }}
               >
-                <View
-                  style={{
-                    width: 60,
-                    height: 60,
-                    borderWidth: 1,
-                    borderColor: "#07FFF0",
-                    borderRadius: 30,
-                  }}
-                ></View>
+                <Image
+                  source={require("../assets/team5.jpg")}
+                  style={{ width: 60, height: 60, borderRadius: 30 }}
+                />
                 <Text>{team2 && team2.name}</Text>
               </View>
             </TouchableWithoutFeedback>
@@ -1002,7 +1016,7 @@ export default function StartMatch({ route, navigation }) {
             </TouchableWithoutFeedback>
           </View>
           <AppButton
-            style={{ backgroundColor: "green", width: "60%" }}
+            style={{ backgroundColor: "#1b8d9d", width: "60%" }}
             onPress={startMatch}
           >
             Start Match

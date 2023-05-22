@@ -30,7 +30,7 @@ export default function ForgotPassword() {
         alignItems: "center",
       }}
     >
-      <Text style={{ fontWeight: "bold",fontSize:17, }}>
+      <Text style={{ fontWeight: "bold",fontSize:17,width:'80%',textAlign:'center', }}>
         A password reset link will be sent to the email
       </Text>
       <AppTextInput
@@ -40,7 +40,7 @@ export default function ForgotPassword() {
         onChangeText={(text) => setemail(text)}
         style={{ marginTop: 50, }}
       />
-      <AppButton onPress={handleForgotPassword} style={{ marginTop: 50,backgroundColor:'#07FFF0',width:'80%' }}>
+      <AppButton onPress={handleForgotPassword} style={{ marginTop: 50,backgroundColor:'#1b8d9d',width:'80%' }}>
         SUBMIT
       </AppButton>
     </ImageBackground>

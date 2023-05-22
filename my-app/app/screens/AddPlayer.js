@@ -1,5 +1,11 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { Context } from "../components/ContextProvider";
@@ -21,6 +27,11 @@ export default function AddPlayer({ route }) {
 
   const [name, setname] = useState("");
   const [users, setUsers] = useState([]);
+  const [searchStatus, setsearchStatus] = useState("");
+
+  const updatedTeams = [...teams];
+  let teamToUpdate = updatedTeams.find((team) => team.id === teamId);
+  const updatedTeam = { ...teamToUpdate };
 
   const searchByName = async () => {
     const searchRef = collection(db, "users");
@@ -29,7 +40,16 @@ export default function AddPlayer({ route }) {
       doc.data()["Name"].toLowerCase().includes(name.toLowerCase())
     );
     const result = searchResults.map((doc) => ({ id: doc.id, ...doc.data() }));
-    setUsers(result);
+    const resultFinal = result.filter(
+      (teamSearch) =>
+        !updatedTeam.players.some((team) => team.id === teamSearch.id)
+    );
+    if (resultFinal.length > 0) {
+      setUsers(resultFinal);
+      setsearchStatus("");
+    } else {
+      setsearchStatus("No player to be added");
+    }
   };
 
   const addPlayerToTeam = async (user) => {
@@ -50,9 +70,6 @@ export default function AddPlayer({ route }) {
           contact: user.PhoneNumber,
         }),
       });
-      const updatedTeams = [...teams];
-      let teamToUpdate = updatedTeams.find((team) => team.id === teamId);
-      const updatedTeam = { ...teamToUpdate };
       updatedTeam.players.push({
         id: user.id,
         name: user.Name,
@@ -60,7 +77,7 @@ export default function AddPlayer({ route }) {
       });
       teamToUpdate = updatedTeam;
       setTeams(updatedTeams);
-      alert("Player Added to team");
+      alert("Player added");
     } catch (error) {
       console.error("Error adding player: ", error);
     }
@@ -69,7 +86,10 @@ export default function AddPlayer({ route }) {
   useEffect(() => {
     if (name.length > 0) {
       searchByName();
-    } else setUsers([]);
+    } else {
+      setUsers([]);
+      setsearchStatus("");
+    }
   }, [name]);
 
   return (
@@ -83,18 +103,28 @@ export default function AddPlayer({ route }) {
         onChangeText={(text) => setname(text)}
         style={{ marginBottom: 50 }}
       />
-      {users.length > 0 &&
-        users.map((user, index) => (
-          <TouchableOpacity
-            key={index}
-            style={{ width: "100%" }}
-            onPress={() => {
-              addPlayerToTeam(user);
-            }}
-          >
-            <PlayerCardForAddPlayer name={user.Name} location={user.Location} />
-          </TouchableOpacity>
-        ))}
+      <ScrollView style={{width:'100%',}} contentContainerStyle={{padding:10}}>
+        {users.length > 0 ? (
+          users.map((user, index) => (
+            <TouchableOpacity
+              key={index}
+              style={{ width: "100%" }}
+              onPress={() => {
+                addPlayerToTeam(user);
+              }}
+            >
+              <PlayerCardForAddPlayer
+                name={user.Name}
+                location={user.Location}
+              />
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+            {searchStatus}
+          </Text>
+        )}
+      </ScrollView>
     </View>
   );
 }

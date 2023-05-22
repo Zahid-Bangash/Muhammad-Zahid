@@ -5,12 +5,12 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage, ref } from "firebase/storage";
 
 export const firebaseConfig = {
-  apiKey: "AIzaSyATP-M7kCw40D_Ol7zIyzmO2QUgxJ8CMIM",
-  authDomain: "finalproject-78235.firebaseapp.com",
-  projectId: "finalproject-78235",
-  storageBucket: "gs://finalproject-78235.appspot.com",
-  messagingSenderId: "644216947432",
-  appId: "1:644216947432:web:b1ce668ad29bde6d1c7f5d",
+  apiKey: "AIzaSyCeRHGfgS-Nwuoy07R_WboM-ygcRR4PcXU",
+  authDomain: "fyproject-b3551.firebaseapp.com",
+  projectId: "fyproject-b3551",
+  storageBucket: "gs://fyproject-b3551.appspot.com",
+  messagingSenderId: "730603903276",
+  appId: "1:730603903276:web:fa4eb1e5493e23558bf489",
 };
 let app;
 if (getApps.length < 1) {

@@ -5,10 +5,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Modal,
   Dimensions,
   TouchableWithoutFeedback,
 } from "react-native";
+import Modal from "react-native-modal";
 import { AntDesign } from "@expo/vector-icons";
 import { Context } from "../components/ContextProvider";
 import {
@@ -24,11 +24,11 @@ import {
 import { auth, db } from "../config/firebase-config";
 
 import PlayerCardForTeamDetails from "../components/PlayerCardForTeamDetails";
+import { SlideInLeft } from "react-native-reanimated";
 
 export default function TeamDetails({ route, navigation }) {
-  const { teams, setTeams } = useContext(Context);
+  const { teams, setTeams, showModal, setshowModal } = useContext(Context);
   const { teamId, modalVisible } = route.params;
-  console.log(modalVisible);
   let team = teams.find((team) => team.id === teamId);
 
   const deletePlayer = async (index) => {
@@ -53,17 +53,23 @@ export default function TeamDetails({ route, navigation }) {
   };
   return (
     <View style={styles.container}>
-      <Modal visible={modalVisible} animationType="slide" transparent>
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: Dimensions.get("screen").width * 0.6,
-            height: Dimensions.get("screen").height * 0.3,
-            backgroundColor: "#b7afa6",
-          }}
-        >
+      <Modal
+        isVisible={showModal}
+        animationType="slide"
+        animationIn={"slideInRight"}
+        animationOut={"slideOutRight"}
+        onRequestClose={() => setshowModal(false)}
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          margin: 0,
+          width: Dimensions.get("screen").width * 0.6,
+          height: Dimensions.get("screen").height * 0.3,
+          backgroundColor: "#b7afa6",
+        }}
+      >
+        <View style={{ flex: 1 }}>
           <TouchableWithoutFeedback>
             <View
               style={{

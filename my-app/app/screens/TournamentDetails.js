@@ -882,7 +882,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     textTransform: "capitalize",
                   }}
                 >
-                  {currentTournament.highestScore.playerName}
+                  {currentTournament.bestBowling.playerName}
                 </Text>
                 <Text
                   style={{
@@ -891,7 +891,7 @@ export default function TournamnetDetails({ navigation, route }) {
                     color: "grey",
                   }}
                 >
-                  {currentTournament.highestScore.teamName}
+                  {currentTournament.bestBowling.teamName}
                 </Text>
               </View>
             </View>

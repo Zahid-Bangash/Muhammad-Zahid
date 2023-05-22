@@ -56,7 +56,7 @@ export default function WelcomeScreen({ navigation }) {
           </AppButton>
           <AppButton
             onPress={() => navigation.navigate("Register")}
-            style={{ backgroundColor: "#07FFF0" }}
+            style={{ backgroundColor: "#1b8d9d" }}
           >
             REGISTER
           </AppButton>

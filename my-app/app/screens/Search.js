@@ -75,7 +75,7 @@ export default function Search() {
                 width: Dimensions.get("screen").width * 0.3,
                 borderRadius: 5,
                 marginHorizontal: 5,
-                backgroundColor: selected === "users" ? "brown" : "#5da3a4",
+                backgroundColor: selected === "users" ? "#043939" : "#328c8d",
               }}
               onPress={() => {
                 setsearchData([]);
@@ -89,7 +89,7 @@ export default function Search() {
                 width: Dimensions.get("screen").width * 0.3,
                 borderRadius: 5,
                 marginHorizontal: 5,
-                backgroundColor: selected === "Teams" ? "brown" : "#5da3a4",
+                backgroundColor: selected === "Teams" ? "#043939" : "#328c8d",
               }}
               onPress={() => {
                 setsearchData([]);
@@ -103,7 +103,7 @@ export default function Search() {
                 width: Dimensions.get("screen").width * 0.3,
                 borderRadius: 5,
                 marginHorizontal: 5,
-                backgroundColor: selected === "Matches" ? "brown" : "#5da3a4",
+                backgroundColor: selected === "Matches" ? "#043939" : "#328c8d",
               }}
               onPress={() => {
                 setsearchData([]);
@@ -118,7 +118,7 @@ export default function Search() {
                 borderRadius: 5,
                 marginHorizontal: 5,
                 backgroundColor:
-                  selected === "Tournaments" ? "brown" : "#5da3a4",
+                  selected === "Tournaments" ? "#043939" : "#328c8d",
               }}
               onPress={() => {
                 setsearchData([]);
@@ -132,7 +132,7 @@ export default function Search() {
                 width: Dimensions.get("screen").width * 0.3,
                 borderRadius: 5,
                 marginHorizontal: 5,
-                backgroundColor: selected === "Club" ? "brown" : "#5da3a4",
+                backgroundColor: selected === "Club" ? "#043939" : "#328c8d",
               }}
               onPress={() => {
                 setsearchData([]);

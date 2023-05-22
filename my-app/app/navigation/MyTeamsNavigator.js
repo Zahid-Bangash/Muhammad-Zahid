@@ -1,21 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { MaterialIcons } from "@expo/vector-icons";
+
 import { MyTeams, TeamDetails, AddTeam, AddPlayer } from "../screens";
+
+import { Context } from "../components/ContextProvider";
 
 const Stack = createNativeStackNavigator();
 
 export default function MyTeamsNavigator({ navigation }) {
-  const [modalVisible, setmodalVisible] = useState(false);
+  const { showModal, setshowModal} = useContext(Context);
 
   return (
     <Stack.Navigator
       initialRouteName="Teams"
       screenOptions={{
         headerStyle: {
-          backgroundColor: "#a10517",
+          backgroundColor:"#a10517",
         },
         headerTitleStyle: {
           color: "white",
@@ -45,12 +48,11 @@ export default function MyTeamsNavigator({ navigation }) {
         component={TeamDetails}
         options={{
           headerRight: () => (
-            <TouchableOpacity onPress={() => setmodalVisible(true)}>
+            <TouchableOpacity onPress={() => setshowModal(true)}>
               <MaterialIcons name="more-vert" size={24} color="white" />
             </TouchableOpacity>
           ),
         }}
-        initialParams={{ modalVisible,  }}
       />
       <Stack.Screen name="Add Player" component={AddPlayer} />
     </Stack.Navigator>

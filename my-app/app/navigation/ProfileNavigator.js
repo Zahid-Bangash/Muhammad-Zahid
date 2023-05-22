@@ -8,7 +8,18 @@ import { ProfileScreen, EditProfile } from "../screens";
 const Stack = createNativeStackNavigator();
 
 const ProfileNavigator = ({ navigation }) => (
-  <Stack.Navigator initialRouteName="Your Profile">
+  <Stack.Navigator
+    initialRouteName="Your Profile"
+    screenOptions={{
+      headerStyle: {
+        backgroundColor: "#a10517",
+      },
+      headerTitleStyle: {
+        color: "white",
+      },
+      headerTintColor: "white",
+    }}
+  >
     <Stack.Screen
       name="My Profile"
       component={ProfileScreen}
@@ -20,7 +31,7 @@ const ProfileNavigator = ({ navigation }) => (
               navigation.goBack();
             }}
           >
-            <Ionicons name="arrow-back" size={25} />
+            <Ionicons name="arrow-back" size={25} color="white" />
           </TouchableOpacity>
         ),
       }}

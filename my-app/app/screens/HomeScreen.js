@@ -119,19 +119,26 @@ export default function HomeScreen({ navigation }) {
           }}
         >
           {allTournaments.length > 0 ? (
-            allTournaments
-              .slice(0, 6)
-              .map((tournament) => (
-                <TournamentCard
-                  key={tournament.id}
-                  name="zahid bangash tournament- hangu"
-                  teams={12}
-                  status={tournament.status}
-                  image={require("../assets/t1.jpg")}
-                  startDate="03 Nov, 2022"
-                  endDate="03 Dec, 2022"
-                />
-              ))
+            allTournaments.slice(0, 6).map((tournament) => (
+              <TournamentCard
+                key={tournament.id}
+                name={tournament.name}
+                city={tournament.city}
+                teams={tournament.teams.length}
+                status={tournament.status}
+                image={require("../assets/t1.jpg")}
+                startDate={tournament.startDate}
+                endDate={tournament.endDate}
+                onPress={() =>
+                  navigation.navigate("Add Tournament", {
+                    screen: "Tournament Details",
+                    params: {
+                      id: tournament.id,
+                    },
+                  })
+                }
+              />
+            ))
           ) : (
             <TournamentCard
               name="zahid bangash tournament- hangu"

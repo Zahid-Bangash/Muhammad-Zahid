@@ -200,7 +200,7 @@ const ContextProvider = ({ children }) => {
   const [players, setplayers] = useState([]);
   const [myTournaments, setmyTournaments] = useState([]);
   const [allTournaments, setallTournaments] = useState([]);
-
+  const [showModal, setshowModal] = useState(false);
   useEffect(() => {
     const userId = auth.currentUser && auth.currentUser.uid;
 
@@ -515,6 +515,8 @@ const ContextProvider = ({ children }) => {
         setmyTournaments,
         allTournaments,
         setallTournaments,
+        showModal,
+        setshowModal,
       }}
     >
       {children}
