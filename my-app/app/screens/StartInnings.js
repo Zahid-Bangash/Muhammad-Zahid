@@ -923,7 +923,7 @@ export default function StartInnings({ route, navigation }) {
         style={{
           fontWeight: "bold",
           fontSize: 20,
-          backgroundColor: "pink",
+          backgroundColor: "#6ba575",
           width: "100%",
           padding: 5,
         }}
@@ -939,7 +939,7 @@ export default function StartInnings({ route, navigation }) {
       >
         <TouchableOpacity
           style={{
-            backgroundColor: "#e1cda7",
+            backgroundColor: "#1b8d9d",
             width: "45%",
             height: 40,
             alignItems: "center",
@@ -958,7 +958,7 @@ export default function StartInnings({ route, navigation }) {
         </TouchableOpacity>
         <TouchableOpacity
           style={{
-            backgroundColor: "#e1cda7",
+            backgroundColor: "#1b8d9d",
             width: "45%",
             height: 40,
             alignItems: "center",
@@ -983,7 +983,7 @@ export default function StartInnings({ route, navigation }) {
         <View
           style={{
             position: "absolute",
-            backgroundColor: "#07FFF0",
+            backgroundColor: "#999f9a",
             transform: [{ translateX: 28 }, { translateY: 80 }],
             width: "85%",
             height: "85%",
@@ -996,7 +996,6 @@ export default function StartInnings({ route, navigation }) {
             style={{
               fontSize: 24,
               marginBottom: 20,
-              color: "#88309a",
               fontWeight: "bold",
             }}
           >
@@ -1042,7 +1041,7 @@ export default function StartInnings({ route, navigation }) {
         style={{
           fontWeight: "bold",
           fontSize: 20,
-          backgroundColor: "pink",
+          backgroundColor: "#6ba575",
           width: "100%",
           padding: 5,
         }}
@@ -1051,7 +1050,7 @@ export default function StartInnings({ route, navigation }) {
       </Text>
       <TouchableOpacity
         style={{
-          backgroundColor: "#e1cda7",
+          backgroundColor: "#1b8d9d",
           width: "45%",
           height: 40,
           alignItems: "center",
@@ -1068,7 +1067,7 @@ export default function StartInnings({ route, navigation }) {
         <View
           style={{
             position: "absolute",
-            backgroundColor: "#07FFF0",
+            backgroundColor: "#999f9a",
             transform: [{ translateX: 28 }, { translateY: 80 }],
             width: "85%",
             height: "85%",
@@ -1081,7 +1080,6 @@ export default function StartInnings({ route, navigation }) {
             style={{
               fontSize: 24,
               marginBottom: 20,
-              color: "#88309a",
               fontWeight: "bold",
             }}
           >
@@ -1118,7 +1116,7 @@ export default function StartInnings({ route, navigation }) {
             style={{ position: "absolute", top: 5, right: 5 }}
             onPress={() => setbowlersModal(false)}
           >
-            <Entypo name="circle-with-cross" size={45} color="red" />
+            <Entypo name="circle-with-cross" size={45} color="brown" />
           </TouchableOpacity>
         </View>
       </Modal>

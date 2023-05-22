@@ -1,30 +1,13 @@
 import React, { useContext, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 
 import { Context } from "../components/ContextProvider";
 
 import TournamentCard from "../components/cards/TournamentCard";
-import { collection, deleteDoc } from "firebase/firestore";
-import { db, auth } from "../config/firebase-config";
-
 import AppButton from "../components/AppButton";
 
 export default function MyTournaments({ navigation }) {
   const { myTournaments } = useContext(Context);
-  const [showDeleteIcon, setshowDeleteIcon] = useState(false);
-
-  const deleteTournament = async (id) => {
-    await deleteDoc(doc(db, "users", auth.currentUser.uid, "Tournaments", id));
-    await deleteDoc(doc(db, "Tournaments", id));
-  };
 
   return (
     <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
@@ -64,9 +47,9 @@ export default function MyTournaments({ navigation }) {
           height: "8%",
           marginVertical: 0,
         }}
-        onPress={() => setshowDeleteIcon(!showDeleteIcon)}
+        onPress={() => navigation.navigate("Add Tournament")}
       >
-        Delete Tournament
+        Add Tournament
       </AppButton>
     </View>
   );

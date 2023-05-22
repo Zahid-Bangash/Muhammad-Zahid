@@ -9,35 +9,12 @@ import {
   Alert,
 } from "react-native";
 
-import { deleteDoc, doc } from "firebase/firestore";
-import { auth, db } from "../config/firebase-config";
-
 import TeamCard from "../components/cards/TeamCard";
 import TeamDetails from "./TeamDetails";
 import AppButton from "../components/AppButton";
 
 export default function MyTeams({ navigation }) {
   const { teams, setTeams } = useContext(Context);
-
-  const deleteTeam = (teamId) => {
-    Alert.alert("Confirm", "Are you sure you want to remove the team?", [
-      {
-        text: "No",
-        onPress: () => {},
-      },
-      {
-        text: "Yes",
-        onPress: async () => {
-          const updatedTeams = teams.filter((team) => team.id !== teamId);
-          setTeams(updatedTeams);
-          await deleteDoc(
-            doc(db, "users", auth.currentUser.uid, "Teams", teamId)
-          );
-          await deleteDoc(doc(db, "Teams", teamId));
-        },
-      },
-    ]);
-  };
 
   return (
     <View style={{ alignItems: "center", justifyContent: "center", flex: 1, }}>
@@ -49,7 +26,6 @@ export default function MyTeams({ navigation }) {
               name={team.name}
               place={team.place}
               // captain={team.captain.name}
-              onDelete={() => deleteTeam(team.id)}
               onPress={() =>
                 navigation.navigate("Team Details", {
                   teamId: team.id,

@@ -4,11 +4,9 @@ import {
   Text,
   StyleSheet,
   TouchableWithoutFeedback,
-  TouchableOpacity,
   Dimensions,
   Image,
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function MatchCard({ name, place, captain, onPress, onDelete }) {
@@ -50,12 +48,6 @@ export default function MatchCard({ name, place, captain, onPress, onDelete }) {
             >{`C: ${captain}`}</Text>
           </View>
         </View>
-        <TouchableOpacity
-          style={{ position: "absolute", top: 5, right: 5 }}
-          onPress={onDelete}
-        >
-          <AntDesign name="delete" size={25} color="red" />
-        </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
   );

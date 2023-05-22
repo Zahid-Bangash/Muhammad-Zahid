@@ -3,6 +3,7 @@ import { StyleSheet, ScrollView, View, Text } from "react-native";
 import { Context } from "../components/ContextProvider";
 
 import MyMatchCard from "../components/MyMatchCard";
+import AppButton from "../components/AppButton";
 
 export default function MyMatches({ navigation }) {
   const { myMatches } = useContext(Context);
@@ -53,6 +54,19 @@ export default function MyMatches({ navigation }) {
       ) : (
         <Text style={{ fontWeight: "bold", fontSize: 17 }}>No Match</Text>
       )}
+      <AppButton
+        style={{
+          position: "absolute",
+          bottom: 0,
+          width: "100%",
+          borderRadius: 0,
+          height: "8%",
+          marginVertical: 0,
+        }}
+        onPress={() => navigation.navigate("Start a Match")}
+      >
+        Start Match
+      </AppButton>
     </View>
   );
 }

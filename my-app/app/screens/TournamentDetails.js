@@ -7,13 +7,13 @@ import {
   Image,
   ScrollView,
   Dimensions,
-  Modal,
   Alert,
 } from "react-native";
+import Modal from "react-native-modal";
 import Entypo from "@expo/vector-icons/Entypo";
+import { AntDesign } from "@expo/vector-icons";
 import Swiper from "react-native-swiper";
 import { Context } from "../components/ContextProvider";
-
 import {
   addDoc,
   collection,
@@ -30,7 +30,13 @@ import MyMatchCard from "../components/MyMatchCard";
 import AppTextInput from "../components/AppTextInput";
 
 export default function TournamnetDetails({ navigation, route }) {
-  const { teams, myTournaments, setmyTournaments } = useContext(Context);
+  const {
+    teams,
+    myTournaments,
+    setmyTournaments,
+    showModalTournament,
+    setshowModalTournament,
+  } = useContext(Context);
   const { id } = route.params;
   const tournamentIndex = myTournaments.findIndex(
     (tournament) => tournament.id === id
@@ -246,6 +252,43 @@ export default function TournamnetDetails({ navigation, route }) {
       renderPagination={renderPagination}
       nestedScrollEnabled
     >
+      <Modal
+        backdropColor="transparent"
+        isVisible={showModalTournament}
+        animationType="slide"
+        animationIn={"slideInRight"}
+        animationOut={"slideOutRight"}
+        onRequestClose={() => setshowModalTournament(false)}
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          margin: 0,
+          width: Dimensions.get("screen").width * 0.6,
+          height: Dimensions.get("screen").height * 0.068,
+          backgroundColor: "#d4d8d8",
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <TouchableWithoutFeedback>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 15,
+              }}
+            >
+              <AntDesign name="delete" size={25} color="black" />
+              <Text
+                style={{ fontWeight: "bold", fontSize: 17, marginLeft: 20 }}
+              >
+                Delete Team
+              </Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </Modal>
       <View style={[styles.slide, { backgroundColor: "white", padding: 10 }]}>
         <Image
           source={require("../assets/team4.jpg")}
