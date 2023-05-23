@@ -8,6 +8,7 @@ import {
   ScrollView,
   Dimensions,
   Alert,
+  TouchableWithoutFeedback,
 } from "react-native";
 import Modal from "react-native-modal";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -21,6 +22,7 @@ import {
   setDoc,
   doc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { auth, db } from "../config/firebase-config";
 
@@ -155,6 +157,34 @@ export default function TournamnetDetails({ navigation, route }) {
     ]);
   };
 
+  const deleteTournament = () => {
+    Alert.alert("Confirm", "Are you sure you want to delete the tournament?", [
+      {
+        text: "No",
+        onPress: () => {
+          setshowModalTournament(false);
+        },
+      },
+      {
+        text: "Yes",
+        onPress: async () => {
+          try {
+            setmyTournaments(
+              myTournaments.filter((tournament) => tournament.id === id)
+            );
+            navigation.goBack();
+            await deleteDoc(doc(db, "Tournaments", id));
+            await deleteDoc(
+              doc(db, "users", auth.currentUser.uid, "Tournaments", id)
+            );
+          } catch (error) {
+            console.error("Error deleting tournament: ", error);
+          }
+        },
+      },
+    ]);
+  };
+
   useEffect(() => {
     if (search.length > 0) {
       if (search.length === 1) setsearchStatus("No Team to be added");
@@ -252,44 +282,44 @@ export default function TournamnetDetails({ navigation, route }) {
       renderPagination={renderPagination}
       nestedScrollEnabled
     >
-      <Modal
-        backdropColor="transparent"
-        isVisible={showModalTournament}
-        animationType="slide"
-        animationIn={"slideInRight"}
-        animationOut={"slideOutRight"}
-        onRequestClose={() => setshowModalTournament(false)}
-        style={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          margin: 0,
-          width: Dimensions.get("screen").width * 0.6,
-          height: Dimensions.get("screen").height * 0.068,
-          backgroundColor: "#d4d8d8",
-        }}
-      >
-        <View style={{ flex: 1 }}>
-          <TouchableWithoutFeedback>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: 15,
-              }}
-            >
-              <AntDesign name="delete" size={25} color="black" />
-              <Text
-                style={{ fontWeight: "bold", fontSize: 17, marginLeft: 20 }}
-              >
-                Delete Team
-              </Text>
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </Modal>
       <View style={[styles.slide, { backgroundColor: "white", padding: 10 }]}>
+        <Modal
+          backdropColor="transparent"
+          isVisible={showModalTournament}
+          animationType="slide"
+          animationIn={"slideInRight"}
+          animationOut={"slideOutRight"}
+          onRequestClose={() => setshowModalTournament(false)}
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            margin: 0,
+            width: Dimensions.get("screen").width * 0.6,
+            height: Dimensions.get("screen").height * 0.068,
+            backgroundColor: "#d4d8d8",
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <TouchableWithoutFeedback onPress={deleteTournament}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginTop: 15,
+                }}
+              >
+                <AntDesign name="delete" size={25} color="black" />
+                <Text
+                  style={{ fontWeight: "bold", fontSize: 17, marginLeft: 20 }}
+                >
+                  Delete Team
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </Modal>
         <Image
           source={require("../assets/team4.jpg")}
           style={{
@@ -653,6 +683,7 @@ export default function TournamnetDetails({ navigation, route }) {
                 result={match.result}
                 matchFormat={match.matchFormat}
                 date={match.date}
+                type={match.type}
                 firstInningsBalls={
                   match.innings1 !== undefined
                     ? match.innings1.ballsDelivered

@@ -807,9 +807,7 @@ export default function MatchCenter({ route, navigation }) {
               teamName: secondInnings.bowlingTeam,
             }
           : bestBowling;
-      console.log(bestBowling);
     });
-    console.log(bestBowling);
     updatedTournamentData.bestBowling =
       updatedTournamentData.bestBowling.best.wickets ===
         bestBowling.best.wickets &&

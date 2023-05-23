@@ -27,7 +27,9 @@ export default function TeamDetails({ route, navigation }) {
     Alert.alert("Confirm", "Are you sure you want to remove the team?", [
       {
         text: "No",
-        onPress: () => {},
+        onPress: () => {
+          setshowModal(false);
+        },
       },
       {
         text: "Yes",

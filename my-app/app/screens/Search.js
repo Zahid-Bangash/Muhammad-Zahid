@@ -37,7 +37,7 @@ export default function Search() {
     );
     const result = searchResults.map((doc) => ({ id: doc.id, ...doc.data() }));
     setsearchData(result);
-    
+
     setfilterVisible(true);
   };
 
@@ -171,7 +171,27 @@ export default function Search() {
                 } else if (selected === "Matches") {
                   return <MyMatchCard key={item.id} />;
                 } else if (selected === "Tournaments") {
-                  return <TournamentCard key={item.id} />;
+                  return (
+                    <TournamentCard
+                      key={item.id}
+                      style={{ marginLeft: 0, marginBottom: 10 }}
+                      name={item.name}
+                      city={item.city}
+                      teams={item.teams.length}
+                      status={item.status}
+                      image={require("../assets/t1.jpg")}
+                      startDate={item.startDate}
+                      endDate={item.endDate}
+                      onPress={() =>
+                        navigation.navigate("Add Tournament", {
+                          screen: "Tournament Details",
+                          params: {
+                            id: item.id,
+                          },
+                        })
+                      }
+                    />
+                  );
                 } else {
                   return null;
                 }

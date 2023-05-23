@@ -24,6 +24,7 @@ export default function MyMatches({ navigation }) {
               result={match.result}
               matchFormat={match.matchFormat}
               date={match.date}
+              type={match.type}
               firstInningsBalls={
                 match.innings1.length > 0 ? match.innings1[0].ballsDelivered : 0
               }

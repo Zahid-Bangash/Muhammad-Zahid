@@ -57,6 +57,7 @@ export default function HomeScreen({ navigation }) {
                 result={match.result}
                 matchFormat={match.matchFormat}
                 date={match.date}
+                type={match.type}
                 firstInningsBalls={
                   match.innings1.length > 0
                     ? match.innings1[0].ballsDelivered
@@ -99,6 +100,7 @@ export default function HomeScreen({ navigation }) {
               result="zahid won by 9 runs"
               matchFormat="T20"
               date="14/05/23"
+              type="Individual"
               firstInningsBalls={32}
               secondInningsBalls={22}
               firstInningsRuns={71}
@@ -141,7 +143,8 @@ export default function HomeScreen({ navigation }) {
             ))
           ) : (
             <TournamentCard
-              name="zahid bangash tournament- hangu"
+              name="zahid bangash tournament"
+              city="Hangu"
               teams={12}
               status="Ongoing"
               image={require("../assets/t1.jpg")}

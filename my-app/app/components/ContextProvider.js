@@ -202,6 +202,7 @@ const ContextProvider = ({ children }) => {
   const [allTournaments, setallTournaments] = useState([]);
   const [showModal, setshowModal] = useState(false);
   const [showModalTournament, setshowModalTournament] = useState(false);
+
   useEffect(() => {
     const userId = auth.currentUser && auth.currentUser.uid;
 

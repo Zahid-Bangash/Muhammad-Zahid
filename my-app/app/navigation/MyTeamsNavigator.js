@@ -11,7 +11,7 @@ import { Context } from "../components/ContextProvider";
 const Stack = createNativeStackNavigator();
 
 export default function MyTeamsNavigator({ navigation }) {
-  const { setshowModalTournament } = useContext(Context);
+  const { setshowModal } = useContext(Context);
 
   return (
     <Stack.Navigator
@@ -48,7 +48,7 @@ export default function MyTeamsNavigator({ navigation }) {
         component={TeamDetails}
         options={{
           headerRight: () => (
-            <TouchableOpacity onPress={() => setshowModalTournament(true)}>
+            <TouchableOpacity onPress={() => setshowModal(true)}>
               <MaterialIcons name="more-vert" size={24} color="white" />
             </TouchableOpacity>
           ),

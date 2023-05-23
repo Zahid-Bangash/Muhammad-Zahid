@@ -203,6 +203,7 @@ export default function StartMatch({ route, navigation }) {
           result: "",
           battingTeam: battingTeam,
           bowlingTeam: bowlingTeam,
+          type: tournament ? "Tournament" : "Individual",
         }
       );
       const publicMatchRef = doc(db, "Matches", matchRef.id);
@@ -227,6 +228,7 @@ export default function StartMatch({ route, navigation }) {
         result: "",
         battingTeam: battingTeam,
         bowlingTeam: bowlingTeam,
+        type: tournament ? "Tournament" : "Individual",
       });
 
       if (tournament) {

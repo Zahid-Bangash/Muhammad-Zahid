@@ -17,7 +17,7 @@ export default function MyTeams({ navigation }) {
   const { teams, setTeams } = useContext(Context);
 
   return (
-    <View style={{ alignItems: "center", justifyContent: "center", flex: 1, }}>
+    <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
       {teams.length > 0 ? (
         <ScrollView contentContainerStyle={styles.container}>
           {teams.map((team) => (
@@ -25,7 +25,9 @@ export default function MyTeams({ navigation }) {
               key={team.id}
               name={team.name}
               place={team.place}
-              // captain={team.captain.name}
+              captain={
+                team.players.length > 0 ? team.players[0].name : "Captain"
+              }
               onPress={() =>
                 navigation.navigate("Team Details", {
                   teamId: team.id,
@@ -44,7 +46,7 @@ export default function MyTeams({ navigation }) {
           width: "100%",
           borderRadius: 0,
           height: "8%",
-          marginVertical:0,
+          marginVertical: 0,
         }}
         onPress={() => navigation.navigate("Add Your Team")}
       >

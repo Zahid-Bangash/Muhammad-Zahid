@@ -10,7 +10,7 @@ import { AddTournament, TournamnetDetails } from "../screens";
 const Stack = createNativeStackNavigator();
 
 export default function TournamentNavigator() {
-  const { setshowModal } = useContext(Context);
+  const { setshowModalTournament } = useContext(Context);
   return (
     <Stack.Navigator
       screenOptions={{
@@ -47,7 +47,7 @@ export default function TournamentNavigator() {
         component={TournamnetDetails}
         options={{
           headerRight: () => (
-            <TouchableOpacity onPress={() => setshowModal(true)}>
+            <TouchableOpacity onPress={() => setshowModalTournament(true)}>
               <MaterialIcons name="more-vert" size={24} color="white" />
             </TouchableOpacity>
           ),

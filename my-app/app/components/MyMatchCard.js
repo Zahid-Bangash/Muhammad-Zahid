@@ -15,6 +15,7 @@ export default function MyMatchCard({
   status,
   result,
   date,
+  type,
   firstInningsBalls,
   secondInningsBalls,
   firstInningsWickets,
@@ -32,7 +33,7 @@ export default function MyMatchCard({
             color: "grey",
             fontWeight: "bold",
           }}
-        >{`Open match, ${matchFormat}, ${date}`}</Text>
+        >{`${type}, ${matchFormat}, ${date}`}</Text>
         <Text
           style={{
             color: "red",
