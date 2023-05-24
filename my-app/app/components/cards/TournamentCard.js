@@ -35,7 +35,10 @@ export default function TournamentCard({
             style={{ width: 60, height: 60, borderRadius: 30 }}
           />
           <View style={{ marginLeft: 10 }}>
-            <Text style={{ fontWeight: "bold", textAlign: "center" }}>
+            <Text
+              numberOfLines={2}
+              style={{ fontWeight: "bold", width: "95%" }}
+            >
               {name} - {city}
             </Text>
             <View style={{ flexDirection: "row", alignItems: "center" }}>

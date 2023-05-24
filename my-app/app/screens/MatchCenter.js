@@ -1,4 +1,4 @@
-import React, { useState, useEffect,  } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import Swiper from "react-native-swiper";
 import Entypo from "@expo/vector-icons/Entypo";
+import * as Location from "expo-location";
 
 import { auth, db } from "../config/firebase-config";
 import {
@@ -54,6 +55,11 @@ export default function MatchCenter({ route, navigation }) {
   const [dismissalTypesModal, setDismissalTypesModal] = useState(false);
   const [dismissalType, setdismissalType] = useState(null);
   const [newBatsmanModal, setnewBatsmanModal] = useState(false);
+  //prediction
+  const [percentage, setpercentage] = useState({ teamA: null, teamB: null });
+  const [weather, setweather] = useState(null);
+  const [coordinates, setcoordinates] = useState({ lat: 0, long: 0 });
+  const [show, setshow] = useState(false);
   //Initial Data
   const intitialInningsData = {
     inningsNo: 1,
@@ -171,6 +177,7 @@ export default function MatchCenter({ route, navigation }) {
     result: "",
     battingTeam: " Batting Team",
     bowlingTeam: "bowling Team",
+    prediction: { teamA: 0, teamB: 0 },
   });
   const [firstInnings, setfirstInnings] = useState({
     inningsNo: 1,
@@ -226,6 +233,113 @@ export default function MatchCenter({ route, navigation }) {
   let batsmen = inningsData.currentBatsmen;
   const [previousState, setpreviousState] = useState([]);
   //functions
+
+  const handlePredict = () => {
+    if (firstInnings.ballsDelivered === 0) {
+      const matchDataCopy = { ...matchData };
+      matchDataCopy.prediction = { teamA: "50%", teamB: "50%" };
+      updateMatchData(matchDataCopy);
+      setshow(true);
+      return;
+    }
+    const data = {
+      Team_A: ["alyan team"],
+      Team_B: ["abdullah team"],
+      Venue: ["attock"],
+      Toss_Winner: ["alyan team"],
+      Batting_First: ["alyan team"],
+      Weather: ["cloudy"],
+      Prev_Match_Result_A: ["loss"],
+      Prev_Match_Result_B: ["loss"],
+      Prev_Match_Runs_A: [95],
+      Prev_Match_Runs_B: [115],
+      Team_A_Player_1: ["player29"],
+      Team_A_Player_2: ["player24"],
+      Team_A_Player_3: ["player28"],
+      Team_A_Player_4: ["player27"],
+      Team_A_Player_5: ["player26"],
+      Team_A_Player_6: ["player23"],
+      Team_A_Player_7: ["player32"],
+      Team_A_Player_8: ["player30"],
+      Team_A_Player_9: ["player31"],
+      Team_A_Player_10: ["player33"],
+      Team_A_Player_11: ["player25"],
+      Team_B_Player_1: ["player55"],
+      Team_B_Player_2: ["player56"],
+      Team_B_Player_3: ["player63"],
+      Team_B_Player_4: ["player58"],
+      Team_B_Player_5: ["player64"],
+      Team_B_Player_6: ["player62"],
+      Team_B_Player_7: ["player61"],
+      Team_B_Player_8: ["player57"],
+      Team_B_Player_9: ["player60"],
+      Team_B_Player_10: ["player65"],
+      Team_B_Player_11: ["player59"],
+      Team_A_Batting_Average: [84],
+      Team_B_Batting_Average: [117],
+      Player_of_the_Match: ["player55"],
+      Win_By_Runs: [22],
+      Win_By_Wickets: [32],
+      Run_Rate_A: [25],
+      Run_Rate_B: [19],
+      OutCome: [0],
+    };
+    fetch("http://192.168.43.222:5000/predict", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Prediction: ", data.prediction * 100);
+      })
+      .catch((error) => {
+        console.error("Error:aa", error);
+      });
+  };
+  const getWeather = (lat, long) => {
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=3ff1f23037aa2a5787ac63cc403ca997`;
+
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        const weatherType = data.weather[0].main;
+        if (weatherType === "Clouds") setweather("cloudy");
+        else setweather(weatherType);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await Location.requestForegroundPermissionsAsync();
+        const location = await Location.getCurrentPositionAsync();
+        const { latitude, longitude } = location.coords;
+        setcoordinates({ lat: latitude, long: longitude });
+        getWeather(latitude, longitude);
+        //   const location1 = await Location.reverseGeocodeAsync({ latitude, longitude });
+        // if (location1.length > 0) {
+        //   const currentCity = location1[0].city;
+        //   setCity(currentCity);
+        // }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setshow(false);
+    }, 10000);
+  }, [show]);
+
+  //.................................
   const handleScore = (
     runs = 0,
     isWide = false,
@@ -2654,6 +2768,11 @@ export default function MatchCenter({ route, navigation }) {
                 End Innings
               </Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={handlePredict}>
+              <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+                Predict match
+              </Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={{ position: "absolute", top: 5, right: 5 }}
               onPress={() => {
@@ -2985,6 +3104,9 @@ export default function MatchCenter({ route, navigation }) {
             style={{
               padding: 10,
               alignItems: "center",
+              justifyContent:'center',
+              height:50,
+              width: "100%",
             }}
           >
             <Text style={{ color: "red", fontWeight: "bold" }}>
@@ -2998,7 +3120,27 @@ export default function MatchCenter({ route, navigation }) {
                     matchData.totalOvers * 6 - secondInnings.ballsDelivered
                   } balls`}
             </Text>
-          </View>
+            </View>
+            {show&&(<View
+              style={{
+                borderTopWidth: 0.5,
+                borderColor: "grey",
+                width: "100%",
+                flexDirection: "row",
+                justifyContent: "space-around",
+                alignItems: "center",
+                height:50,
+              }}
+            >
+              <Text style={{ color: "green", fontWeight: "bold" }}>
+                {`${matchData.battingTeam} : ${matchData.prediction.teamA}`}
+              </Text>
+              <Text style={{ color: "green", fontWeight: "bold" }}>
+              {`${matchData.bowlingTeam} : ${matchData.prediction.teamB}`}
+              </Text>
+            
+          </View>)}
+            
           <View
             style={{
               flexDirection: "row",

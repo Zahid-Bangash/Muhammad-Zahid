@@ -173,6 +173,7 @@ export default function TournamnetDetails({ navigation, route }) {
               myTournaments.filter((tournament) => tournament.id === id)
             );
             navigation.goBack();
+            setshowModalTournament(false);
             await deleteDoc(doc(db, "Tournaments", id));
             await deleteDoc(
               doc(db, "users", auth.currentUser.uid, "Tournaments", id)
