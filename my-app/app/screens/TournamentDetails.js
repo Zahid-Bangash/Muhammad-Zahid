@@ -315,7 +315,7 @@ export default function TournamnetDetails({ navigation, route }) {
                 <Text
                   style={{ fontWeight: "bold", fontSize: 17, marginLeft: 20 }}
                 >
-                  Delete Team
+                  Delete Tournament
                 </Text>
               </View>
             </TouchableWithoutFeedback>
