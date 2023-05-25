@@ -172,12 +172,12 @@ export default function TournamnetDetails({ navigation, route }) {
             setmyTournaments(
               myTournaments.filter((tournament) => tournament.id === id)
             );
-            navigation.goBack();
             setshowModalTournament(false);
             await deleteDoc(doc(db, "Tournaments", id));
             await deleteDoc(
               doc(db, "users", auth.currentUser.uid, "Tournaments", id)
             );
+            navigation.goBack();
           } catch (error) {
             console.error("Error deleting tournament: ", error);
           }

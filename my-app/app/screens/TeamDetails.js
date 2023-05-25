@@ -68,7 +68,6 @@ export default function TeamDetails({ route, navigation }) {
       });
   };
   return (
-    <TouchableWithoutFeedback onFocus={() => setshowModal(false)}>
       <View style={styles.container}>
         <Modal
           backdropColor="transparent"
@@ -110,13 +109,20 @@ export default function TeamDetails({ route, navigation }) {
         <Text style={{ fontWeight: "bold", fontSize: 30, textAlign: "center" }}>
           {team?.name}
         </Text>
-        <ScrollView>
+        <ScrollView
+          contentContainerStyle={{
+            minHeight: "100%",
+            alignItems: "center",
+            padding: 15,
+            paddingBottom: "15%",
+          }}
+        >
           {team?.players &&
             team?.players.map((player, index) => (
               <PlayerCardForTeamDetails
                 name={player.name}
                 contact={player.contact}
-                key={index}
+                key={player.id}
                 onPress={() => deletePlayer(index)}
               />
             ))}
@@ -135,7 +141,6 @@ export default function TeamDetails({ route, navigation }) {
           Add Player
         </AppButton>
       </View>
-    </TouchableWithoutFeedback>
   );
 }
 

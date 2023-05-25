@@ -333,10 +333,10 @@ export default function MatchCenter({ route, navigation }) {
     })();
   }, []);
 
-  const timeOut=null;
-  
+  // const timeOut=null;
+
   useEffect(() => {
-    clearTimeout(timeOut);
+    // clearTimeout(timeOut);
    const timeOut= setTimeout(() => {
       setshow(false);
     }, 10000);
