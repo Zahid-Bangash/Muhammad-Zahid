@@ -8,7 +8,6 @@ import {
   Button,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import * as Location from 'expo-location';
 
 import { Context } from "../components/ContextProvider";
 
@@ -21,9 +20,6 @@ import AppButton from "../components/AppButton";
 
 export default function ProfileScreen({ navigation }) {
   const { profileImageUri, setprofileImageUri, userData } = useContext(Context);
-  const [weather, setweather] = useState(null);
-  const [coordinates, setcoordinates] = useState({lat:0,long:0});
-  console.log(weather)
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync();
@@ -36,44 +32,6 @@ export default function ProfileScreen({ navigation }) {
       console.log("Image uploaded successfully");
     }
   };
-
-  const getWeather = (lat,long) => {
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=3ff1f23037aa2a5787ac63cc403ca997`;
-
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        const weatherType = data.weather[0].main;
-        console.log(weatherType)
-        if(weatherType==="Clouds")setweather("cloudy");
-        if(weatherType==="Rain")setweather("rainy");
-        if(weatherType==="Clouds")setweather("Cloudy");
-        if(weatherType==="Clouds")setweather("Cloudy");
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-  };
-
-  useEffect(() => {
-    (async () => {
-      try {
-        await Location.requestForegroundPermissionsAsync();
-        const location = await Location.getCurrentPositionAsync();
-        const { latitude, longitude } = location.coords;
-        setcoordinates({lat:latitude,long:longitude});
-        getWeather(latitude,longitude);
-      //   const location1 = await Location.reverseGeocodeAsync({ latitude, longitude });
-      // if (location1.length > 0) {
-      //   const currentCity = location1[0].city;
-      //   setCity(currentCity);
-      //   getWeather(currentCity);
-      // }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    })();
-  }, []);
 
   useEffect(() => {
     const data = {
@@ -116,8 +74,9 @@ export default function ProfileScreen({ navigation }) {
       Win_By_Wickets: [32],
       Run_Rate_A: [25],
       Run_Rate_B: [19],
-      OutCome: [0],
+      // OutCome: [0],
     };
+    
     fetch("http://192.168.43.222:5000/predict", {
       method: "POST",
       headers: {
