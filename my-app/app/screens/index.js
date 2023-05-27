@@ -9,7 +9,7 @@ export { default as AddTournament } from "./AddTournament";
 export { default as StartMatch } from "./StartMatch";
 export { default as StartInnings } from "./StartInnings";
 export { default as MatchCenter } from "./MatchCenter";
-export { default as GoLive } from "./GoLive";
+export { default as Streaming } from "./Streaming";
 export { default as MyMatches } from "./MyMatches";
 export { default as MyTeams } from "./MyTeams";
 export { default as MyTournaments } from "./MyTournaments";

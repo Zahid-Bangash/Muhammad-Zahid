@@ -77,7 +77,7 @@ const AppNavigator = () => (
           }}
         />
         <Drawer.Screen
-          name="Go Live"
+          name="Streamings"
           component={GoLiveNavigator}
           options={{
             drawerIcon: ({ size, color }) => (
