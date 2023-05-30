@@ -16,13 +16,13 @@ import {
   updateDoc,
   arrayUnion,
 } from "firebase/firestore";
-import { auth, db } from "../config/firebase-config";
-
+import { auth, db,storage } from "../config/firebase-config";
+import { ref, getDownloadURL } from "@firebase/storage";
 import AppTextInput from "../components/AppTextInput";
 import PlayerCardForAddPlayer from "../components/PlayerCardForAddPlayer";
 
 export default function AddPlayer({ route }) {
-  const { teams, setTeams } = useContext(Context);
+  const { teams, setTeams,players } = useContext(Context);
   const { teamId } = route.params;
 
   const [name, setname] = useState("");
@@ -36,21 +36,43 @@ export default function AddPlayer({ route }) {
   const searchByName = async () => {
     const searchRef = collection(db, "users");
     const snapshot = await getDocs(searchRef);
-    const searchResults = snapshot.docs.filter((doc) =>
-      doc.data()["Name"].toLowerCase().includes(name.toLowerCase())
+    const searchResults = players.filter((doc) =>
+      doc["Name"].toLowerCase().includes(name.toLowerCase())
     );
-    const result = searchResults.map((doc) => ({ id: doc.id, ...doc.data() }));
-    const resultFinal = result.filter(
+  
+    // const result = [];
+  
+    // for (const doc of searchResults) {
+    //   const userData = doc.data();
+    //   const userId = doc.id;
+  
+    //   let dp = "";
+    //   const imageRef = ref(storage, `ProfileImages/dp${userId}`);
+  
+    //   try {
+    //     const url = await getDownloadURL(imageRef);
+    //     if (url) dp = url;
+    //   } catch (error) {
+    //     console.log(`Error getting profile image for user ${userId}: ${error}`);
+    //   }
+  
+    //   result.push({ id: userId, image: dp, ...userData });
+    // }
+  
+    const resultFinal = searchResults.filter(
       (teamSearch) =>
         !updatedTeam.players.some((team) => team.id === teamSearch.id)
     );
+  
     if (resultFinal.length > 0) {
       setUsers(resultFinal);
       setsearchStatus("");
     } else {
+      setUsers([])
       setsearchStatus("No player to be added");
     }
   };
+  
 
   const addPlayerToTeam = async (user) => {
     const teamRef = doc(db, "users", auth.currentUser.uid, "Teams", teamId);
@@ -103,7 +125,7 @@ export default function AddPlayer({ route }) {
         onChangeText={(text) => setname(text)}
         style={{ marginBottom: 50 }}
       />
-      <ScrollView style={{width:'100%',}} contentContainerStyle={{padding:10}}>
+      <ScrollView style={{width:'100%',}} contentContainerStyle={{padding:10,alignItems: "center",}}>
         {users.length > 0 ? (
           users.map((user, index) => (
             <TouchableOpacity
@@ -116,6 +138,7 @@ export default function AddPlayer({ route }) {
               <PlayerCardForAddPlayer
                 name={user.Name}
                 location={user.Location}
+                uri={user.image}
               />
             </TouchableOpacity>
           ))

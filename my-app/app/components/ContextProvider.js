@@ -11,7 +11,7 @@ import {
   orderBy,
   updateDoc,
 } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
+import { ref, getDownloadURL } from "@firebase/storage";
 import { auth, db, storage } from "../config/firebase-config";
 
 export const Context = createContext();
@@ -22,8 +22,8 @@ const ContextProvider = ({ children }) => {
     PhoneNumber: "Phone Number",
     Email: "Email",
     DOB: "-",
-    Location: "your city",
-    BattingStyle: "-",
+    Location: "City",
+    BattingStyle: "BattingStyle",
     PlayingRole: "Playing Role",
     BowlingStyle: "-",
     ShirtNumber: "-",
@@ -382,7 +382,7 @@ const ContextProvider = ({ children }) => {
       })
       .catch((error) => console.error(error));
 
-    const fetchData = async () => {
+    const fetchMyTeams = async () => {
       const teamsCollectionRef = collection(db, "users", userId, "Teams");
       const teamsSnapshot = await getDocs(teamsCollectionRef);
       const teamsData = teamsSnapshot.docs.map((doc) => ({
@@ -390,7 +390,8 @@ const ContextProvider = ({ children }) => {
         ...doc.data(),
       }));
       setTeams(teamsData);
-
+    };
+    const fetchMyData = async () => {
       const imageRef = ref(storage, `ProfileImages/dp${userId}`);
       getDownloadURL(imageRef)
         .then((url) => setprofileImageUri(url))
@@ -489,13 +490,13 @@ const ContextProvider = ({ children }) => {
 
       setallMatches(matches);
     };
-
-    fetchTournamentData();
-    fetchUsers();
-    fetchData();
-    getMatchesWithInnings();
+    fetchMyData();
     getAllMatches();
     fetchAllTournamentData();
+    fetchUsers();
+    fetchTournamentData();
+    getMatchesWithInnings();
+    fetchMyTeams();
   }, []);
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,14 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Dimensions,
+  BackHandler,
+  Animated,
 } from "react-native";
 import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Entypo from "@expo/vector-icons/Entypo";
+import { useIsFocused } from "@react-navigation/native";
 
 import { Context } from "../components/ContextProvider";
 import AppButton from "../components/AppButton";
@@ -26,7 +30,11 @@ import ScoringModal from "../components/ScoringModal";
 export default function StartMatch({ route, navigation }) {
   const { tournament = null } = route.params ? route.params : {};
   const { teams } = useContext(Context);
+  const isFocused = useIsFocused();
+  const tossAnimation = useRef(new Animated.Value(0)).current;
+
   const allTeams = tournament === null ? teams : tournament.teams;
+
   const [matchDetails, setmatchDetails] = useState({
     venue: "",
     date: new Date(),
@@ -47,6 +55,7 @@ export default function StartMatch({ route, navigation }) {
   const [searchModal, setsearchModal] = useState(false);
   const [tossModalVisible, setTossModalVisible] = useState(false);
   const [squadModal, setsquadModal] = useState(false);
+  const [coinModal, setcoinModal] = useState(false);
 
   const [teamBoBeSelected, setteamBoBeSelected] = useState("A");
   const [selectedTeam, setselectedTeam] = useState(null);
@@ -204,7 +213,7 @@ export default function StartMatch({ route, navigation }) {
           battingTeam: battingTeam,
           bowlingTeam: bowlingTeam,
           type: tournament ? "Tournament" : "Individual",
-          prediction:{teamA:0,teamB:0},
+          prediction: { teamA: 0, teamB: 0 },
         }
       );
       const publicMatchRef = doc(db, "Matches", matchRef.id);
@@ -230,7 +239,7 @@ export default function StartMatch({ route, navigation }) {
         battingTeam: battingTeam,
         bowlingTeam: bowlingTeam,
         type: tournament ? "Tournament" : "Individual",
-        prediction:{teamA:0,teamB:0},
+        prediction: { teamA: 0, teamB: 0 },
       });
 
       if (tournament) {
@@ -315,6 +324,65 @@ export default function StartMatch({ route, navigation }) {
     }
   };
 
+  const startTossAnimation = () => {
+    Animated.sequence([
+      Animated.timing(tossAnimation, {
+        toValue: 1,
+        duration: 1400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(tossAnimation, {
+        toValue: 0,
+        duration: 1400,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  };
+
+
+  useEffect(() => {
+    tossAnimation.addListener(({ value }) => {
+      if (value === 1) {
+        // Animation completed, handle the event here
+        // You can perform any action or reset the animation state
+        tossAnimation.setValue(0);
+      }
+    });
+
+    return () => {
+      tossAnimation.removeAllListeners();
+    };
+  }, [tossAnimation]);
+
+  const tossStyle = {
+    transform: [
+      {
+        translateY: tossAnimation.interpolate({
+          inputRange: [0, 0.5, 1],
+          outputRange: [0, -300, 0],
+        }),
+      },
+      // {
+      //   scaleX: tossAnimation.interpolate({
+      //     inputRange: [0, 0.25, 0.5, 0.75, 1],
+      //     outputRange: [1, 2, 1.5, 1.25, 1],
+      //   }),
+      // },
+      // {
+      //   scaleY: tossAnimation.interpolate({
+      //     inputRange: [0, 0.25, 0.5, 0.75, 1],
+      //     outputRange: [1, 0.5, 0.75, 0.9, 1],
+      //   }),
+      // },
+      {
+        rotateX: tossAnimation.interpolate({
+          inputRange: [0, 0.5, 1],
+          outputRange: ['0deg', '1080deg', '0deg'],
+        }),
+      },
+    ],
+  };
+
   useEffect(() => {
     if (name.length > 0) {
       searchByName();
@@ -324,6 +392,37 @@ export default function StartMatch({ route, navigation }) {
     }
   }, [name]);
 
+  useEffect(() => {
+    const backAction = () => {
+      setTossWinner(null);
+      setbattingTeam(null);
+      setbowlingTeam(null);
+      setDecision(null);
+      setTeam1(null);
+      setTeam2(null);
+      setteam1Squad({ type: "", players: [] });
+      setteam2Squad({ type: "", players: [] });
+      setmatchDetails({
+        venue: "",
+        date: new Date(),
+        time: new Date(),
+        overs: 0,
+        ballType: tournament !== null ? tournament.ballType : "",
+        matchFormat: tournament !== null ? tournament.matchType : "",
+      });
+      navigation.goBack();
+      return true;
+    };
+
+    if (isFocused) {
+      BackHandler.addEventListener("hardwareBackPress", backAction);
+    }
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", backAction);
+    };
+  }, [isFocused, navigation]);
+
   return (
     <View style={styles.container}>
       <View
@@ -331,10 +430,16 @@ export default function StartMatch({ route, navigation }) {
           flexDirection: "row",
           justifyContent: "space-around",
           width: "100%",
-          height: "17.18%",
+          height: Dimensions.get("screen").height * 0.17,
         }}
       >
-        <View style={{ justifyContent: "space-between", alignItems: "center" }}>
+        <View
+          style={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
           <Text>Select Team</Text>
           <TouchableWithoutFeedback
             onPress={() => {
@@ -360,7 +465,22 @@ export default function StartMatch({ route, navigation }) {
             {team1 ? team1.name : "Team A"}
           </Text>
         </View>
-        <View style={{ justifyContent: "space-between", alignItems: "center" }}>
+        <View
+          style={{
+            justifyContent: "center",
+            // alignItems: "center",
+            // height: "100%",
+          }}
+        >
+          <Text style={{ fontWeight: "bold", fontSize: 17 }}>VS</Text>
+        </View>
+        <View
+          style={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
           <Text>Select Team</Text>
           <TouchableWithoutFeedback
             onPress={() => {
@@ -938,9 +1058,25 @@ export default function StartMatch({ route, navigation }) {
               </View>
             </TouchableWithoutFeedback>
           </View>
-          <Text style={{ fontWeight: "bold", fontSize: 18, color: "white" }}>
-            Selected to ?
-          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              height: "20%",
+              alignItems: "center",
+              justifyContent: "space-around",
+              width: "100%",
+            }}
+          >
+            <Text style={{ fontWeight: "bold", fontSize: 18, color: "white" }}>
+              Selected to ?
+            </Text>
+            <TouchableWithoutFeedback onPress={() => setcoinModal(true)}>
+              <Image
+                source={require("../assets/head.png")}
+                style={{ width: 60, height: 60 }}
+              />
+            </TouchableWithoutFeedback>
+          </View>
           <View
             style={{
               flexDirection: "row",
@@ -1025,6 +1161,38 @@ export default function StartMatch({ route, navigation }) {
           >
             Start Match
           </AppButton>
+        </View>
+      </Modal>
+      {/* coin Modal  */}
+      <Modal
+        visible={coinModal}
+        animationType="fade"
+        onRequestClose={() => setcoinModal(false)}
+      >
+        <View style={{ flex: 1, alignItems: "center",justifyContent:'center', }}>
+          <Text style={{ fontWeight: "bold", fontSize: 17 }}>
+            Tap the coin to flip
+          </Text>
+          <Animated.Image
+          source={require('../assets/head.png')}
+            style={[
+              { width: 100, height: 100, backgroundColor: "red" },
+              tossStyle,
+            ]}
+          />
+
+          <TouchableOpacity
+            style={{
+              marginTop: 20,
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              backgroundColor: "blue",
+              borderRadius: 5,
+            }}
+            onPress={startTossAnimation}
+          >
+            <Text style={{ color: "white", fontWeight: "bold" }}>Toss</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
       <AppButton

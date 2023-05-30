@@ -49,7 +49,7 @@ export default function RegisterScreen({ navigation }) {
               PhoneNumber: userData.phoneNumber,
               Email: userData.email,
               DOB: "-",
-              Location: "-",
+              Location: "City",
               BattingStyle: "-",
               PlayingRole: "Playing Role",
               BowlingStyle: "-",

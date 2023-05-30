@@ -1,8 +1,15 @@
-import React, { useState, useContext } from "react";
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import React, { useState, useContext, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  BackHandler,
+} from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Context } from "../components/ContextProvider";
 import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
+import { useIsFocused } from "@react-navigation/native";
 
 import { addDoc, collection, setDoc, doc } from "firebase/firestore";
 import { auth, db } from "../config/firebase-config";
@@ -13,6 +20,7 @@ import CustomTextInput from "../components/CustomTextInput";
 
 export default function AddTS({ navigation }) {
   const { userData, myTournaments, setmyTournaments } = useContext(Context);
+  const isFocused = useIsFocused();
   const [showStartDatePicker, setshowStartDatePicker] = useState(false);
   const [showEndDatePicker, setshowEndDatePicker] = useState(false);
   const [details, setdetails] = useState({
@@ -165,6 +173,33 @@ export default function AddTS({ navigation }) {
       console.error("Error creating tournament: ", err);
     }
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      setdetails({
+        name: "",
+        city: "",
+        organizer: userData.Name,
+        organizerPhone: userData.PhoneNumber,
+        organizerEmail: userData.Email,
+        startDate: new Date(),
+        endDate: new Date(),
+        ballType: "",
+        matchType: "",
+      });
+      navigation.goBack();
+      return true;
+    };
+
+    if (isFocused) {
+      BackHandler.addEventListener("hardwareBackPress", backAction);
+    }
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", backAction);
+    };
+  }, [isFocused, navigation]);
+
   return (
     <View style={styles.container}>
       <CustomTextInput
