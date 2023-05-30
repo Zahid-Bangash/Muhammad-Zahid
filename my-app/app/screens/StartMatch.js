@@ -996,7 +996,7 @@ export default function StartMatch({ route, navigation }) {
             onPress={() => {
               setTossModalVisible(false);
               setTossWinner(null);
-              setselected(null);
+              setselectedTeam(null);
             }}
           >
             <Entypo name="circle-with-cross" size={45} color="brown" />
@@ -1197,7 +1197,7 @@ export default function StartMatch({ route, navigation }) {
             }}
           >
             <Animated.Image
-              source={require("../assets/head.jpg")}
+              source={require("../assets/head.png")}
               style={[
                 {
                   width: 100,
@@ -1226,7 +1226,7 @@ export default function StartMatch({ route, navigation }) {
             }}
           >
             <Animated.Image
-              source={require("../assets/tail.jpg")}
+              source={require("../assets/tail.png")}
               style={[
                 {
                   width: 100,

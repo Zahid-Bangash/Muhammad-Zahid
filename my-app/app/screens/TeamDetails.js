@@ -68,79 +68,80 @@ export default function TeamDetails({ route, navigation }) {
       });
   };
   return (
-      <View style={styles.container}>
-        <Modal
-          backdropColor="transparent"
-          isVisible={showModal}
-          animationType="slide"
-          animationIn={"slideInRight"}
-          animationOut={"slideOutRight"}
-          onRequestClose={() => setshowModal(false)}
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            margin: 0,
-            width: Dimensions.get("screen").width * 0.6,
-            height: Dimensions.get("screen").height * 0.068,
-            backgroundColor: "#d4d8d8",
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <TouchableWithoutFeedback onPress={deleteTeam}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginTop: 15,
-                }}
+    <View style={styles.container}>
+      <Modal
+        backdropColor="transparent"
+        isVisible={showModal}
+        animationType="slide"
+        animationIn={"slideInRight"}
+        animationOut={"slideOutRight"}
+        onRequestClose={() => setshowModal(false)}
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          margin: 0,
+          width: Dimensions.get("screen").width * 0.6,
+          height: Dimensions.get("screen").height * 0.068,
+          backgroundColor: "#d4d8d8",
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <TouchableWithoutFeedback onPress={deleteTeam}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 15,
+              }}
+            >
+              <AntDesign name="delete" size={25} color="black" />
+              <Text
+                style={{ fontWeight: "bold", fontSize: 17, marginLeft: 20 }}
               >
-                <AntDesign name="delete" size={25} color="black" />
-                <Text
-                  style={{ fontWeight: "bold", fontSize: 17, marginLeft: 20 }}
-                >
-                  Delete Team
-                </Text>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </Modal>
-        <Text style={{ fontWeight: "bold", fontSize: 30, textAlign: "center" }}>
-          {team?.name}
-        </Text>
-        <ScrollView
-          contentContainerStyle={{
-            minHeight: "100%",
-            alignItems: "center",
-            padding: 15,
-            paddingBottom: "15%",
-          }}
-        >
-          {team?.players &&
-            team?.players.map((player, index) => (
-              <PlayerCardForTeamDetails
-                name={player.name}
-                contact={player.contact}
-                key={player.id}
-                onPress={() => deletePlayer(index)}
-              />
-            ))}
-        </ScrollView>
-        <AppButton
-          style={{
-            position: "absolute",
-            bottom: 0,
-            width: "100%",
-            borderRadius: 0,
-            height: "8%",
-            marginVertical: 0,
-          }}
-          onPress={() => navigation.navigate("Add Player", { teamId: teamId })}
-        >
-          Add Player
-        </AppButton>
-      </View>
+                Delete Team
+              </Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </Modal>
+      <Text style={{ fontWeight: "bold", fontSize: 30, textAlign: "center" }}>
+        {team?.name}
+      </Text>
+      <ScrollView
+        contentContainerStyle={{
+          minHeight: "100%",
+          alignItems: "center",
+          padding: 15,
+          paddingBottom: "15%",
+        }}
+      >
+        {team?.players &&
+          team?.players.map((player, index) => (
+            <PlayerCardForTeamDetails
+              name={player.name}
+              uri={player.image}
+              contact={player.contact}
+              key={player.id}
+              onPress={() => deletePlayer(index)}
+            />
+          ))}
+      </ScrollView>
+      <AppButton
+        style={{
+          position: "absolute",
+          bottom: 0,
+          width: "100%",
+          borderRadius: 0,
+          height: "8%",
+          marginVertical: 0,
+        }}
+        onPress={() => navigation.navigate("Add Player", { teamId: teamId })}
+      >
+        Add Player
+      </AppButton>
+    </View>
   );
 }
 

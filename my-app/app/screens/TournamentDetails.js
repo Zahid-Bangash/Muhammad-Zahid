@@ -14,7 +14,9 @@ import Modal from "react-native-modal";
 import Entypo from "@expo/vector-icons/Entypo";
 import { AntDesign } from "@expo/vector-icons";
 import Swiper from "react-native-swiper";
+import * as ImagePicker from "expo-image-picker";
 import { Context } from "../components/ContextProvider";
+
 import {
   addDoc,
   collection,
@@ -110,6 +112,39 @@ export default function TournamnetDetails({ navigation, route }) {
       console.log("Team added to tournamnet");
     } catch (error) {
       console.error("Error adding team: ", error);
+    }
+  };
+
+  const updateBanner = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync();
+      if (!result.cancelled) {
+        setmyTournaments((prevTournaments) => {
+          return prevTournaments.map((tournament) => {
+            if (tournament.id === id) {
+              return { ...tournament, image: result.uri };
+            }
+            return tournament;
+          });
+        });
+        const teamRefPublic = doc(db, "Tournaments", id);
+        const docRefPublic = await updateDoc(
+          teamRefPublic,
+          { image: result.uri },
+          { merge: true }
+        );
+        const teamRef = doc(
+          db,
+          "users",
+          auth.currentUser.uid,
+          "Tournaments",
+          id
+        );
+        await updateDoc(teamRef, { image: result.uri }, { merge: true });
+        console.log("Banner updated");
+      }
+    } catch (error) {
+      console.error("Error updating banner: ", error);
     }
   };
 
@@ -321,13 +356,27 @@ export default function TournamnetDetails({ navigation, route }) {
             </TouchableWithoutFeedback>
           </View>
         </Modal>
-        <Image
-          source={require("../assets/team4.jpg")}
-          style={{
-            width: "100%",
-            height: Dimensions.get("screen").height * 0.22,
-          }}
-        />
+        {currentTournament.image ? (
+          <TouchableWithoutFeedback onPress={updateBanner}>
+            <Image
+              source={{ uri: currentTournament.image }}
+              style={{
+                width: "100%",
+                height: Dimensions.get("screen").height * 0.22,
+              }}
+            />
+          </TouchableWithoutFeedback>
+        ) : (
+          <TouchableWithoutFeedback onPress={updateBanner}>
+            <Image
+              source={require("../assets/team4.jpg")}
+              style={{
+                width: "100%",
+                height: Dimensions.get("screen").height * 0.22,
+              }}
+            />
+          </TouchableWithoutFeedback>
+        )}
         <View
           style={{
             alignSelf: "flex-start",

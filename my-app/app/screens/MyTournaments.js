@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView,Dimensions, } from "react-native";
 
 import { Context } from "../components/ContextProvider";
 
@@ -60,6 +60,6 @@ const styles = StyleSheet.create({
     minHeight: "100%",
     alignItems: "center",
     padding: 15,
-    paddingBottom: "12.5%",
+    paddingBottom: Dimensions.get('screen').height*0.08,
   },
 });

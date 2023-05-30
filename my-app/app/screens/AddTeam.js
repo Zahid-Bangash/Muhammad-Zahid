@@ -1,6 +1,8 @@
 import React, { useState, useContext } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Context } from "../components/ContextProvider";
+import * as ImagePicker from "expo-image-picker";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { auth, db } from "../config/firebase-config";
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
@@ -16,7 +18,15 @@ export default function Addteam({ navigation }) {
     place: "",
     captain: { name: "", id: "" },
     players: [],
+    image: "",
   });
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync();
+    if (!result.cancelled) {
+      setteamDetails({ ...teamDetails, image: result.uri });
+    }
+  };
 
   const addTeam = async () => {
     if (teamDetails.name === "" || teamDetails.place === "") {
@@ -42,14 +52,39 @@ export default function Addteam({ navigation }) {
     <View style={styles.container}>
       <View
         style={{
-          width: 120,
-          height: 120,
-          borderRadius: 60,
-          borderWidth: 1,
-          borderColor: "black",
-          marginTop: 50,
+          alignItems: "center",
+          width: 150,
+          height: 150,
+          marginTop: 10,
         }}
-      ></View>
+      >
+        {teamDetails.image !== "" ? (
+          <Image
+            source={{ uri: teamDetails.image }}
+            style={{ width: 130, height: 130, borderRadius: 65 }}
+          />
+        ) : (
+          <Image
+            source={require("../assets/team.jpg")}
+            style={{ width: 130, height: 130, borderRadius: 65 }}
+          />
+        )}
+        <TouchableOpacity
+          style={{
+            backgroundColor: "brown",
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            justifyContent: "center",
+            alignItems: "center",
+            alignSelf: "flex-end",
+            top: -40,
+          }}
+          onPress={pickImage}
+        >
+          <Ionicons name="camera" size={25} color="white" />
+        </TouchableOpacity>
+      </View>
       <Text style={{ fontWeight: "bold", marginTop: 10 }}>Team logo</Text>
       <AppTextInput
         placeholder="Enter Team Name"

@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Dimensions,
 } from "react-native";
 
 import TeamCard from "../components/cards/TeamCard";
@@ -28,6 +29,7 @@ export default function MyTeams({ navigation }) {
               captain={
                 team.players.length > 0 ? team.players[0].name : "Captain"
               }
+              uri={team.image}
               onPress={() =>
                 navigation.navigate("Team Details", {
                   teamId: team.id,
@@ -61,6 +63,6 @@ const styles = StyleSheet.create({
     minHeight: "100%",
     alignItems: "center",
     padding: 15,
-    paddingBottom: "12.5%",
+    paddingBottom: Dimensions.get('screen').height*0.08,
   },
 });

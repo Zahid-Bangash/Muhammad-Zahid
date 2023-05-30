@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { StyleSheet, ScrollView, View, Text } from "react-native";
+import { StyleSheet, ScrollView, View, Text,Dimensions } from "react-native";
 import { Context } from "../components/ContextProvider";
 
 import MyMatchCard from "../components/MyMatchCard";
@@ -78,5 +78,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#e0dede",
     paddingTop: 10,
+    paddingBottom: Dimensions.get('screen').height*0.08,
   },
 });

@@ -9,20 +9,14 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { Context } from "../components/ContextProvider";
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-  arrayUnion,
-} from "firebase/firestore";
-import { auth, db,storage } from "../config/firebase-config";
-import { ref, getDownloadURL } from "@firebase/storage";
+import { collection, doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { auth, db } from "../config/firebase-config";
+
 import AppTextInput from "../components/AppTextInput";
 import PlayerCardForAddPlayer from "../components/PlayerCardForAddPlayer";
 
 export default function AddPlayer({ route }) {
-  const { teams, setTeams,players } = useContext(Context);
+  const { teams, setTeams, players } = useContext(Context);
   const { teamId } = route.params;
 
   const [name, setname] = useState("");
@@ -34,45 +28,23 @@ export default function AddPlayer({ route }) {
   const updatedTeam = { ...teamToUpdate };
 
   const searchByName = async () => {
-    const searchRef = collection(db, "users");
-    const snapshot = await getDocs(searchRef);
     const searchResults = players.filter((doc) =>
       doc["Name"].toLowerCase().includes(name.toLowerCase())
     );
-  
-    // const result = [];
-  
-    // for (const doc of searchResults) {
-    //   const userData = doc.data();
-    //   const userId = doc.id;
-  
-    //   let dp = "";
-    //   const imageRef = ref(storage, `ProfileImages/dp${userId}`);
-  
-    //   try {
-    //     const url = await getDownloadURL(imageRef);
-    //     if (url) dp = url;
-    //   } catch (error) {
-    //     console.log(`Error getting profile image for user ${userId}: ${error}`);
-    //   }
-  
-    //   result.push({ id: userId, image: dp, ...userData });
-    // }
-  
+
     const resultFinal = searchResults.filter(
       (teamSearch) =>
         !updatedTeam.players.some((team) => team.id === teamSearch.id)
     );
-  
+
     if (resultFinal.length > 0) {
       setUsers(resultFinal);
       setsearchStatus("");
     } else {
-      setUsers([])
+      setUsers([]);
       setsearchStatus("No player to be added");
     }
   };
-  
 
   const addPlayerToTeam = async (user) => {
     const teamRef = doc(db, "users", auth.currentUser.uid, "Teams", teamId);
@@ -83,6 +55,7 @@ export default function AddPlayer({ route }) {
           id: user.id,
           name: user.Name,
           contact: user.PhoneNumber,
+          image: user.image,
         }),
       });
       await updateDoc(publicTeamRef, {
@@ -90,12 +63,14 @@ export default function AddPlayer({ route }) {
           id: user.id,
           name: user.Name,
           contact: user.PhoneNumber,
+          image: user.image,
         }),
       });
       updatedTeam.players.push({
         id: user.id,
         name: user.Name,
         contact: user.PhoneNumber,
+        image: user.image,
       });
       teamToUpdate = updatedTeam;
       setTeams(updatedTeams);
@@ -125,7 +100,10 @@ export default function AddPlayer({ route }) {
         onChangeText={(text) => setname(text)}
         style={{ marginBottom: 50 }}
       />
-      <ScrollView style={{width:'100%',}} contentContainerStyle={{padding:10,alignItems: "center",}}>
+      <ScrollView
+        style={{ width: "100%" }}
+        contentContainerStyle={{ padding: 10, alignItems: "center" }}
+      >
         {users.length > 0 ? (
           users.map((user, index) => (
             <TouchableOpacity

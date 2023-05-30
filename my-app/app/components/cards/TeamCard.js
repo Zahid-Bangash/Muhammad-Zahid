@@ -9,12 +9,19 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-export default function MatchCard({ name, place, captain, onPress, onDelete }) {
+export default function MatchCard({
+  name,
+  place,
+  captain,
+  onPress,
+  onDelete,
+  uri,
+}) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
       <View style={styles.container}>
         <Image
-          source={require("../../assets/team4.jpg")}
+          source={uri ? { uri: uri } : require("../../assets/team4.jpg")}
           style={{ width: 60, height: 60, borderRadius: 30, marginLeft: 10 }}
         />
         <View style={{ marginLeft: 5, width: "78%" }}>
