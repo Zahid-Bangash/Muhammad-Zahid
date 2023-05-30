@@ -16,6 +16,7 @@ import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useIsFocused } from "@react-navigation/native";
+import { Audio } from "expo-av";
 
 import { Context } from "../components/ContextProvider";
 import AppButton from "../components/AppButton";
@@ -32,6 +33,10 @@ export default function StartMatch({ route, navigation }) {
   const { teams } = useContext(Context);
   const isFocused = useIsFocused();
   const tossAnimation = useRef(new Animated.Value(0)).current;
+  const [sound, setSound] = useState();
+  const [tossOutcome, settossOutcome] = useState("TAP THE COIN TO FLIP");
+  const [tapAgain, settapAgain] = useState("");
+  const [zindex, setzindex] = useState(1);
 
   const allTeams = tournament === null ? teams : tournament.teams;
 
@@ -324,16 +329,17 @@ export default function StartMatch({ route, navigation }) {
     }
   };
 
-  const startTossAnimation = () => {
+  const startTossAnimation = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require("../assets/toss.mpeg")
+    );
+    await sound.playAsync();
+    setSound(sound);
     Animated.sequence([
       Animated.timing(tossAnimation, {
         toValue: 1,
-        duration: 1400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(tossAnimation, {
-        toValue: 0,
-        duration: 1400,
+        duration: 1250,
+        delay: 300,
         useNativeDriver: true,
       }),
     ]).start();
@@ -342,8 +348,6 @@ export default function StartMatch({ route, navigation }) {
   useEffect(() => {
     tossAnimation.addListener(({ value }) => {
       if (value === 1) {
-        // Animation completed, handle the event here
-        // You can perform any action or reset the animation state
         tossAnimation.setValue(0);
       }
     });
@@ -352,6 +356,14 @@ export default function StartMatch({ route, navigation }) {
       tossAnimation.removeAllListeners();
     };
   }, [tossAnimation]);
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
 
   const tossStyle = {
     transform: [
@@ -364,7 +376,7 @@ export default function StartMatch({ route, navigation }) {
       {
         rotateX: tossAnimation.interpolate({
           inputRange: [0, 0.5, 1],
-          outputRange: ["0deg", "1080deg", "0deg"],
+          outputRange: ["0deg", "1200deg", "0deg"],
         }),
       },
     ],
@@ -1154,34 +1166,80 @@ export default function StartMatch({ route, navigation }) {
       <Modal
         visible={coinModal}
         animationType="fade"
-        onRequestClose={() => setcoinModal(false)}
+        onRequestClose={() => {
+          setzindex(1);
+          settapAgain("");
+          settossOutcome("TAP THE COIN TO FLIP");
+          setcoinModal(false);
+        }}
       >
         <View
-          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "space-around",
+          }}
         >
-          <Text style={{ fontWeight: "bold", fontSize: 17 }}>
-            Tap the coin to flip
-          </Text>
-          <Animated.Image
-            source={require("../assets/head.png")}
-            style={[
-              { width: 100, height: 100, backgroundColor: "red" },
-              tossStyle,
-            ]}
-          />
+          <Text style={{ fontWeight: "900", fontSize: 20 }}>{tossOutcome}</Text>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              const outcome = Math.floor(Math.random() * 2);
+              setTimeout(() => {
+                setzindex(outcome);
+              }, 1000);
 
-          <TouchableOpacity
-            style={{
-              marginTop: 20,
-              paddingHorizontal: 20,
-              paddingVertical: 10,
-              backgroundColor: "blue",
-              borderRadius: 5,
+              setTimeout(() => {
+                outcome === 1 ? settossOutcome("HEAD") : settossOutcome("TAIL");
+                settapAgain("TAP THE COIN TO TRY AGAIN");
+              }, 1500);
+
+              startTossAnimation();
             }}
-            onPress={startTossAnimation}
           >
-            <Text style={{ color: "white", fontWeight: "bold" }}>Toss</Text>
-          </TouchableOpacity>
+            <Animated.Image
+              source={require("../assets/head.jpg")}
+              style={[
+                {
+                  width: 100,
+                  height: 100,
+                  position: "absolute",
+                  top: Dimensions.get("screen").height * 0.45,
+                  zIndex: zindex,
+                },
+                tossStyle,
+              ]}
+            />
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              const outcome = Math.floor(Math.random() * 2);
+              setTimeout(() => {
+                setzindex(outcome);
+              }, 1000);
+
+              setTimeout(() => {
+                outcome === 1 ? settossOutcome("HEAD") : settossOutcome("TAIL");
+                settapAgain("TAP THE COIN TO TRY AGAIN");
+              }, 1500);
+
+              startTossAnimation();
+            }}
+          >
+            <Animated.Image
+              source={require("../assets/tail.jpg")}
+              style={[
+                {
+                  width: 100,
+                  height: 100,
+                  position: "absolute",
+                  top: Dimensions.get("screen").height * 0.45,
+                  zIndex: 0,
+                },
+                tossStyle,
+              ]}
+            />
+          </TouchableWithoutFeedback>
+          <Text style={{ fontWeight: "900", fontSize: 20 }}>{tapAgain}</Text>
         </View>
       </Modal>
       <AppButton
