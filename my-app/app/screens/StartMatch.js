@@ -336,9 +336,8 @@ export default function StartMatch({ route, navigation }) {
         duration: 1400,
         useNativeDriver: true,
       }),
-    ]).start()
+    ]).start();
   };
-
 
   useEffect(() => {
     tossAnimation.addListener(({ value }) => {
@@ -362,22 +361,10 @@ export default function StartMatch({ route, navigation }) {
           outputRange: [0, -300, 0],
         }),
       },
-      // {
-      //   scaleX: tossAnimation.interpolate({
-      //     inputRange: [0, 0.25, 0.5, 0.75, 1],
-      //     outputRange: [1, 2, 1.5, 1.25, 1],
-      //   }),
-      // },
-      // {
-      //   scaleY: tossAnimation.interpolate({
-      //     inputRange: [0, 0.25, 0.5, 0.75, 1],
-      //     outputRange: [1, 0.5, 0.75, 0.9, 1],
-      //   }),
-      // },
       {
         rotateX: tossAnimation.interpolate({
           inputRange: [0, 0.5, 1],
-          outputRange: ['0deg', '1080deg', '0deg'],
+          outputRange: ["0deg", "1080deg", "0deg"],
         }),
       },
     ],
@@ -1169,12 +1156,14 @@ export default function StartMatch({ route, navigation }) {
         animationType="fade"
         onRequestClose={() => setcoinModal(false)}
       >
-        <View style={{ flex: 1, alignItems: "center",justifyContent:'center', }}>
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
           <Text style={{ fontWeight: "bold", fontSize: 17 }}>
             Tap the coin to flip
           </Text>
           <Animated.Image
-          source={require('../assets/head.png')}
+            source={require("../assets/head.png")}
             style={[
               { width: 100, height: 100, backgroundColor: "red" },
               tossStyle,
