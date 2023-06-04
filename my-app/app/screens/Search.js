@@ -18,7 +18,7 @@ import MyMatchCard from "../components/MyMatchCard";
 import { addDoc, collection, getDocs, setDoc, doc } from "firebase/firestore";
 import { auth, db } from "../config/firebase-config";
 
-export default function Search({navigation}) {
+export default function Search({ navigation }) {
   const [name, setname] = useState("");
   const [filterVisible, setfilterVisible] = useState(false);
   const [selected, setselected] = useState("users");
@@ -158,6 +158,7 @@ export default function Search({navigation}) {
                       key={item.id}
                       name={item.Name}
                       location={item.Location}
+                      uri={item.image}
                     />
                   );
                 } else if (selected === "Teams") {
@@ -166,40 +167,58 @@ export default function Search({navigation}) {
                       key={item.id}
                       name={item.name}
                       place={item.place}
+                      uri={item.image}
                     />
                   );
                 } else if (selected === "Matches") {
-                  return <MyMatchCard key={item.id} team1={item.battingTeam}
-                  team2={item.bowlingTeam}
-                  status={item.status}
-                  result={item.result}
-                  matchFormat={item.matchFormat}
-                  date={item.date}
-                  type={item.type}
-                  firstInningsBalls={
-                    item.innings1&&item.innings1.length > 0 ? item.innings1[0].ballsDelivered : 0
-                  }
-                  secondInningsBalls={
-                    item.innings2&&item.innings2.length > 0 ? item.innings2[0].ballsDelivered : 0
-                  }
-                  firstInningsRuns={
-                    item.innings1&&item.innings1.length > 0 ? item.innings1[0].totalRuns : 0
-                  }
-                  secondInningsRuns={
-                    item.innings2&&item.innings2.length > 0 ? item.innings2[0].totalRuns : 0
-                  }
-                  firstInningsWickets={
-                    item.innings1&&item.innings1.length > 0 ? item.innings1[0].wicketsDown : 0
-                  }
-                  secondInningsWickets={
-                    item.innings2&&item.innings2.length > 0 ? item.innings2[0].wicketsDown : 0
-                  }
-                  onPress={() =>
-                    navigation.navigate("Start a Match", {
-                      screen: "Match Details",
-                      params: { matchId: item.id },
-                    })
-                  }/>;
+                  return (
+                    <MyMatchCard
+                      key={item.id}
+                      team1={item.battingTeam}
+                      team2={item.bowlingTeam}
+                      status={item.status}
+                      result={item.result}
+                      matchFormat={item.matchFormat}
+                      date={item.date}
+                      type={item.type}
+                      firstInningsBalls={
+                        item.innings1 && item.innings1.length > 0
+                          ? item.innings1[0].ballsDelivered
+                          : 0
+                      }
+                      secondInningsBalls={
+                        item.innings2 && item.innings2.length > 0
+                          ? item.innings2[0].ballsDelivered
+                          : 0
+                      }
+                      firstInningsRuns={
+                        item.innings1 && item.innings1.length > 0
+                          ? item.innings1[0].totalRuns
+                          : 0
+                      }
+                      secondInningsRuns={
+                        item.innings2 && item.innings2.length > 0
+                          ? item.innings2[0].totalRuns
+                          : 0
+                      }
+                      firstInningsWickets={
+                        item.innings1 && item.innings1.length > 0
+                          ? item.innings1[0].wicketsDown
+                          : 0
+                      }
+                      secondInningsWickets={
+                        item.innings2 && item.innings2.length > 0
+                          ? item.innings2[0].wicketsDown
+                          : 0
+                      }
+                      onPress={() =>
+                        navigation.navigate("Start a Match", {
+                          screen: "Match Details",
+                          params: { matchId: item.id },
+                        })
+                      }
+                    />
+                  );
                 } else if (selected === "Tournaments") {
                   return (
                     <TournamentCard

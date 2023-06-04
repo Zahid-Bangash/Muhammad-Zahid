@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
     minHeight: "100%",
     alignItems: "center",
     padding: 15,
-    paddingBottom: Dimensions.get('screen').height*0.08,
+    paddingBottom: Dimensions.get("screen").height * 0.08,
   },
 });

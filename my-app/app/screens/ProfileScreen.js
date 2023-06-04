@@ -13,8 +13,8 @@ import { Context } from "../components/ContextProvider";
 
 import * as ImagePicker from "expo-image-picker";
 
-import { ref, uploadBytes } from "@firebase/storage";
-import { auth, storage } from "../config/firebase-config";
+import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
+import { db, auth, storage } from "../config/firebase-config";
 import { updateDoc, doc } from "firebase/firestore";
 
 import AppButton from "../components/AppButton";
@@ -30,8 +30,13 @@ export default function ProfileScreen({ navigation }) {
       const blob = await response.blob();
       const imageRef = ref(storage, `ProfileImages/dp${auth.currentUser.uid}`);
       await uploadBytes(imageRef, blob);
-      
       console.log("Image uploaded successfully");
+      const url = await getDownloadURL(imageRef);
+      await updateDoc(
+        doc(db, "users", auth.currentUser.uid),
+        { image: url },
+        { merge: true }
+      );
     }
   };
 
@@ -118,7 +123,7 @@ export default function ProfileScreen({ navigation }) {
         )}
         <TouchableOpacity
           style={{
-            backgroundColor: "white",
+            backgroundColor: "brown",
             width: 40,
             height: 40,
             borderRadius: 20,
@@ -129,7 +134,7 @@ export default function ProfileScreen({ navigation }) {
           }}
           onPress={pickImage}
         >
-          <Ionicons name="camera" size={30} />
+          <Ionicons name="camera" size={30} color="white" />
         </TouchableOpacity>
       </View>
       <Text style={{ fontSize: 25, fontWeight: "bold" }}>{userData.Name}</Text>

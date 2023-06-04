@@ -351,9 +351,7 @@ const ContextProvider = ({ children }) => {
           const url = await getDownloadURL(imageRef);
           if (url) dp = url;
         } catch (error) {
-          console.log(
-            `Error getting profile image for user ${userId}: ${error}`
-          );
+          console.log(`No image for user ${userId}: ${error}`);
         }
 
         usersData.push({ id: userId, image: dp, ...userData });

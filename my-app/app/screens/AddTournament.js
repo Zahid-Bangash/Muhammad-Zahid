@@ -33,7 +33,6 @@ export default function AddTS({ navigation }) {
     endDate: new Date(),
     ballType: "",
     matchType: "",
-    image:'',
   });
 
   const handleStartDateChange = (event, selectedDate) => {

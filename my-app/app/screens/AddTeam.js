@@ -4,8 +4,9 @@ import { Context } from "../components/ContextProvider";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import { auth, db } from "../config/firebase-config";
+import { auth, db, storage } from "../config/firebase-config";
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 
 import AppTextInput from "../components/AppTextInput";
 import AppButton from "../components/AppButton";
@@ -18,13 +19,13 @@ export default function Addteam({ navigation }) {
     place: "",
     captain: { name: "", id: "" },
     players: [],
-    image: "",
   });
+  const [image, setimage] = useState("");
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync();
     if (!result.cancelled) {
-      setteamDetails({ ...teamDetails, image: result.uri });
+      setimage(result.uri);
     }
   };
 
@@ -34,13 +35,34 @@ export default function Addteam({ navigation }) {
       return;
     }
     try {
+      const id = image.substring(image.lastIndexOf("/") + 1);
+      const response = await fetch(image);
+      const blob = await response.blob();
+      const imageRef = ref(storage, `TeamLogos/${id}`);
+      await uploadBytes(imageRef, blob);
+      const url = await getDownloadURL(imageRef);
       const userRef = doc(db, "users", auth.currentUser.uid);
       const teamsRef = collection(userRef, "Teams");
-      const docRef = await addDoc(teamsRef, teamDetails);
-      const publicTeamRef = doc(db, "Teams", docRef.id);
-      await setDoc(publicTeamRef, teamDetails);
-      const updatedTeams = [...teams, { id: docRef.id, ...teamDetails }];
+      const docRef = await addDoc(teamsRef, {
+        name: teamDetails.name,
+        place: teamDetails.place,
+        captain: teamDetails.captain,
+        players: teamDetails.players,
+        image: url,
+      });
+      const updatedTeams = [
+        ...teams,
+        { id: docRef.id, image: url, ...teamDetails },
+      ];
       setTeams(updatedTeams);
+      const publicTeamRef = doc(db, "Teams", docRef.id);
+      await setDoc(publicTeamRef, {
+        name: teamDetails.name,
+        place: teamDetails.place,
+        captain: teamDetails.captain,
+        players: teamDetails.players,
+        image: url,
+      });
       console.log("Team created");
       navigation.goBack();
     } catch (error) {
@@ -58,9 +80,9 @@ export default function Addteam({ navigation }) {
           marginTop: 10,
         }}
       >
-        {teamDetails.image !== "" ? (
+        {image !== "" ? (
           <Image
-            source={{ uri: teamDetails.image }}
+            source={{ uri: image }}
             style={{ width: 130, height: 130, borderRadius: 65 }}
           />
         ) : (

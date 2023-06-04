@@ -13,9 +13,9 @@ import Modal from "react-native-modal";
 import { AntDesign } from "@expo/vector-icons";
 import { Context } from "../components/ContextProvider";
 import { collection, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { auth, db } from "../config/firebase-config";
+import { auth, db, storage } from "../config/firebase-config";
+import { ref, deleteObject } from "@firebase/storage";
 import PlayerCardForTeamDetails from "../components/PlayerCardForTeamDetails";
-import { SlideInLeft } from "react-native-reanimated";
 import AppButton from "../components/AppButton";
 
 export default function TeamDetails({ route, navigation }) {
@@ -42,6 +42,10 @@ export default function TeamDetails({ route, navigation }) {
             doc(db, "users", auth.currentUser.uid, "Teams", teamId)
           );
           await deleteDoc(doc(db, "Teams", teamId));
+          if (team.image !== "") {
+            const storageRef = ref(storage, team.image);
+            await deleteObject(storageRef);
+          }
         },
       },
     ]);
