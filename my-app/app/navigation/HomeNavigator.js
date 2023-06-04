@@ -6,9 +6,9 @@ import {
   Search,
   News,
   MatchDetails,
-  TournamnetDetails,
   ProfileScreen,
   NewsDetails,
+  PublicTournamentDetails,
 } from "../screens";
 
 const Stack = createNativeStackNavigator();
@@ -31,6 +31,11 @@ const HomeNavigator = () => (
       options={{ headerShown: false }}
     />
     <Stack.Screen name="Search" component={Search} />
+    <Stack.Screen name="Match Details" component={MatchDetails} />
+    <Stack.Screen
+      name="Tournament Details"
+      component={PublicTournamentDetails}
+    />
     <Stack.Screen name="News" component={News} />
     <Stack.Screen
       name="News Details"

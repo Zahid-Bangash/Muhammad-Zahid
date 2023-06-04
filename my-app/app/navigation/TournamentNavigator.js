@@ -5,7 +5,11 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import { Context } from "../components/ContextProvider";
-import { AddTournament, TournamnetDetails } from "../screens";
+import {
+  AddTournament,
+  TournamentDetails,
+  PublicTournamentDetails,
+} from "../screens";
 
 const Stack = createNativeStackNavigator();
 
@@ -44,7 +48,7 @@ export default function TournamentNavigator() {
       />
       <Stack.Screen
         name="Tournament Details"
-        component={TournamnetDetails}
+        component={TournamentDetails}
         options={{
           headerRight: () => (
             <TouchableOpacity onPress={() => setshowModalTournament(true)}>
@@ -52,6 +56,10 @@ export default function TournamentNavigator() {
             </TouchableOpacity>
           ),
         }}
+      />
+      <Stack.Screen
+        name="Public Tournament Details"
+        component={PublicTournamentDetails}
       />
     </Stack.Navigator>
   );

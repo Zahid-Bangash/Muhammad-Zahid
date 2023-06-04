@@ -212,9 +212,8 @@ export default function Search({ navigation }) {
                           : 0
                       }
                       onPress={() =>
-                        navigation.navigate("Start a Match", {
-                          screen: "Match Details",
-                          params: { matchId: item.id },
+                        navigation.navigate("Match Details", {
+                          matchId: item.id,
                         })
                       }
                     />
@@ -232,11 +231,8 @@ export default function Search({ navigation }) {
                       startDate={item.startDate}
                       endDate={item.endDate}
                       onPress={() =>
-                        navigation.navigate("Add Tournament", {
-                          screen: "Tournament Details",
-                          params: {
-                            id: item.id,
-                          },
+                        navigation.navigate("Tournament Details", {
+                          id: item.id,
                         })
                       }
                     />

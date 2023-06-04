@@ -23,8 +23,8 @@ export default function MatchDetails({ route, navigation }) {
   const [matchData, setmatchData] = useState({
     title: "match Title",
     teams: {
-      team1: { name: "Team A", squad: [] },
-      team2: { name: "Team B", squad: [] },
+      team1: { name: "Team A", squad: [], image: "" },
+      team2: { name: "Team B", squad: [], image: "" },
     },
     venue: "Venue",
     date: "Date",
@@ -89,18 +89,18 @@ export default function MatchDetails({ route, navigation }) {
     isCompleted: false,
   });
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("blur", () => {
-      console.log("went back");
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "Create Match" }],
-      });
-    });
+  // useEffect(() => {
+  //   const unsubscribe = navigation.addListener("blur", () => {
+  //     console.log("went back");
+  //     navigation.reset({
+  //       index: 0,
+  //       routes: [{ name: "Create Match" }],
+  //     });
+  //   });
 
-    return unsubscribe;
-  }, [navigation]);
-  
+  //   return unsubscribe;
+  // }, [navigation]);
+
   useEffect(() => {
     const matchDocRef = doc(db, "Matches", matchId);
     const firstInningsQuery = query(
@@ -643,7 +643,11 @@ export default function MatchDetails({ route, navigation }) {
         >
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Image
-              source={require("../assets/team5.jpg")}
+              source={
+                matchData.teams.team1.image !== ""
+                  ? { uri: matchData.teams.team1.image }
+                  : require("../assets/team5.jpg")
+              }
               style={{
                 width: 100,
                 height: 100,
@@ -651,11 +655,17 @@ export default function MatchDetails({ route, navigation }) {
                 marginBottom: 10,
               }}
             />
-            <Text style={{ fontWeight: "bold" }}>{matchData.battingTeam}</Text>
+            <Text style={{ fontWeight: "bold" }}>
+              {matchData.teams.team1.name}
+            </Text>
           </View>
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Image
-              source={require("../assets/team1.jpg")}
+              source={
+                matchData.teams.team2.image !== ""
+                  ? { uri: matchData.teams.team2.image }
+                  : require("../assets/team1.jpg")
+              }
               style={{
                 width: 100,
                 height: 100,
@@ -663,7 +673,9 @@ export default function MatchDetails({ route, navigation }) {
                 marginBottom: 10,
               }}
             />
-            <Text style={{ fontWeight: "bold" }}>{matchData.bowlingTeam}</Text>
+            <Text style={{ fontWeight: "bold" }}>
+              {matchData.teams.team2.name}
+            </Text>
           </View>
         </View>
         <View

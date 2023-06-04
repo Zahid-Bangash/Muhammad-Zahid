@@ -81,10 +81,7 @@ export default function HomeScreen({ navigation }) {
                   match.innings2.length > 0 ? match.innings2[0].wicketsDown : 0
                 }
                 onPress={() =>
-                  navigation.navigate("Start a Match", {
-                    screen: "Match Details",
-                    params: { matchId: match.id },
-                  })
+                  navigation.navigate("Match Details", { matchId: match.id })
                 }
               />
             ))
@@ -132,11 +129,8 @@ export default function HomeScreen({ navigation }) {
                 startDate={tournament.startDate}
                 endDate={tournament.endDate}
                 onPress={() =>
-                  navigation.navigate("Add Tournament", {
-                    screen: "Tournament Details",
-                    params: {
-                      id: tournament.id,
-                    },
+                  navigation.navigate("Tournament Details", {
+                    id: tournament.id,
                   })
                 }
               />

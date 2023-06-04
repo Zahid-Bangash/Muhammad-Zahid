@@ -159,8 +159,8 @@ export default function MatchCenter({ route, navigation }) {
   const [matchData, setMatchData] = useState({
     title: "match Title",
     teams: {
-      team1: { name: "Team A", squad: [] },
-      team2: { name: "Team B", squad: [] },
+      team1: { name: "Team A", squad: [], iameg: "" },
+      team2: { name: "Team B", squad: [], image: "" },
     },
     venue: "Venue",
     date: "Date",
@@ -299,7 +299,7 @@ export default function MatchCenter({ route, navigation }) {
         console.error("Error:aa", error);
       });
   };
-  
+
   const getWeather = (lat, long) => {
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=3ff1f23037aa2a5787ac63cc403ca997`;
 
@@ -338,10 +338,9 @@ export default function MatchCenter({ route, navigation }) {
 
   useEffect(() => {
     // clearTimeout(timeOut);
-   const timeOut= setTimeout(() => {
+    const timeOut = setTimeout(() => {
       setshow(false);
     }, 10000);
-
   }, [show]);
 
   //.................................
@@ -673,9 +672,13 @@ export default function MatchCenter({ route, navigation }) {
           matchDataCopy.status = "Completed";
           updateMatchData(matchDataCopy);
         } else {
-          matchDataCopy.result = `${inningsDataCopy.bowlingTeam} won by ${
-            matchData.target - inningsDataCopy.totalRuns - 1
-          } runs`;
+          if (matchData.target - inningsDataCopy.totalRuns - 1 === 0) {
+            matchDataCopy.result = "Match Tied";
+          } else {
+            matchDataCopy.result = `${inningsDataCopy.bowlingTeam} won by ${
+              matchData.target - inningsDataCopy.totalRuns - 1
+            } runs`;
+          }
           matchDataCopy.status = "Completed";
           updateMatchData(matchDataCopy);
         }
@@ -3109,8 +3112,8 @@ export default function MatchCenter({ route, navigation }) {
             style={{
               padding: 10,
               alignItems: "center",
-              justifyContent:'center',
-              height:50,
+              justifyContent: "center",
+              height: 50,
               width: "100%",
             }}
           >
@@ -3125,8 +3128,9 @@ export default function MatchCenter({ route, navigation }) {
                     matchData.totalOvers * 6 - secondInnings.ballsDelivered
                   } balls`}
             </Text>
-            </View>
-            {show&&(<View
+          </View>
+          {show && (
+            <View
               style={{
                 borderTopWidth: 0.5,
                 borderColor: "grey",
@@ -3134,18 +3138,18 @@ export default function MatchCenter({ route, navigation }) {
                 flexDirection: "row",
                 justifyContent: "space-around",
                 alignItems: "center",
-                height:50,
+                height: 50,
               }}
             >
               <Text style={{ color: "green", fontWeight: "bold" }}>
                 {`${matchData.battingTeam} : ${matchData.prediction.teamA}`}
               </Text>
               <Text style={{ color: "green", fontWeight: "bold" }}>
-              {`${matchData.bowlingTeam} : ${matchData.prediction.teamB}`}
+                {`${matchData.bowlingTeam} : ${matchData.prediction.teamB}`}
               </Text>
-            
-          </View>)}
-            
+            </View>
+          )}
+
           <View
             style={{
               flexDirection: "row",
@@ -3587,7 +3591,11 @@ export default function MatchCenter({ route, navigation }) {
         >
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Image
-              source={require("../assets/team5.jpg")}
+              source={
+                matchData.teams.team1.image !== ""
+                  ? { uri: matchData.teams.team1.image }
+                  : require("../assets/team1.jpg")
+              }
               style={{
                 width: 100,
                 height: 100,
@@ -3595,11 +3603,17 @@ export default function MatchCenter({ route, navigation }) {
                 marginBottom: 10,
               }}
             />
-            <Text style={{ fontWeight: "bold" }}>{matchData.battingTeam}</Text>
+            <Text style={{ fontWeight: "bold" }}>
+              {matchData.teams.team1.name}
+            </Text>
           </View>
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Image
-              source={require("../assets/team1.jpg")}
+              source={
+                matchData.teams.team2.image !== ""
+                  ? { uri: matchData.teams.team2.image }
+                  : require("../assets/team2.jpg")
+              }
               style={{
                 width: 100,
                 height: 100,
@@ -3607,7 +3621,9 @@ export default function MatchCenter({ route, navigation }) {
                 marginBottom: 10,
               }}
             />
-            <Text style={{ fontWeight: "bold" }}>{matchData.bowlingTeam}</Text>
+            <Text style={{ fontWeight: "bold" }}>
+              {matchData.teams.team2.name}
+            </Text>
           </View>
         </View>
         <View

@@ -161,10 +161,6 @@ export default function StartMatch({ route, navigation }) {
       alert("Select team to create a match");
       return;
     }
-    if (team1Squad.length < 2 || team2Squad.length < 2) {
-      alert("Add Minimum two players in the squad");
-      return;
-    }
     if (matchDetails.venue === "") {
       alert("Enter Venue");
       return;
@@ -199,8 +195,8 @@ export default function StartMatch({ route, navigation }) {
         {
           title: `${team1.name} Vs ${team2.name}`,
           teams: {
-            team1: { name: team1.name, squad: team1Squad },
-            team2: { name: team2.name, squad: team2Squad },
+            team1: { name: team1.name, squad: team1Squad, image: team1.image },
+            team2: { name: team2.name, squad: team2Squad, image: team2.image },
           },
           venue: matchDetails.venue,
           date: matchDetails.date.toLocaleDateString(),
@@ -225,8 +221,8 @@ export default function StartMatch({ route, navigation }) {
       await setDoc(publicMatchRef, {
         title: `${team1.name} Vs ${team2.name}`,
         teams: {
-          team1: { name: team1.name, squad: team1Squad },
-          team2: { name: team2.name, squad: team2Squad },
+          team1: { name: team1.name, squad: team1Squad, image: team1.image },
+          team2: { name: team2.name, squad: team2Squad, image: team2.image },
         },
         venue: matchDetails.venue,
         date: matchDetails.date.toLocaleDateString(),
@@ -267,8 +263,8 @@ export default function StartMatch({ route, navigation }) {
         await setDoc(tournamentMatchRef, {
           title: `${team1.name} Vs ${team2.name}`,
           teams: {
-            team1: { name: team1.name, squad: team1Squad },
-            team2: { name: team2.name, squad: team2Squad },
+            team1: { name: team1.name, squad: team1Squad, image: team1.image },
+            team2: { name: team2.name, squad: team2Squad, image: team2.image },
           },
           venue: matchDetails.venue,
           date: matchDetails.date.toLocaleDateString(),
@@ -289,8 +285,8 @@ export default function StartMatch({ route, navigation }) {
         await setDoc(PublicTournamentMatchRef, {
           title: `${team1.name} Vs ${team2.name}`,
           teams: {
-            team1: { name: team1.name, squad: team1Squad },
-            team2: { name: team2.name, squad: team2Squad },
+            team1: { name: team1.name, squad: team1Squad, image: team1.image },
+            team2: { name: team2.name, squad: team2Squad, image: team2.image },
           },
           venue: matchDetails.venue,
           date: matchDetails.date.toLocaleDateString(),
@@ -446,19 +442,26 @@ export default function StartMatch({ route, navigation }) {
               setModalVisible(true);
             }}
           >
-            <View
-              style={{
-                width: 100,
-                height: 100,
-                borderRadius: 50,
-                elevation: 5,
-                backgroundColor: "white",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Entypo name="plus" size={40} />
-            </View>
+            {team1 !== null ? (
+              <Image
+                source={{ uri: team1.image }}
+                style={{ width: 100, height: 100, borderRadius: 50 }}
+              />
+            ) : (
+              <View
+                style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: 50,
+                  elevation: 5,
+                  backgroundColor: "white",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Entypo name="plus" size={40} />
+              </View>
+            )}
           </TouchableWithoutFeedback>
           <Text style={{ fontWeight: "bold" }}>
             {team1 ? team1.name : "Team A"}
@@ -467,8 +470,6 @@ export default function StartMatch({ route, navigation }) {
         <View
           style={{
             justifyContent: "center",
-            // alignItems: "center",
-            // height: "100%",
           }}
         >
           <Text style={{ fontWeight: "bold", fontSize: 17 }}>VS</Text>
@@ -487,19 +488,26 @@ export default function StartMatch({ route, navigation }) {
               setModalVisible(true);
             }}
           >
-            <View
-              style={{
-                width: 100,
-                height: 100,
-                borderRadius: 50,
-                elevation: 5,
-                backgroundColor: "white",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Entypo name="plus" size={40} />
-            </View>
+            {team2 !== null ? (
+              <Image
+                source={{ uri: team2.image }}
+                style={{ width: 100, height: 100, borderRadius: 50 }}
+              />
+            ) : (
+              <View
+                style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: 50,
+                  elevation: 5,
+                  backgroundColor: "white",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Entypo name="plus" size={40} />
+              </View>
+            )}
           </TouchableWithoutFeedback>
           <Text style={{ fontWeight: "bold" }}>
             {team2 ? team2.name : "Team B"}

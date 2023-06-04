@@ -3,7 +3,7 @@ import { TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { MyMatches } from "../screens";
+import { MyMatches, MatchDetails } from "../screens";
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +35,7 @@ const MyMatchesNavigator = ({ navigation }) => (
         ),
       }}
     />
+    <Stack.Screen name="Match Details" component={MatchDetails} />
   </Stack.Navigator>
 );
 

@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { StyleSheet, ScrollView, View, Text,Dimensions } from "react-native";
+import { StyleSheet, ScrollView, View, Text, Dimensions } from "react-native";
 import { Context } from "../components/ContextProvider";
 
 import MyMatchCard from "../components/MyMatchCard";
@@ -44,10 +44,7 @@ export default function MyMatches({ navigation }) {
                 match.innings2.length > 0 ? match.innings2[0].wicketsDown : 0
               }
               onPress={() =>
-                navigation.navigate("Start a Match", {
-                  screen: "Match Details",
-                  params: { matchId: match.id },
-                })
+                navigation.navigate("Match Details", { matchId: match.id })
               }
             />
           ))}
@@ -78,6 +75,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#e0dede",
     paddingTop: 10,
-    paddingBottom: Dimensions.get('screen').height*0.08,
+    paddingBottom: Dimensions.get("screen").height * 0.08,
   },
 });

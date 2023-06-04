@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { View, Text, StyleSheet, ScrollView,Dimensions, } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions } from "react-native";
 
 import { Context } from "../components/ContextProvider";
 
@@ -25,12 +25,7 @@ export default function MyTournaments({ navigation }) {
               startDate={tournament.startDate}
               endDate={tournament.endDate}
               onPress={() =>
-                navigation.navigate("Add Tournament", {
-                  screen: "Tournament Details",
-                  params: {
-                    id: tournament.id,
-                  },
-                })
+                navigation.navigate("Tournament Details", { id: tournament.id })
               }
             />
           ))}
@@ -60,6 +55,6 @@ const styles = StyleSheet.create({
     minHeight: "100%",
     alignItems: "center",
     padding: 15,
-    paddingBottom: Dimensions.get('screen').height*0.08,
+    paddingBottom: Dimensions.get("screen").height * 0.08,
   },
 });
