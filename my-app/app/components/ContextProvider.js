@@ -345,16 +345,7 @@ const ContextProvider = ({ children }) => {
       usersSnapshot.forEach(async (doc) => {
         const userData = doc.data();
         const userId = doc.id;
-        let dp = "";
-        const imageRef = ref(storage, `ProfileImages/dp${userId}`);
-        try {
-          const url = await getDownloadURL(imageRef);
-          if (url) dp = url;
-        } catch (error) {
-          console.log(`No image for user ${userId}: ${error}`);
-        }
-
-        usersData.push({ id: userId, image: dp, ...userData });
+        usersData.push({ id: userId, ...userData });
       });
 
       setplayers(usersData);

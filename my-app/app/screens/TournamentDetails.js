@@ -191,7 +191,7 @@ export default function TournamnetDetails({ navigation, route }) {
               id
             );
             await updateDoc(teamRef, { teams: updatedTeams }, { merge: true });
-            console.log("Team Removed");
+            console.log("Tournament Removed");
           } catch (error) {
             console.error("Error adding team: ", error);
           }
@@ -212,15 +212,15 @@ export default function TournamnetDetails({ navigation, route }) {
         text: "Yes",
         onPress: async () => {
           try {
-            setmyTournaments(
-              myTournaments.filter((tournament) => tournament.id === id)
-            );
-            setshowModalTournament(false);
             await deleteDoc(doc(db, "Tournaments", id));
             await deleteDoc(
               doc(db, "users", auth.currentUser.uid, "Tournaments", id)
             );
             navigation.goBack();
+            setmyTournaments(
+              myTournaments.filter((tournament) => tournament.id !== id)
+            );
+            setshowModalTournament(false);
           } catch (error) {
             console.error("Error deleting tournament: ", error);
           }

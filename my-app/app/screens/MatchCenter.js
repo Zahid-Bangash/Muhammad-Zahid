@@ -3592,7 +3592,7 @@ export default function MatchCenter({ route, navigation }) {
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Image
               source={
-                matchData.teams.team1.image !== ""
+                matchData.teams.team1.image
                   ? { uri: matchData.teams.team1.image }
                   : require("../assets/team1.jpg")
               }
@@ -3610,7 +3610,7 @@ export default function MatchCenter({ route, navigation }) {
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Image
               source={
-                matchData.teams.team2.image !== ""
+                matchData.teams.team2.image
                   ? { uri: matchData.teams.team2.image }
                   : require("../assets/team2.jpg")
               }

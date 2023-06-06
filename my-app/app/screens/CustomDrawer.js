@@ -44,7 +44,9 @@ export default function CustomDrawer(props) {
           }}
         >
           <TouchableWithoutFeedback
-            onPress={() => navigation.navigate("Profile")}
+            onPress={() =>
+              navigation.navigate("Profile")
+            }
           >
             {profileImageUri ? (
               <Image
@@ -89,9 +91,7 @@ export default function CustomDrawer(props) {
             }}
           >
             <Ionicons name="log-out-outline" size={30} color="red" />
-            <Text
-              style={{ color: "red", fontWeight: "bold", marginLeft: 27 }}
-            >
+            <Text style={{ color: "red", fontWeight: "bold", marginLeft: 27 }}>
               Log out
             </Text>
           </View>

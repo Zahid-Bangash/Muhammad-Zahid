@@ -16,6 +16,7 @@ import ClubCard from "../components/cards/ClubCard";
 import PlayerCard from "../components/cards/PlayerCard";
 import NewsCard from "../components/cards/NewsCard";
 import AppButton from "../components/AppButton";
+import { auth } from "../config/firebase-config";
 
 export default function HomeScreen({ navigation }) {
   const { news, allMatches, players, allTournaments } = useContext(Context);
@@ -125,11 +126,11 @@ export default function HomeScreen({ navigation }) {
                 city={tournament.city}
                 teams={tournament.teams.length}
                 status={tournament.status}
-                image={require("../assets/t1.jpg")}
+                uri={tournament.image}
                 startDate={tournament.startDate}
                 endDate={tournament.endDate}
                 onPress={() =>
-                  navigation.navigate("Tournament Details", {
+                  navigation.navigate("Tournament", {
                     id: tournament.id,
                   })
                 }
@@ -141,7 +142,6 @@ export default function HomeScreen({ navigation }) {
               city="Hangu"
               teams={12}
               status="Ongoing"
-              image={require("../assets/t1.jpg")}
               startDate="03 Nov, 2022"
               endDate="03 Dec, 2022"
             />
@@ -200,7 +200,8 @@ export default function HomeScreen({ navigation }) {
         >
           {players.length > 0 ? (
             players
-              .slice(0, 6)
+              .filter((user) => user.id !== auth.currentUser.uid)
+              .slice(0, 30)
               .map((player) => (
                 <PlayerCard
                   key={player.id}
@@ -214,6 +215,12 @@ export default function HomeScreen({ navigation }) {
                   wickets={player.Stats.bowling.overall.wickets}
                   matches={player.Stats.batting.overall.matches}
                   type={player.PlayingRole}
+                  onPressProfile={() =>
+                    navigation.navigate("User Info", { id: player.id })
+                  }
+                  onPressInsight={() =>
+                    navigation.navigate("Statistics", { id: player.id })
+                  }
                 />
               ))
           ) : (
@@ -264,7 +271,7 @@ export default function HomeScreen({ navigation }) {
               style={{
                 width: 100,
                 marginLeft: 5,
-                backgroundColor: "green",
+                backgroundColor: "#3f8c67",
                 borderRadius: 10,
               }}
               onPress={() => navigation.navigate("News")}

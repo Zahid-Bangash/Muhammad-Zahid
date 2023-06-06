@@ -18,7 +18,7 @@ export default function TournamentCard({
   teams,
   status,
   onPress,
-  image,
+  uri,
   startDate,
   endDate,
   style,
@@ -31,7 +31,7 @@ export default function TournamentCard({
         </Text>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Image
-            source={image}
+            source={uri ? { uri: uri } : require("../../assets/t1.jpg")}
             style={{ width: 60, height: 60, borderRadius: 30 }}
           />
           <View style={{ marginLeft: 10 }}>

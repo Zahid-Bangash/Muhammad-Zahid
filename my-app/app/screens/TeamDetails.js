@@ -124,9 +124,9 @@ export default function TeamDetails({ route, navigation }) {
         {team?.players &&
           team?.players.map((player, index) => (
             <PlayerCardForTeamDetails
-              name={player.name}
+              name={player.Name}
               uri={player.image}
-              contact={player.contact}
+              contact={player.PhoneNumber}
               key={player.id}
               onPress={() => deletePlayer(index)}
             />

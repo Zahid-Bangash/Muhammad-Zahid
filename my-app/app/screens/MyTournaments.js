@@ -21,7 +21,7 @@ export default function MyTournaments({ navigation }) {
               city={tournament.city}
               teams={tournament.teams.length}
               status={tournament.status}
-              image={require("../assets/t1.jpg")}
+              uri={tournament.image}
               startDate={tournament.startDate}
               endDate={tournament.endDate}
               onPress={() =>

@@ -5,7 +5,7 @@ export default function Player({ name, location, onPress, uri }) {
   return (
     <View style={styles.container}>
       <Image
-        source={uri ? { uri: uri } : require("../assets/player1.jpg")}
+        source={uri ? { uri: uri } : require("../assets/profile.jpeg")}
         style={{
           width: 60,
           height: 60,

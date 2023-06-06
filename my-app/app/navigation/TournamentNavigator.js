@@ -57,10 +57,6 @@ export default function TournamentNavigator() {
           ),
         }}
       />
-      <Stack.Screen
-        name="Public Tournament Details"
-        component={PublicTournamentDetails}
-      />
     </Stack.Navigator>
   );
 }

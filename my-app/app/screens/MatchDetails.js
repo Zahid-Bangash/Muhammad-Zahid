@@ -644,7 +644,7 @@ export default function MatchDetails({ route, navigation }) {
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Image
               source={
-                matchData.teams.team1.image !== ""
+                matchData.teams.team1.image
                   ? { uri: matchData.teams.team1.image }
                   : require("../assets/team5.jpg")
               }
@@ -662,7 +662,7 @@ export default function MatchDetails({ route, navigation }) {
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <Image
               source={
-                matchData.teams.team2.image !== ""
+                matchData.teams.team2.image
                   ? { uri: matchData.teams.team2.image }
                   : require("../assets/team1.jpg")
               }

@@ -168,6 +168,7 @@ export default function Search({ navigation }) {
                       name={item.name}
                       place={item.place}
                       uri={item.image}
+                      onPress={()=>navigation.navigate("Team Details",{team:item})}
                     />
                   );
                 } else if (selected === "Matches") {
