@@ -22,9 +22,9 @@ export default function TeamDetails({ route, navigation }) {
         {team?.players &&
           team?.players.map((player, index) => (
             <PlayerCardForAddPlayer
-              name={player.Name}
+              name={player.name}
               uri={player.image}
-              location={player.Location}
+              location={player.location}
               key={player.id}
             />
           ))}

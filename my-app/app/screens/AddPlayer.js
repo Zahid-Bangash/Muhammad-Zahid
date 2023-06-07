@@ -51,12 +51,30 @@ export default function AddPlayer({ route }) {
     const publicTeamRef = doc(db, "Teams", teamId);
     try {
       await updateDoc(teamRef, {
-        players: arrayUnion(user),
+        players: arrayUnion({
+          name: user.Name,
+          contact: user.PhoneNumber,
+          image: user.image,
+          location: user.Location,
+          id: user.id,
+        }),
       });
       await updateDoc(publicTeamRef, {
-        players: arrayUnion(user),
+        players: arrayUnion({
+          name: user.Name,
+          contact: user.PhoneNumber,
+          image: user.image,
+          location: user.Location,
+          id: user.id,
+        }),
       });
-      updatedTeam.players.push(user);
+      updatedTeam.players.push({
+        name: user.Name,
+        contact: user.PhoneNumber,
+        image: user.image,
+        location: user.Location,
+        id: user.id,
+      });
       teamToUpdate = updatedTeam;
       setTeams(updatedTeams);
       alert("Player added");
