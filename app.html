@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weather Application</title>
+</head>
+<style>
+    body {
+  font-family: Arial, sans-serif;
+  background-color: #f1f1f1;
+  margin: 0;
+  padding: 0;
+}
+
+#weather-container {
+  width: 300px;
+  margin: 100px auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  font-size: 24px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+input[type="text"] {
+  flex-grow: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  color: #333;
+}
+
+button {
+  display: block;
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+#weather-info {
+  margin-top: 20px;
+  text-align: center;
+}
+
+p {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #555;
+}
+</style>
+<body>
+  <div id="weather-container">
+    <h1>Weather Application</h1>
+    <div class="input-container">
+      <input type="text" id="city-input" placeholder="Enter a city" />
+    </div>
+    <button onclick="getWeather()">Get Weather</button>
+    <div id="weather-info">
+      <p id="location">Enter a city and click 'Get Weather'</p>
+      <p id="temperature"></p>
+      <p id="description"></p>
+    </div>
+  </div>
+
+  <script>
+    function getWeather() {
+  const apiKey = 'f4dc1bd38a5ff3c894f5287f6cdf980b';
+  const cityInput = document.getElementById('city-input');
+  const locationElement = document.getElementById('location');
+  const temperatureElement = document.getElementById('temperature');
+  const descriptionElement = document.getElementById('description');
+
+  const city = cityInput.value;
+
+  if (city === '') {
+    locationElement.textContent = 'Please enter a city';
+    temperatureElement.textContent = '';
+    descriptionElement.textContent = '';
+    return;
+  }
+
+  // Make a request to OpenWeatherMap API
+  fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Unable to fetch weather data');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Extract relevant data from the API response
+      const location = data.name;
+      const temperature = data.main.temp;
+      const description = data.weather[0].description;
+
+      // Update the HTML elements with the fetched data
+      locationElement.textContent = `Location: ${location}`;
+      temperatureElement.textContent = `Temperature: ${temperature}°C`;
+      descriptionElement.textContent = `Description: ${description}`;
+    })
+    .catch(error => {
+      console.log('Error fetching weather data:', error);
+      locationElement.textContent = 'Unable to fetch weather data';
+      temperatureElement.textContent = '';
+      descriptionElement.textContent = '';
+    });
+}
+  </script>
+</body>
+</html>
