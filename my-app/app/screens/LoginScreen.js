@@ -32,13 +32,13 @@ export default function LoginScreen({ navigation }) {
 
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, userData.email, userData.password)
-      // .then((userCredentials) => {
-      //   const user = userCredentials.user;
-      //   if (!user.emailVerified) {
-      //     alert("Verify your email to continue");
-      //     signOut(auth);
-      //   }
-      // })
+      .then((userCredentials) => {
+        const user = userCredentials.user;
+        if (!user.emailVerified) {
+          alert("Verify your email to continue");
+          signOut(auth);
+        }
+      })
       .catch((error) => alert(error.message));
   };
 

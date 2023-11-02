@@ -19,7 +19,11 @@ export default function App() {
   return (
     <NavigationContainer>
       <StatusBar backgroundColor="black" />
-      {currentUser ? <AppNavigator /> : <AuthNavigator />}
+      {currentUser && currentUser.emailVerified ? (
+        <AppNavigator />
+      ) : (
+        <AuthNavigator />
+      )}
     </NavigationContainer>
   );
 }

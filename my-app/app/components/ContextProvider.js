@@ -203,139 +203,9 @@ const ContextProvider = ({ children }) => {
   const [showModal, setshowModal] = useState(false);
   const [showModalTournament, setshowModalTournament] = useState(false);
 
+  const userId = auth.currentUser?.uid;
+
   useEffect(() => {
-    const userId = auth.currentUser && auth.currentUser.uid;
-
-    const fetchAllTournamentData = async () => {
-      const tournamentsCollectionRef = collection(db, "Tournaments");
-
-      onSnapshot(tournamentsCollectionRef, async (tournamentSnapshot) => {
-        const tournaments = [];
-
-        for (const doc of tournamentSnapshot.docs) {
-          const tournamentData = doc.data();
-          const tournamentId = doc.id;
-
-          const matchesCollectionRef = collection(
-            tournamentsCollectionRef,
-            tournamentId,
-            "Matches"
-          );
-
-          onSnapshot(matchesCollectionRef, async (matchesSnapshot) => {
-            const matches = [];
-
-            for (const matchDoc of matchesSnapshot.docs) {
-              const matchData = matchDoc.data();
-              const matchId = matchDoc.id;
-
-              const inningsCollectionRef = collection(
-                matchesCollectionRef,
-                matchId,
-                "innings"
-              );
-
-              const inningsSnapshot = await getDocs(inningsCollectionRef);
-              const innings = [];
-
-              inningsSnapshot.forEach((inningDoc) => {
-                const inningData = inningDoc.data();
-                innings.push(inningData);
-              });
-
-              const innings1 = innings.find((inning) => inning.inningsNo === 1);
-              const innings2 = innings.find((inning) => inning.inningsNo === 2);
-
-              const matchWithInnings = {
-                id: matchId,
-                ...matchData,
-                innings1: innings1,
-                innings2: innings2,
-              };
-
-              matches.push(matchWithInnings);
-            }
-
-            const tournamentWithMatches = {
-              id: tournamentId,
-              ...tournamentData,
-              matches: matches,
-            };
-
-            tournaments.push(tournamentWithMatches);
-            setallTournaments(tournaments);
-          });
-        }
-      });
-    };
-    const fetchTournamentData = async () => {
-      const tournamentsCollectionRef = collection(
-        db,
-        "users",
-        userId,
-        "Tournaments"
-      );
-
-      onSnapshot(tournamentsCollectionRef, async (tournamentSnapshot) => {
-        const tournaments = [];
-
-        for (const doc of tournamentSnapshot.docs) {
-          const tournamentData = doc.data();
-          const tournamentId = doc.id;
-
-          const matchesCollectionRef = collection(
-            tournamentsCollectionRef,
-            tournamentId,
-            "Matches"
-          );
-
-          onSnapshot(matchesCollectionRef, async (matchesSnapshot) => {
-            const matches = [];
-
-            for (const matchDoc of matchesSnapshot.docs) {
-              const matchData = matchDoc.data();
-              const matchId = matchDoc.id;
-
-              const inningsCollectionRef = collection(
-                matchesCollectionRef,
-                matchId,
-                "innings"
-              );
-
-              const inningsSnapshot = await getDocs(inningsCollectionRef);
-              const innings = [];
-
-              inningsSnapshot.forEach((inningDoc) => {
-                const inningData = inningDoc.data();
-                innings.push(inningData);
-              });
-
-              const innings1 = innings.find((inning) => inning.inningsNo === 1);
-              const innings2 = innings.find((inning) => inning.inningsNo === 2);
-
-              const matchWithInnings = {
-                id: matchId,
-                ...matchData,
-                innings1: innings1,
-                innings2: innings2,
-              };
-
-              matches.push(matchWithInnings);
-            }
-
-            const tournamentWithMatches = {
-              id: tournamentId,
-              ...tournamentData,
-              matches: matches,
-            };
-
-            tournaments.push(tournamentWithMatches);
-            setmyTournaments(tournaments);
-          });
-        }
-      });
-    };
-
     const fetchUsers = async () => {
       const usersRef = collection(db, "users");
       const usersSnapshot = await getDocs(usersRef);
@@ -351,26 +221,36 @@ const ContextProvider = ({ children }) => {
       setplayers(usersData);
     };
 
-    fetch("https://www.espncricinfo.com/rss/content/story/feeds/0.xml")
-      .then((response) => response.text())
-      .then((responseText) => {
-        parseString(responseText, (err, result) => {
-          if (err) {
-            console.error(err);
-          } else {
-            const newsData = result.rss.channel[0].item.map((item) => ({
-              title: item.title[0],
-              link: item.link[0],
-              description: item.description[0],
-              pubDate: item.pubDate[0],
-              coverImage: item.coverImages[0] ? item.coverImages[0] : "",
-            }));
-            setNews(newsData);
-          }
-        });
-      })
-      .catch((error) => console.error(error));
+    fetchUsers();
+  }, []);
 
+  useEffect(() => {
+    const fetchNews = async () => {
+      fetch("https://www.espncricinfo.com/rss/content/story/feeds/0.xml")
+        .then((response) => response.text())
+        .then((responseText) => {
+          parseString(responseText, (err, result) => {
+            if (err) {
+              console.error(err);
+            } else {
+              const newsData = result.rss.channel[0].item.map((item) => ({
+                title: item.title[0],
+                link: item.link[0],
+                description: item.description[0],
+                pubDate: item.pubDate[0],
+                coverImage: item.coverImages[0] ? item.coverImages[0] : "",
+              }));
+              setNews(newsData);
+            }
+          });
+        })
+        .catch((error) => console.error(error));
+    };
+
+    fetchNews();
+  }, []);
+
+  useEffect(() => {
     const fetchMyTeams = async () => {
       const teamsCollectionRef = collection(db, "users", userId, "Teams");
       const teamsSnapshot = await getDocs(teamsCollectionRef);
@@ -380,64 +260,30 @@ const ContextProvider = ({ children }) => {
       }));
       setTeams(teamsData);
     };
+
+    fetchMyTeams();
+  }, [userId]);
+
+  useEffect(() => {
     const fetchMyData = async () => {
-      const imageRef = ref(storage, `ProfileImages/dp${userId}`);
-      getDownloadURL(imageRef)
-        .then((url) => setprofileImageUri(url))
-        .catch((error) => console.log(error));
+      if (userId) {
+        const imageRef = ref(storage, `ProfileImages/dp${userId}`);
+        getDownloadURL(imageRef)
+          .then((url) => setprofileImageUri(url))
+          .catch((error) => console.log(error));
 
-      const docRef = doc(db, "users", userId);
-      onSnapshot(docRef, (doc) => {
-        const data = doc.data();
-        setUserData(data);
-      });
+        const docRef = doc(db, "users", userId);
+        onSnapshot(docRef, (doc) => {
+          const data = doc.data();
+          if (data) setUserData(data);
+        });
+      }
     };
 
-    const getMatchesWithInnings = async () => {
-      const matchesCollectionRef = collection(db, "users", userId, "Matches");
+    fetchMyData();
+  }, [userId]);
 
-      onSnapshot(matchesCollectionRef, async (matchesSnapshot) => {
-        const matches = [];
-
-        for (const matchDoc of matchesSnapshot.docs) {
-          const matchData = matchDoc.data();
-          const matchId = matchDoc.id;
-          let innings1 = [];
-          let innings2 = [];
-
-          const inningsQuery1 = query(
-            collection(db, "users", userId, "Matches", matchId, "innings"),
-            where("inningsNo", "==", 1)
-          );
-          const inningsSnapshot1 = await getDocs(inningsQuery1);
-
-          if (!inningsSnapshot1.empty) {
-            innings1 = inningsSnapshot1.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-          }
-
-          const inningsQuery2 = query(
-            collection(db, "users", userId, "Matches", matchId, "innings"),
-            where("inningsNo", "==", 2)
-          );
-          const inningsSnapshot2 = await getDocs(inningsQuery2);
-
-          if (!inningsSnapshot2.empty) {
-            innings2 = inningsSnapshot2.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-          }
-
-          matches.push({ id: matchId, ...matchData, innings1, innings2 });
-        }
-
-        setmyMatches(matches);
-      });
-    };
-
+  useEffect(() => {
     const getAllMatches = async () => {
       const allMatchesRef = collection(db, "Matches");
       const allMatchesSnapshot = await getDocs(allMatchesRef);
@@ -479,14 +325,231 @@ const ContextProvider = ({ children }) => {
 
       setallMatches(matches);
     };
-    fetchMyData();
+
     getAllMatches();
-    fetchAllTournamentData();
-    fetchUsers();
-    fetchTournamentData();
-    getMatchesWithInnings();
-    fetchMyTeams();
   }, []);
+
+  useEffect(() => {
+    const fetchAllTournamentData = async () => {
+      const tournamentsCollectionRef = collection(db, "Tournaments");
+
+      onSnapshot(tournamentsCollectionRef, async (tournamentSnapshot) => {
+        const tournaments = [];
+
+        for (const doc of tournamentSnapshot.docs) {
+          const tournamentData = doc.data();
+          const tournamentId = doc.id;
+
+          const matchesCollectionRef = collection(
+            tournamentsCollectionRef,
+            tournamentId,
+            "Matches"
+          );
+
+          onSnapshot(matchesCollectionRef, async (matchesSnapshot) => {
+            const matches = [];
+
+            for (const matchDoc of matchesSnapshot.docs) {
+              const matchData = matchDoc.data();
+              const matchId = matchDoc.id;
+              let innings1 = [];
+              let innings2 = [];
+
+              const inningsQuery1 = query(
+                collection(
+                  db,
+                  "Tournaments",
+                  tournamentId,
+                  "Matches",
+                  matchId,
+                  "innings"
+                ),
+                where("inningsNo", "==", 1)
+              );
+              const inningsSnapshot1 = await getDocs(inningsQuery1);
+              if (!inningsSnapshot1.empty) {
+                innings1 = inningsSnapshot1.docs.map((doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                }));
+              }
+
+              const inningsQuery2 = query(
+                collection(
+                  db,
+                  "Tournaments",
+                  tournamentId,
+                  "Matches",
+                  matchId,
+                  "innings"
+                ),
+                where("inningsNo", "==", 2)
+              );
+              const inningsSnapshot2 = await getDocs(inningsQuery2);
+              if (!inningsSnapshot2.empty) {
+                innings2 = inningsSnapshot2.docs.map((doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                }));
+              }
+
+              matches.push({ id: matchId, ...matchData, innings1, innings2 });
+            }
+
+            const tournamentWithMatches = {
+              id: tournamentId,
+              ...tournamentData,
+              matches: matches,
+            };
+
+            tournaments.push(tournamentWithMatches);
+            setallTournaments(tournaments);
+          });
+        }
+      });
+    };
+
+    fetchAllTournamentData();
+  }, []);
+
+  useEffect(() => {
+    const fetchTournamentData = async () => {
+      const tournamentsCollectionRef = collection(
+        db,
+        "users",
+        userId,
+        "Tournaments"
+      );
+
+      onSnapshot(tournamentsCollectionRef, async (tournamentSnapshot) => {
+        const tournaments = [];
+
+        for (const doc of tournamentSnapshot.docs) {
+          const tournamentData = doc.data();
+          const tournamentId = doc.id;
+
+          const matchesCollectionRef = collection(
+            tournamentsCollectionRef,
+            tournamentId,
+            "Matches"
+          );
+
+          onSnapshot(matchesCollectionRef, async (matchesSnapshot) => {
+            const matches = [];
+
+            for (const matchDoc of matchesSnapshot.docs) {
+              const matchData = matchDoc.data();
+              const matchId = matchDoc.id;
+              let innings1 = [];
+              let innings2 = [];
+
+              const inningsQuery1 = query(
+                collection(
+                  db,
+                  "users",
+                  userId,
+                  "Tournaments",
+                  tournamentId,
+                  "Matches",
+                  matchId,
+                  "innings"
+                ),
+                where("inningsNo", "==", 1)
+              );
+              const inningsSnapshot1 = await getDocs(inningsQuery1);
+              if (!inningsSnapshot1.empty) {
+                innings1 = inningsSnapshot1.docs.map((doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                }));
+              }
+
+              const inningsQuery2 = query(
+                collection(
+                  db,
+                  "users",
+                  userId,
+                  "Tournaments",
+                  tournamentId,
+                  "Matches",
+                  matchId,
+                  "innings"
+                ),
+                where("inningsNo", "==", 2)
+              );
+              const inningsSnapshot2 = await getDocs(inningsQuery2);
+              if (!inningsSnapshot2.empty) {
+                innings2 = inningsSnapshot2.docs.map((doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                }));
+              }
+
+              matches.push({ id: matchId, ...matchData, innings1, innings2 });
+            }
+
+            const tournamentWithMatches = {
+              id: tournamentId,
+              ...tournamentData,
+              matches: matches,
+            };
+
+            tournaments.push(tournamentWithMatches);
+            setmyTournaments(tournaments);
+          });
+        }
+      });
+    };
+
+    fetchTournamentData();
+  }, [userId]);
+
+  useEffect(() => {
+    const getMatchesWithInnings = async () => {
+      const matchesCollectionRef = collection(db, "users", userId, "Matches");
+
+      onSnapshot(matchesCollectionRef, async (matchesSnapshot) => {
+        const matches = [];
+
+        for (const matchDoc of matchesSnapshot.docs) {
+          const matchData = matchDoc.data();
+          const matchId = matchDoc.id;
+          let innings1 = [];
+          let innings2 = [];
+
+          const inningsQuery1 = query(
+            collection(db, "users", userId, "Matches", matchId, "innings"),
+            where("inningsNo", "==", 1)
+          );
+          const inningsSnapshot1 = await getDocs(inningsQuery1);
+          if (!inningsSnapshot1.empty) {
+            innings1 = inningsSnapshot1.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+          }
+
+          const inningsQuery2 = query(
+            collection(db, "users", userId, "Matches", matchId, "innings"),
+            where("inningsNo", "==", 2)
+          );
+          const inningsSnapshot2 = await getDocs(inningsQuery2);
+          if (!inningsSnapshot2.empty) {
+            innings2 = inningsSnapshot2.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+          }
+
+          matches.push({ id: matchId, ...matchData, innings1, innings2 });
+        }
+
+        setmyMatches(matches);
+      });
+    };
+
+    getMatchesWithInnings();
+  }, [userId]);
 
   return (
     <Context.Provider
